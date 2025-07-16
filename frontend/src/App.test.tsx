@@ -5,11 +5,11 @@ import App from './App';
 describe('App', () => {
   it('renders without crashing', () => {
     render(<App />);
-    expect(screen.getByText('Ellie Voice Receptionist')).toBeInTheDocument();
+    expect(screen.getAllByText('Ellie Voice Receptionist')[0]).toBeInTheDocument();
   });
 
   it('displays the landing page', () => {
     render(<App />);
-    expect(screen.getByText('AI-powered legal assistant - Coming soon')).toBeInTheDocument();
+    expect(screen.getByText(/Experience the future of legal assistance/)).toBeInTheDocument();
   });
 });
