@@ -138,7 +138,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
             
             {/* Audio controls for assistant messages */}
-            {!isUser && message.audioUrl && (
+            {!isUser && message.audioUrl && onPlayAudio && (
               <div className="mt-2 flex items-center space-x-2">
                 <button
                   onClick={() => isPlaying ? handleStopAudio() : handlePlayAudio(message)}
@@ -224,11 +224,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </p>
           </div>
         ) : (
-          <>
-            {messages.map(renderMessage)}
-            {renderTypingIndicator()}
-          </>
+          messages.map(renderMessage)
         )}
+        
+        {/* Typing indicator - shows regardless of message count */}
+        {renderTypingIndicator()}
         
         {/* Scroll anchor */}
         <div ref={messagesEndRef} />
