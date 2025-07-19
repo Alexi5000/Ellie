@@ -232,7 +232,7 @@ describe('Socket Integration Tests', () => {
       // Simulate connection drop
       act(() => {
         mockSocket.connected = false;
-        eventHandlers.get('disconnect')?('transport error');
+        eventHandlers.get('disconnect')?.('transport error');
       });
       
       // Simulate reconnection errors
