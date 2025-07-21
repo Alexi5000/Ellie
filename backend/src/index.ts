@@ -148,6 +148,68 @@ app.get('/health', (req, res) => {
   res.status(200).json(healthCheck);
 });
 
+// Metrics endpoint for Prometheus monitoring
+app.get('/metrics', (req, res) => {
+  const connectionStats = websocketHandler.getConnectionStats();
+  const serviceHealth = fallbackService.getServiceHealth();
+  const rateLimitStats = rateLimitService.getStats();
+  const errorStats = logger.getErrorStats();
+  const memoryUsage = process.memoryUsage();
+  
+  // Generate Prometheus-style metrics
+  const metrics = [
+    `# HELP ellie_uptime_seconds Total uptime in seconds`,
+    `# TYPE ellie_uptime_seconds counter`,
+    `ellie_uptime_seconds ${process.uptime()}`,
+    ``,
+    `# HELP ellie_memory_usage_bytes Memory usage in bytes`,
+    `# TYPE ellie_memory_usage_bytes gauge`,
+    `ellie_memory_usage_bytes{type="heap_used"} ${memoryUsage.heapUsed}`,
+    `ellie_memory_usage_bytes{type="heap_total"} ${memoryUsage.heapTotal}`,
+    `ellie_memory_usage_bytes{type="external"} ${memoryUsage.external}`,
+    ``,
+    `# HELP ellie_websocket_connections Current WebSocket connections`,
+    `# TYPE ellie_websocket_connections gauge`,
+    `ellie_websocket_connections ${connectionStats.activeConnections}`,
+    ``,
+    `# HELP ellie_total_connections_count Total connections since startup`,
+    `# TYPE ellie_total_connections_count counter`,
+    `ellie_total_connections_count ${connectionStats.totalConnections}`,
+    ``,
+    `# HELP ellie_service_health Service health status (1=healthy, 0=unhealthy)`,
+    `# TYPE ellie_service_health gauge`
+  ];
+  
+  // Add service health metrics
+  Object.entries(serviceHealth).forEach(([service, status]) => {
+    metrics.push(`ellie_service_health{service="${service}"} ${status.isAvailable ? 1 : 0}`);
+    metrics.push(`ellie_service_response_time_ms{service="${service}"} ${status.averageResponseTime || 0}`);
+    metrics.push(`ellie_service_failures_total{service="${service}"} ${status.consecutiveFailures}`);
+  });
+  
+  metrics.push('');
+  
+  // Add rate limiting metrics
+  metrics.push(`# HELP ellie_rate_limit_requests Rate limit requests`);
+  metrics.push(`# TYPE ellie_rate_limit_requests counter`);
+  Object.entries(rateLimitStats).forEach(([endpoint, stats]) => {
+    metrics.push(`ellie_rate_limit_requests{endpoint="${endpoint}",status="allowed"} ${stats.allowed}`);
+    metrics.push(`ellie_rate_limit_requests{endpoint="${endpoint}",status="blocked"} ${stats.blocked}`);
+  });
+  
+  metrics.push('');
+  
+  // Add error metrics
+  metrics.push(`# HELP ellie_errors_total Total errors by type`);
+  metrics.push(`# TYPE ellie_errors_total counter`);
+  Object.entries(errorStats).forEach(([type, count]) => {
+    metrics.push(`ellie_errors_total{type="${type}"} ${count}`);
+  });
+  
+  res.set('Content-Type', 'text/plain');
+  res.send(metrics.join('\n'));
+});
+
 // Monitoring endpoints
 app.get('/api/monitoring/logs', (req, res) => {
   const count = parseInt(req.query.count as string) || 100;

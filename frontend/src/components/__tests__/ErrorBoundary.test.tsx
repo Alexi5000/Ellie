@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ErrorBoundary } from '../ErrorBoundary';
+import { vi } from 'vitest';
+import { vi } from 'vitest';
 
 // Mock component that throws an error
 const ThrowError: React.FC<{ shouldThrow: boolean }> = ({ shouldThrow }) => {
@@ -75,23 +77,34 @@ describe('ErrorBoundary', () => {
   });
 
   it('resets error state when Try Again is clicked', () => {
+    let shouldThrow = true;
+    const TestComponent = () => {
+      if (shouldThrow) {
+        throw new Error('Test error');
+      }
+      return <div>No error</div>;
+    };
+
     const { rerender } = render(
       <ErrorBoundary>
-        <ThrowError shouldThrow={true} />
+        <TestComponent />
       </ErrorBoundary>
     );
 
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
 
+    // Click Try Again to reset error state
     fireEvent.click(screen.getByRole('button', { name: 'Try Again' }));
 
-    // Re-render with no error
+    // Change the component to not throw error and re-render
+    shouldThrow = false;
     rerender(
       <ErrorBoundary>
-        <ThrowError shouldThrow={false} />
+        <TestComponent />
       </ErrorBoundary>
     );
 
+    // Should now show the children without error
     expect(screen.getByText('No error')).toBeInTheDocument();
   });
 

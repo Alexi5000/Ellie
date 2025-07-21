@@ -3,7 +3,7 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { VoiceErrorBoundary } from '../VoiceErrorBoundary';
 
 // Mock the TextFallbackInterface component
-jest.mock('../TextFallbackInterface', () => ({
+vi.mock('../TextFallbackInterface', () => ({
   TextFallbackInterface: ({ onRetryVoice }: { onRetryVoice: () => void }) => (
     <div>
       <div>Text Fallback Interface</div>
@@ -24,7 +24,7 @@ describe('VoiceErrorBoundary', () => {
   // Suppress console.error for these tests
   const originalError = console.error;
   beforeAll(() => {
-    console.error = jest.fn();
+    console.error = vi.fn();
   });
 
   afterAll(() => {
@@ -87,7 +87,7 @@ describe('VoiceErrorBoundary', () => {
   });
 
   it('calls onError callback when error occurs', () => {
-    const onError = jest.fn();
+    const onError = vi.fn();
 
     render(
       <VoiceErrorBoundary onError={onError}>

@@ -3,11 +3,11 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { TextFallbackInterface } from '../TextFallbackInterface';
 
 // Mock fetch
-global.fetch = jest.fn();
+global.fetch = vi.fn();
 
 describe('TextFallbackInterface', () => {
   beforeEach(() => {
-    (fetch as jest.Mock).mockClear();
+    (fetch as any).mockClear();
   });
 
   it('renders the text chat interface', () => {
@@ -19,7 +19,7 @@ describe('TextFallbackInterface', () => {
   });
 
   it('shows retry voice button when onRetryVoice is provided', () => {
-    const onRetryVoice = jest.fn();
+    const onRetryVoice = vi.fn();
     render(<TextFallbackInterface onRetryVoice={onRetryVoice} />);
 
     const retryButton = screen.getByText('Try Voice');
@@ -36,7 +36,7 @@ describe('TextFallbackInterface', () => {
   });
 
   it('sends message when form is submitted', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    (fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ response: 'Hello! How can I help you?' }),
     });
@@ -68,7 +68,7 @@ describe('TextFallbackInterface', () => {
   });
 
   it('shows loading state while processing', async () => {
-    (fetch as jest.Mock).mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
+    (fetch as any).mockImplementation(() => new Promise(resolve => setTimeout(resolve, 100)));
 
     render(<TextFallbackInterface />);
 
@@ -81,7 +81,7 @@ describe('TextFallbackInterface', () => {
   });
 
   it('handles API errors gracefully', async () => {
-    (fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+    (fetch as any).mockRejectedValueOnce(new Error('Network error'));
 
     render(<TextFallbackInterface />);
 
@@ -96,7 +96,7 @@ describe('TextFallbackInterface', () => {
   });
 
   it('handles HTTP errors', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    (fetch as any).mockResolvedValueOnce({
       ok: false,
       status: 500,
     });
@@ -113,7 +113,7 @@ describe('TextFallbackInterface', () => {
   });
 
   it('clears conversation when clear button is clicked', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    (fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ response: 'Hello! How can I help you?' }),
     });
@@ -160,7 +160,7 @@ describe('TextFallbackInterface', () => {
   });
 
   it('clears input after successful submission', async () => {
-    (fetch as jest.Mock).mockResolvedValueOnce({
+    (fetch as any).mockResolvedValueOnce({
       ok: true,
       json: async () => ({ response: 'Hello! How can I help you?' }),
     });
