@@ -4,6 +4,21 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import VoiceInterface from './VoiceInterface';
 import { VoiceState } from '../types';
 
+// Mock mobile detection to force desktop mode
+vi.mock('../utils/mobileDetection', () => ({
+  getDeviceCapabilities: vi.fn(() => ({
+    isMobile: false,
+    isTablet: false,
+    isDesktop: true,
+    isTouchDevice: false,
+    hasVibration: false,
+    supportsWebAudio: true,
+    supportsSpeechRecognition: true,
+    browserName: 'Chrome',
+    osName: 'Windows'
+  }))
+}));
+
 // Mock MediaRecorder
 class MockMediaRecorder {
   static isTypeSupported = vi.fn(() => true);

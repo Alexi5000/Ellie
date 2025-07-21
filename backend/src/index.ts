@@ -6,7 +6,6 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
 import { createServer } from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import dotenv from 'dotenv';
@@ -14,6 +13,9 @@ import { v4 as uuidv4 } from 'uuid';
 import { ErrorHandler } from './utils/errorHandler';
 import { ERROR_CODES } from './types/errors';
 import { WebSocketHandler } from './services/websocketHandler';
+import { logger } from './services/loggerService';
+import { rateLimitService } from './services/rateLimitService';
+import { fallbackService } from './services/fallbackService';
 import voiceRoutes from './routes/voice';
 
 // Load environment variables
@@ -51,25 +53,14 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Request-ID']
 }));
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
-  message: ErrorHandler.createErrorResponse(
-    ERROR_CODES.RATE_LIMIT_EXCEEDED,
-    ErrorHandler.formatUserMessage(ERROR_CODES.RATE_LIMIT_EXCEEDED)
-  ),
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-app.use(limiter);
+// Enhanced rate limiting with queue system
+app.use(rateLimitService.createApiRateLimiter());
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Request logging middleware
+// Enhanced request logging middleware
 app.use((req, res, next) => {
   const requestId = uuidv4();
   req.requestId = requestId;
@@ -77,13 +68,40 @@ app.use((req, res, next) => {
   const startTime = Date.now();
   const { method, url, ip } = req;
   
-  console.log(`[${new Date().toISOString()}] ${requestId} - ${method} ${url} - IP: ${ip}`);
+  // Log request start
+  logger.info(`Incoming request: ${method} ${url}`, {
+    requestId,
+    method,
+    url,
+    service: 'api',
+    metadata: {
+      ip,
+      userAgent: req.get('User-Agent'),
+      contentType: req.get('Content-Type'),
+      contentLength: req.get('Content-Length')
+    }
+  });
   
   // Log response when finished
   res.on('finish', () => {
     const duration = Date.now() - startTime;
     const { statusCode } = res;
-    console.log(`[${new Date().toISOString()}] ${requestId} - ${method} ${url} - ${statusCode} - ${duration}ms`);
+    
+    logger.logRequest(method, url, statusCode, duration, requestId);
+  });
+  
+  // Log errors
+  res.on('error', (error) => {
+    logger.error(`Response error: ${method} ${url}`, {
+      requestId,
+      method,
+      url,
+      service: 'api',
+      error: {
+        message: error.message,
+        stack: error.stack
+      }
+    });
   });
   
   next();
@@ -92,9 +110,12 @@ app.use((req, res, next) => {
 // Initialize WebSocket handler
 const websocketHandler = new WebSocketHandler(io);
 
-// Health check endpoint
+// Enhanced health check endpoint
 app.get('/health', (req, res) => {
   const connectionStats = websocketHandler.getConnectionStats();
+  const serviceHealth = fallbackService.getServiceHealth();
+  const rateLimitStats = rateLimitService.getStats();
+  const errorStats = logger.getErrorStats();
   
   const healthCheck = {
     status: 'OK',
@@ -108,10 +129,63 @@ app.get('/health', (req, res) => {
       groq: process.env.GROQ_API_KEY ? 'configured' : 'not configured',
       websocket: 'active'
     },
-    connections: connectionStats
+    connections: connectionStats,
+    serviceHealth,
+    rateLimiting: rateLimitStats,
+    errors: errorStats,
+    memory: {
+      used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+      total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
+      external: Math.round(process.memoryUsage().external / 1024 / 1024)
+    }
   };
   
+  logger.debug('Health check requested', {
+    requestId: req.requestId,
+    service: 'health-check'
+  });
+  
   res.status(200).json(healthCheck);
+});
+
+// Monitoring endpoints
+app.get('/api/monitoring/logs', (req, res) => {
+  const count = parseInt(req.query.count as string) || 100;
+  const level = req.query.level as string;
+  
+  const logs = logger.getRecentLogs(count, level as any);
+  
+  logger.info('Logs requested', {
+    requestId: req.requestId,
+    service: 'monitoring',
+    metadata: { count, level }
+  });
+  
+  res.json({ logs, total: logs.length });
+});
+
+app.get('/api/monitoring/errors', (req, res) => {
+  const timeWindow = parseInt(req.query.window as string) || 3600000; // 1 hour default
+  const errorStats = logger.getErrorStats(timeWindow);
+  
+  logger.info('Error stats requested', {
+    requestId: req.requestId,
+    service: 'monitoring',
+    metadata: { timeWindow }
+  });
+  
+  res.json(errorStats);
+});
+
+app.get('/api/monitoring/fallbacks', (req, res) => {
+  const fallbackStats = fallbackService.getFallbackStats();
+  
+  logger.info('Fallback stats requested', {
+    requestId: req.requestId,
+    service: 'monitoring'
+  });
+  
+  res.json(fallbackStats);
 });
 
 // Voice processing routes
@@ -130,9 +204,25 @@ app.get('/api', (req, res) => {
   });
 });
 
-// Global error handling middleware
+// Enhanced global error handling middleware
 app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(`[${new Date().toISOString()}] ${req.requestId} - Error:`, error);
+  // Log error with structured logging
+  logger.error(`Unhandled error: ${error.message}`, {
+    requestId: req.requestId,
+    method: req.method,
+    url: req.url,
+    service: 'error-handler',
+    error: {
+      message: error.message,
+      stack: error.stack,
+      code: error.code
+    },
+    metadata: {
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+      errorType: error.type
+    }
+  });
   
   // Handle specific error types
   if (error.type === 'entity.too.large') {
@@ -154,12 +244,40 @@ app.use((error: any, req: express.Request, res: express.Response, next: express.
     );
     return res.status(400).json(errorResponse);
   }
+
+  // Handle rate limiting errors
+  if (error.code === 'RATE_LIMIT_EXCEEDED') {
+    const errorResponse = ErrorHandler.createErrorResponse(
+      ERROR_CODES.RATE_LIMIT_EXCEEDED,
+      ErrorHandler.formatUserMessage(ERROR_CODES.RATE_LIMIT_EXCEEDED),
+      error.details,
+      req.requestId
+    );
+    return res.status(429).json(errorResponse);
+  }
+
+  // Handle timeout errors
+  if (error.code === 'ETIMEDOUT' || error.code === 'ECONNABORTED') {
+    const errorResponse = ErrorHandler.createErrorResponse(
+      ERROR_CODES.CONNECTION_TIMEOUT,
+      ErrorHandler.formatUserMessage(ERROR_CODES.CONNECTION_TIMEOUT),
+      undefined,
+      req.requestId
+    );
+    return res.status(408).json(errorResponse);
+  }
   
-  // Default server error
+  // Default server error with fallback response
+  const fallbackResponse = fallbackService.getContextualFallback('error', req.requestId!, error.message);
+  
   const errorResponse = ErrorHandler.createErrorResponse(
     ERROR_CODES.INTERNAL_SERVER_ERROR,
-    ErrorHandler.formatUserMessage(ERROR_CODES.INTERNAL_SERVER_ERROR),
-    process.env.NODE_ENV === 'development' ? error.stack : undefined,
+    fallbackResponse.text,
+    {
+      isFallback: fallbackResponse.isFallback,
+      fallbackReason: fallbackResponse.fallbackReason,
+      originalError: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    },
     req.requestId
   );
   

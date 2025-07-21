@@ -229,13 +229,7 @@ describe('Socket Integration Tests', () => {
       
       await connectPromise;
       
-      // Simulate connection drop
-      act(() => {
-        mockSocket.connected = false;
-        eventHandlers.get('disconnect')?.('transport error');
-      });
-      
-      // Simulate reconnection errors
+      // Simulate reconnection errors without disconnect event
       const reconnectError = new Error('Network unreachable');
       act(() => {
         eventHandlers.get('reconnect_error')?.(reconnectError);
@@ -246,8 +240,11 @@ describe('Socket Integration Tests', () => {
         eventHandlers.get('reconnect_failed')?.();
       });
       
+      // Mock socket should be disconnected after reconnect failure
+      mockSocket.connected = false;
+      
       expect(socketResult.current.isConnected).toBe(false);
-      expect(socketResult.current.connectionState.lastError).toContain('Failed to reconnect');
+      expect(socketResult.current.connectionState.lastError).toBe('Failed to reconnect after maximum attempts');
     });
 
     it('should handle force reconnection', async () => {

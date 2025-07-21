@@ -4,26 +4,28 @@
   "description": "Frontend React app for Ellie Voice Receptionist AI Assistant",
   "private": true,
   "dependencies": {
+    "@types/uuid": "^10.0.0",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.20.1",
     "socket.io-client": "^4.7.2",
     "tailwindcss": "^3.3.6",
-    "autoprefixer": "^10.4.16",
-    "postcss": "^8.4.32"
+    "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/node": "^20.10.0",
     "@types/react": "^18.2.42",
     "@types/react-dom": "^18.2.17",
-    "@types/node": "^20.10.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "jsdom": "^23.0.1",
     "typescript": "^5.3.2",
     "vite": "^5.0.5",
-    "@vitejs/plugin-react": "^4.2.0",
-    "@testing-library/react": "^13.4.0",
-    "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/user-event": "^13.5.0",
-    "vitest": "^1.0.4",
-    "jsdom": "^23.0.1"
+    "vitest": "^1.0.4"
   },
   "scripts": {
     "dev": "vite",

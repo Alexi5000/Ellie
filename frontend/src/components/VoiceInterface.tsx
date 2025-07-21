@@ -1,5 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { VoiceState } from '../types';
+import { getDeviceCapabilities } from '../utils/mobileDetection';
+import MobileVoiceInterface from './MobileVoiceInterface';
 
 interface VoiceInterfaceProps {
   onVoiceInput: (audioBlob: Blob) => void;
@@ -14,6 +16,23 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
   voiceState,
   disabled = false
 }) => {
+  // Check if we should use mobile interface
+  const deviceCapabilities = getDeviceCapabilities();
+  const shouldUseMobileInterface = deviceCapabilities.isMobile || deviceCapabilities.isTablet;
+
+  // If mobile device, use mobile-optimized interface
+  if (shouldUseMobileInterface) {
+    return (
+      <MobileVoiceInterface
+        onVoiceInput={onVoiceInput}
+        onError={onError}
+        voiceState={voiceState}
+        disabled={disabled}
+      />
+    );
+  }
+
+  // Desktop interface implementation
   const [isRecording, setIsRecording] = useState(false);
   const [hasPermission, setHasPermission] = useState<boolean | null>(null);
   const [permissionError, setPermissionError] = useState<string | null>(null);

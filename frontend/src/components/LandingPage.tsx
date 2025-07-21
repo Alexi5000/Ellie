@@ -1,7 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AnimatedBackground from './AnimatedBackground';
+import VoiceInteractionManager from './VoiceInteractionManager';
 
 const LandingPage: React.FC = () => {
+  const [showDemo, setShowDemo] = useState(false);
+  const [demoError, setDemoError] = useState<string | null>(null);
+
+  const handleStartDemo = () => {
+    setShowDemo(true);
+    setDemoError(null);
+  };
+
+  const handleCloseDemo = () => {
+    setShowDemo(false);
+    setDemoError(null);
+  };
+
+  const handleDemoError = (error: string) => {
+    setDemoError(error);
+  };
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       <AnimatedBackground />
@@ -50,7 +68,10 @@ const LandingPage: React.FC = () => {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-6 justify-center animate-bounce-gentle">
-            <button className="btn-primary bg-gradient-to-r from-primary-600 to-primary-700 text-white px-10 py-5 rounded-2xl text-xl font-bold hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-glow-lg hover:shadow-glow transform hover:scale-105">
+            <button 
+              onClick={handleStartDemo}
+              className="btn-primary bg-gradient-to-r from-primary-600 to-primary-700 text-white px-10 py-5 rounded-2xl text-xl font-bold hover:from-primary-700 hover:to-primary-800 transition-all duration-300 shadow-glow-lg hover:shadow-glow transform hover:scale-105"
+            >
               🎤 Try Voice Demo
             </button>
             <button className="glass border-2 border-white/30 text-white px-10 py-5 rounded-2xl text-xl font-bold hover:bg-white/10 transition-all duration-300 transform hover:scale-105">
@@ -173,7 +194,10 @@ const LandingPage: React.FC = () => {
               Try our voice demo and see how easy it is to get professional legal assistance. 
               Just click the button and start speaking - it's that simple.
             </p>
-            <button className="btn-primary bg-gradient-to-r from-white to-gray-100 text-primary-700 px-12 py-6 rounded-2xl text-2xl font-black hover:from-gray-100 hover:to-white transition-all duration-300 shadow-glow-lg hover:shadow-glow transform hover:scale-110 animate-pulse-glow">
+            <button 
+              onClick={handleStartDemo}
+              className="btn-primary bg-gradient-to-r from-white to-gray-100 text-primary-700 px-12 py-6 rounded-2xl text-2xl font-black hover:from-gray-100 hover:to-white transition-all duration-300 shadow-glow-lg hover:shadow-glow transform hover:scale-110 animate-pulse-glow"
+            >
               🎤 Start Voice Demo
             </button>
           </div>
@@ -218,6 +242,69 @@ const LandingPage: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {/* Voice Demo Modal */}
+      {showDemo && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-gradient-to-r from-primary-500 to-accent-500 rounded-xl flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">E</span>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">Voice Demo</h2>
+                  <p className="text-sm text-gray-600">Talk to Ellie - Your AI Legal Assistant</p>
+                </div>
+              </div>
+              <button
+                onClick={handleCloseDemo}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-2"
+                aria-label="Close demo"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6 h-[calc(90vh-120px)]">
+              {demoError && (
+                <div className="mb-4 bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 text-red-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                    <p className="text-red-700 text-sm">{demoError}</p>
+                  </div>
+                </div>
+              )}
+              
+              <VoiceInteractionManager
+                className="h-full"
+                onError={handleDemoError}
+              />
+            </div>
+
+            {/* Modal Footer */}
+            <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-600">
+                  💡 Tip: Click the microphone button and speak naturally to Ellie
+                </p>
+                <button
+                  onClick={handleCloseDemo}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                >
+                  Close Demo
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

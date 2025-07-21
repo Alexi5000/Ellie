@@ -5,11 +5,13 @@
 
 import express from 'express';
 import multer from 'multer';
-import rateLimit from 'express-rate-limit';
 import { VoiceProcessingService } from '../services/voiceProcessingService';
 import { AIResponseService } from '../services/aiResponseService';
 import { ErrorHandler } from '../utils/errorHandler';
 import { ERROR_CODES, ConversationContext, Message, UserPreferences } from '../types';
+import { logger } from '../services/loggerService';
+import { rateLimitService } from '../services/rateLimitService';
+import { fallbackService } from '../services/fallbackService';
 import { v4 as uuidv4 } from 'uuid';
 
 const router = express.Router();
@@ -45,31 +47,8 @@ const upload = multer({
   }
 });
 
-// Rate limiting for voice processing endpoint
-const voiceProcessingLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 10, // Limit each IP to 10 voice processing requests per minute
-  message: ErrorHandler.createErrorResponse(
-    ERROR_CODES.RATE_LIMIT_EXCEEDED,
-    'Too many voice processing requests. Please wait before trying again.',
-    { limit: 10, windowMs: 60000 }
-  ),
-  standardHeaders: true,
-  legacyHeaders: false,
-});
-
-// Rate limiting for text-to-speech endpoint
-const ttsLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 20, // Limit each IP to 20 TTS requests per minute
-  message: ErrorHandler.createErrorResponse(
-    ERROR_CODES.RATE_LIMIT_EXCEEDED,
-    'Too many text-to-speech requests. Please wait before trying again.',
-    { limit: 20, windowMs: 60000 }
-  ),
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+// Enhanced rate limiting for voice processing endpoint
+const voiceProcessingLimiter = rateLimitService.createVoiceRateLimiter();
 
 /**
  * POST /api/voice/process
@@ -126,27 +105,113 @@ router.post('/process', voiceProcessingLimiter, upload.single('audio'), async (r
       legalDisclaimer: req.body.legalDisclaimer === 'true'
     };
 
-    console.log(`[${new Date().toISOString()}] ${requestId} - Processing voice input for session: ${sessionId}`);
+    logger.info('Processing voice input', {
+      requestId,
+      sessionId,
+      service: 'voice-processing',
+      metadata: {
+        audioFileSize: req.file.size,
+        audioFormat: req.file.mimetype,
+        voiceSpeed: userPreferences.voiceSpeed,
+        language: userPreferences.language
+      }
+    });
 
-    // Step 1: Convert speech to text
-    const transcribedText = await voiceProcessingService.processAudioInput(
-      req.file.buffer,
-      req.file.originalname
-    );
+    let transcribedText: string;
+    let aiResponse: string;
+    let audioBuffer: Buffer;
+    let transcriptionTime = 0;
+    let aiResponseTime = 0;
+    let ttsTime = 0;
 
-    console.log(`[${new Date().toISOString()}] ${requestId} - Transcription completed: "${transcribedText.substring(0, 100)}..."`);
+    // Step 1: Convert speech to text with fallback handling
+    try {
+      const transcriptionStart = Date.now();
+      transcribedText = await voiceProcessingService.processAudioInput(
+        req.file.buffer,
+        req.file.originalname
+      );
+      transcriptionTime = Date.now() - transcriptionStart;
 
-    // Step 2: Generate AI response
-    const aiResponse = await aiResponseService.generateResponse(transcribedText, context);
+      logger.logVoiceProcessing('transcription', transcriptionTime, true, requestId, sessionId, undefined, {
+        textLength: transcribedText.length,
+        audioFileSize: req.file.size
+      });
 
-    console.log(`[${new Date().toISOString()}] ${requestId} - AI response generated: "${aiResponse.substring(0, 100)}..."`);
+      fallbackService.recordServiceCall('openai-whisper', true, transcriptionTime);
+    } catch (error) {
+      transcriptionTime = Date.now() - startTime;
+      logger.logVoiceProcessing('transcription', transcriptionTime, false, requestId, sessionId, error as Error);
+      
+      fallbackService.recordServiceCall('openai-whisper', false, transcriptionTime, error as Error);
+      
+      // Use fallback for transcription failure
+      const fallbackResponse = fallbackService.getFallbackForTranscription(error as Error, requestId);
+      transcribedText = "I'm sorry, I couldn't understand your audio. Could you please try again?";
+    }
 
-    // Step 3: Convert AI response to speech
-    const audioBuffer = await voiceProcessingService.convertTextToSpeech(
-      aiResponse,
-      'alloy', // Default voice, can be made configurable
-      userPreferences.voiceSpeed
-    );
+    // Step 2: Generate AI response with fallback handling
+    try {
+      const aiStart = Date.now();
+      aiResponse = await aiResponseService.generateResponse(transcribedText, context);
+      aiResponseTime = Date.now() - aiStart;
+
+      logger.logVoiceProcessing('ai-response', aiResponseTime, true, requestId, sessionId, undefined, {
+        inputLength: transcribedText.length,
+        outputLength: aiResponse.length
+      });
+
+      // Record success for both Groq and OpenAI (the service will determine which was used)
+      fallbackService.recordServiceCall('groq', true, aiResponseTime);
+      fallbackService.recordServiceCall('openai-gpt', true, aiResponseTime);
+    } catch (error) {
+      aiResponseTime = Date.now() - (startTime + transcriptionTime);
+      logger.logVoiceProcessing('ai-response', aiResponseTime, false, requestId, sessionId, error as Error);
+      
+      fallbackService.recordServiceCall('groq', false, aiResponseTime, error as Error);
+      fallbackService.recordServiceCall('openai-gpt', false, aiResponseTime, error as Error);
+      
+      // Use fallback for AI response failure
+      const fallbackResponse = fallbackService.getFallbackForAI(transcribedText, error as Error, requestId);
+      aiResponse = fallbackResponse.text;
+    }
+
+    // Step 3: Convert AI response to speech with fallback handling
+    try {
+      const ttsStart = Date.now();
+      audioBuffer = await voiceProcessingService.convertTextToSpeech(
+        aiResponse,
+        'alloy', // Default voice, can be made configurable
+        userPreferences.voiceSpeed
+      );
+      ttsTime = Date.now() - ttsStart;
+
+      logger.logVoiceProcessing('tts', ttsTime, true, requestId, sessionId, undefined, {
+        textLength: aiResponse.length,
+        audioBufferSize: audioBuffer.length,
+        voice: 'alloy',
+        speed: userPreferences.voiceSpeed
+      });
+
+      fallbackService.recordServiceCall('openai-tts', true, ttsTime);
+    } catch (error) {
+      ttsTime = Date.now() - (startTime + transcriptionTime + aiResponseTime);
+      logger.logVoiceProcessing('tts', ttsTime, false, requestId, sessionId, error as Error);
+      
+      fallbackService.recordServiceCall('openai-tts', false, ttsTime, error as Error);
+      
+      // For TTS failure, we can still return the text response
+      audioBuffer = Buffer.from(''); // Empty buffer indicates TTS failure
+      
+      logger.warn('TTS failed, returning text-only response', {
+        requestId,
+        sessionId,
+        service: 'voice-processing',
+        error: {
+          message: (error as Error).message
+        }
+      });
+    }
 
     const totalProcessingTime = Date.now() - startTime;
 
@@ -169,13 +234,39 @@ router.post('/process', voiceProcessingLimiter, upload.single('audio'), async (r
       }
     };
 
-    console.log(`[${new Date().toISOString()}] ${requestId} - Voice processing completed in ${totalProcessingTime}ms`);
+    logger.info('Voice processing completed successfully', {
+      requestId,
+      sessionId,
+      service: 'voice-processing',
+      duration: totalProcessingTime,
+      metadata: {
+        transcriptionTime,
+        aiResponseTime,
+        ttsTime,
+        totalTime: totalProcessingTime,
+        audioBufferSize: audioBuffer.length,
+        hasAudio: audioBuffer.length > 0
+      }
+    });
 
     return res.status(200).json(response);
 
   } catch (error) {
     const processingTime = Date.now() - startTime;
-    console.error(`[${new Date().toISOString()}] ${requestId} - Voice processing failed:`, error);
+    
+    logger.error('Voice processing failed with unhandled error', {
+      requestId,
+      service: 'voice-processing',
+      duration: processingTime,
+      error: {
+        message: (error as Error).message,
+        stack: (error as Error).stack
+      },
+      metadata: {
+        audioFileSize: req.file?.size,
+        audioFormat: req.file?.mimetype
+      }
+    });
 
     // Handle specific error types
     if (error && typeof error === 'object' && 'error' in error) {
@@ -224,7 +315,7 @@ router.post('/process', voiceProcessingLimiter, upload.single('audio'), async (r
  * Convert text to speech
  * Requirements: 1.4, 5.3
  */
-router.get('/synthesize/:text', ttsLimiter, async (req, res) => {
+router.get('/synthesize/:text', rateLimitService.createApiRateLimiter(), async (req, res) => {
   const startTime = Date.now();
   const requestId = req.requestId || uuidv4();
 
@@ -279,18 +370,47 @@ router.get('/synthesize/:text', ttsLimiter, async (req, res) => {
       return res.status(400).json(errorResponse);
     }
 
-    console.log(`[${new Date().toISOString()}] ${requestId} - Synthesizing text: "${text.substring(0, 100)}..."`);
+    logger.info('Starting text-to-speech synthesis', {
+      requestId,
+      service: 'tts',
+      metadata: {
+        textLength: text.length,
+        voice,
+        speed,
+        textPreview: text.substring(0, 100)
+      }
+    });
 
-    // Convert text to speech
-    const audioBuffer = await voiceProcessingService.convertTextToSpeech(
-      text,
-      voice as any,
-      speed
-    );
+    // Convert text to speech with fallback handling
+    let audioBuffer: Buffer;
+    try {
+      audioBuffer = await voiceProcessingService.convertTextToSpeech(
+        text,
+        voice as any,
+        speed
+      );
+      
+      const processingTime = Date.now() - startTime;
+      
+      logger.logVoiceProcessing('tts', processingTime, true, requestId, undefined, undefined, {
+        textLength: text.length,
+        audioBufferSize: audioBuffer.length,
+        voice,
+        speed
+      });
+
+      fallbackService.recordServiceCall('openai-tts', true, processingTime);
+    } catch (error) {
+      const processingTime = Date.now() - startTime;
+      
+      logger.logVoiceProcessing('tts', processingTime, false, requestId, undefined, error as Error);
+      fallbackService.recordServiceCall('openai-tts', false, processingTime, error as Error);
+      
+      // For standalone TTS endpoint, we should return an error rather than fallback
+      throw error;
+    }
 
     const processingTime = Date.now() - startTime;
-
-    console.log(`[${new Date().toISOString()}] ${requestId} - Text-to-speech completed in ${processingTime}ms`);
 
     // Set appropriate headers for audio response
     res.set({
@@ -305,7 +425,21 @@ router.get('/synthesize/:text', ttsLimiter, async (req, res) => {
 
   } catch (error) {
     const processingTime = Date.now() - startTime;
-    console.error(`[${new Date().toISOString()}] ${requestId} - Text-to-speech failed:`, error);
+    
+    logger.error('Text-to-speech synthesis failed', {
+      requestId,
+      service: 'tts',
+      duration: processingTime,
+      error: {
+        message: (error as Error).message,
+        stack: (error as Error).stack
+      },
+      metadata: {
+        textLength: req.params.text?.length,
+        voice: req.query.voice,
+        speed: req.query.speed
+      }
+    });
 
     // Handle specific error types
     if (error && typeof error === 'object' && 'error' in error) {
