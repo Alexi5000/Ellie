@@ -99,7 +99,77 @@ cd backend && npm test
 
 # Frontend tests
 cd frontend && npm test
+
+# Integration tests
+npm run test:integration
+
+# Production deployment tests
+npm run test:production
 ```
+
+## Production Deployment
+
+### SSL Certificate Setup
+
+Before deploying to production, set up SSL certificates:
+
+**For Linux/macOS:**
+```bash
+# Generate self-signed certificate for testing
+./docker/ssl-setup.sh your-domain.com --self-signed
+
+# For production, obtain certificates from a CA and place them in:
+# ssl/certs/ellie.crt - Your SSL certificate
+# ssl/private/ellie.key - Your private key
+```
+
+**For Windows:**
+```powershell
+# Generate self-signed certificate for testing
+powershell -ExecutionPolicy Bypass -File docker/ssl-setup.ps1 -Domain your-domain.com -SelfSigned
+
+# For production, obtain certificates from a CA
+```
+
+### Production Deployment Steps
+
+1. **Configure Environment Variables:**
+   ```bash
+   cp backend/.env.example backend/.env.production
+   # Update .env.production with production values
+   ```
+
+2. **Update Domain Configuration:**
+   - Edit `docker-compose.prod.yml`
+   - Replace `your-domain.com` with your actual domain
+   - Uncomment SSL volume mounts if using SSL certificates
+
+3. **Deploy with Docker Compose:**
+   ```bash
+   docker-compose -f docker-compose.prod.yml up --build -d
+   ```
+
+4. **Enable HTTPS (Production):**
+   - Uncomment SSL certificate paths in `docker/nginx-production.conf`
+   - Uncomment HTTPS redirect in nginx configuration
+   - Ensure SSL certificates are properly mounted
+
+### Production Features
+
+- **SSL/HTTPS Support:** Full SSL configuration with modern security protocols
+- **Security Headers:** Comprehensive security headers including CSP, HSTS
+- **Rate Limiting:** API rate limiting to prevent abuse
+- **Health Checks:** Docker health checks for all services
+- **Monitoring:** Prometheus metrics collection
+- **Performance Optimization:** Gzip compression, caching, connection pooling
+- **Production Logging:** Structured logging with error tracking
+
+### Monitoring and Observability
+
+- **Health Endpoints:** `/health` for service status
+- **Metrics Endpoint:** `/metrics` for Prometheus scraping
+- **Nginx Status:** `/nginx-status` for proxy monitoring
+- **Service Health:** Real-time service availability tracking
 
 ## Features
 

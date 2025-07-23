@@ -11,8 +11,10 @@ import {
   WebSocketErrorData, 
   StatusData, 
   JoinSessionData,
-  SessionJoinedData
+  SessionJoinedData,
+  LanguageChangeData
 } from '../types/websocket';
+import { languageDetectionService } from './languageDetectionService';
 import { WebSocketSessionManager } from './sessionManager';
 import { ErrorHandler } from '../utils/errorHandler';
 import { ERROR_CODES } from '../types/errors';
@@ -64,6 +66,11 @@ export class WebSocketHandler {
       socket.on('leave-session', () => {
         this.handleLeaveSession(socket);
       });
+      
+      // Handle language change
+      socket.on('change-language', (data: LanguageChangeData) => {
+        this.handleLanguageChange(socket, data);
+      });
 
       // Handle disconnection
       socket.on('disconnect', (reason: string) => {
@@ -90,6 +97,11 @@ export class WebSocketHandler {
 
       // Update session with user preferences
       if (data.userPreferences) {
+        // Set default language if not provided
+        if (!data.userPreferences.language) {
+          data.userPreferences.language = languageDetectionService.getDefaultLanguage();
+        }
+        
         this.sessionManager.updateSession(sessionId, {
           preferences: data.userPreferences
         });
@@ -269,4 +281,52 @@ export class WebSocketHandler {
       totalConnections: this.io.engine.clientsCount
     };
   }
-}
+}  /**
+   * 
+Handles language change requests
+   */
+  private handleLanguageChange(socket: Socket, data: LanguageChangeData): void {
+    try {
+      const sessionId = this.sessionManager.getSessionBySocketId(socket.id);
+      if (!sessionId) {
+        this.sendError(socket, ERROR_CODES.WEBSOCKET_CONNECTION_FAILED, 'Session not found');
+        return;
+      }
+
+      // Validate language code
+      if (!data.languageCode || !languageDetectionService.isLanguageSupported(data.languageCode)) {
+        this.sendError(socket, ERROR_CODES.INVALID_INPUT, 'Unsupported language');
+        return;
+      }
+
+      // Get current session data
+      const session = this.sessionManager.getSession(sessionId);
+      if (!session) {
+        this.sendError(socket, ERROR_CODES.WEBSOCKET_CONNECTION_FAILED, 'Session not found');
+        return;
+      }
+
+      // Update session preferences with new language
+      const updatedPreferences = {
+        ...session.preferences,
+        language: data.languageCode
+      };
+
+      this.sessionManager.updateSession(sessionId, {
+        preferences: updatedPreferences
+      });
+
+      // Send confirmation
+      socket.emit('language-changed', {
+        languageCode: data.languageCode,
+        sessionId,
+        timestamp: Date.now(),
+        languageName: languageDetectionService.getLanguageDetails(data.languageCode)?.name || data.languageCode
+      });
+
+      console.log(`[${new Date().toISOString()}] Language changed for session ${sessionId} to ${data.languageCode}`);
+    } catch (error) {
+      console.error(`[${new Date().toISOString()}] Error handling language change:`, error);
+      this.sendError(socket, ERROR_CODES.INTERNAL_SERVER_ERROR, 'Failed to change language');
+    }
+  }

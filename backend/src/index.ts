@@ -16,7 +16,13 @@ import { WebSocketHandler } from './services/websocketHandler';
 import { logger } from './services/loggerService';
 import { rateLimitService } from './services/rateLimitService';
 import { fallbackService } from './services/fallbackService';
+import { cacheService } from './services/cacheService';
+import { cdnService } from './services/cdnService';
+import { analyticsService } from './services/analyticsService';
+import { apmService } from './services/apmService';
+import { advancedLoggerService } from './services/advancedLoggerService';
 import voiceRoutes from './routes/voice';
+import legalRoutes from './routes/legal';
 
 // Load environment variables
 dotenv.config();
@@ -55,6 +61,12 @@ app.use(cors({
 
 // Enhanced rate limiting with queue system
 app.use(rateLimitService.createApiRateLimiter());
+
+// CDN and static asset optimization middleware
+app.use(cdnService.cacheMiddleware());
+
+// APM middleware for request tracking
+app.use(apmService.createExpressMiddleware());
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -111,11 +123,15 @@ app.use((req, res, next) => {
 const websocketHandler = new WebSocketHandler(io);
 
 // Enhanced health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', async (req, res) => {
   const connectionStats = websocketHandler.getConnectionStats();
   const serviceHealth = fallbackService.getServiceHealth();
   const rateLimitStats = rateLimitService.getStats();
   const errorStats = logger.getErrorStats();
+  const cacheStats = await cacheService.getCacheStats();
+  const analyticsStats = analyticsService.getServiceStats();
+  const apmStats = apmService.getServiceStats();
+  const advancedLoggerStats = advancedLoggerService.getServiceStats();
   
   const healthCheck = {
     status: 'OK',
@@ -127,12 +143,17 @@ app.get('/health', (req, res) => {
       database: 'N/A', // Will be implemented later if needed
       openai: process.env.OPENAI_API_KEY ? 'configured' : 'not configured',
       groq: process.env.GROQ_API_KEY ? 'configured' : 'not configured',
+      redis: cacheService.isAvailable() ? 'connected' : 'disconnected',
       websocket: 'active'
     },
     connections: connectionStats,
     serviceHealth,
     rateLimiting: rateLimitStats,
     errors: errorStats,
+    cache: cacheStats,
+    analytics: analyticsStats,
+    apm: apmStats,
+    advancedLogger: advancedLoggerStats,
     memory: {
       used: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
       total: Math.round(process.memoryUsage().heapTotal / 1024 / 1024),
@@ -192,10 +213,9 @@ app.get('/metrics', (req, res) => {
   // Add rate limiting metrics
   metrics.push(`# HELP ellie_rate_limit_requests Rate limit requests`);
   metrics.push(`# TYPE ellie_rate_limit_requests counter`);
-  Object.entries(rateLimitStats).forEach(([endpoint, stats]) => {
-    metrics.push(`ellie_rate_limit_requests{endpoint="${endpoint}",status="allowed"} ${stats.allowed}`);
-    metrics.push(`ellie_rate_limit_requests{endpoint="${endpoint}",status="blocked"} ${stats.blocked}`);
-  });
+  metrics.push(`ellie_rate_limit_total_keys ${rateLimitStats.totalKeys}`);
+  metrics.push(`ellie_rate_limit_queued_requests ${rateLimitStats.totalQueuedRequests}`);
+  metrics.push(`ellie_rate_limit_average_queue_length ${rateLimitStats.averageQueueLength}`);
   
   metrics.push('');
   
@@ -250,8 +270,295 @@ app.get('/api/monitoring/fallbacks', (req, res) => {
   res.json(fallbackStats);
 });
 
+// Cache management endpoints
+app.get('/api/cache/stats', async (req, res) => {
+  const cacheStats = await cacheService.getCacheStats();
+  
+  logger.info('Cache stats requested', {
+    requestId: req.requestId,
+    service: 'cache-management'
+  });
+  
+  res.json(cacheStats);
+});
+
+app.post('/api/cache/clear', async (req, res) => {
+  const success = await cacheService.clearCache();
+  
+  logger.info('Cache clear requested', {
+    requestId: req.requestId,
+    service: 'cache-management',
+    metadata: { success }
+  });
+  
+  res.json({ success, message: success ? 'Cache cleared successfully' : 'Failed to clear cache' });
+});
+
+app.delete('/api/cache/invalidate/:pattern', async (req, res) => {
+  const pattern = req.params.pattern;
+  const count = await cacheService.invalidateByPattern(pattern);
+  
+  logger.info('Cache invalidation requested', {
+    requestId: req.requestId,
+    service: 'cache-management',
+    metadata: {
+      pattern,
+      count
+    }
+  });
+  
+  res.json({ count, message: `Invalidated ${count} cache entries` });
+});
+
+// CDN management endpoints
+app.get('/api/cdn/config', (req, res) => {
+  const cdnConfig = cdnService.getFrontendConfig();
+  
+  logger.info('CDN config requested', {
+    requestId: req.requestId,
+    service: 'cdn-management'
+  });
+  
+  res.json(cdnConfig);
+});
+
+app.get('/api/cdn/stats', (req, res) => {
+  const cdnStats = cdnService.getStats();
+  
+  logger.info('CDN stats requested', {
+    requestId: req.requestId,
+    service: 'cdn-management'
+  });
+  
+  res.json(cdnStats);
+});
+
+app.post('/api/cdn/purge', async (req, res) => {
+  const { paths } = req.body;
+  const success = await cdnService.purgeCDNCache(paths);
+  
+  logger.info('CDN purge requested', {
+    requestId: req.requestId,
+    service: 'cdn-management',
+    metadata: {
+      paths,
+      success
+    }
+  });
+  
+  res.json({ success, message: success ? 'CDN cache purged successfully' : 'Failed to purge CDN cache' });
+});
+
+// Analytics endpoints
+app.get('/api/analytics/usage', (req, res) => {
+  const timeWindow = parseInt(req.query.timeWindow as string) || 3600000;
+  const usageMetrics = analyticsService.getUsageMetrics(timeWindow);
+  
+  logger.info('Usage analytics requested', {
+    requestId: req.requestId,
+    service: 'analytics',
+    metadata: { timeWindow }
+  });
+  
+  res.json(usageMetrics);
+});
+
+app.get('/api/analytics/performance', (req, res) => {
+  const timeWindow = parseInt(req.query.timeWindow as string) || 3600000;
+  const performanceMetrics = analyticsService.getPerformanceMetrics(timeWindow);
+  
+  logger.info('Performance analytics requested', {
+    requestId: req.requestId,
+    service: 'analytics',
+    metadata: { timeWindow }
+  });
+  
+  res.json(performanceMetrics);
+});
+
+app.get('/api/analytics/business', (req, res) => {
+  const timeWindow = parseInt(req.query.timeWindow as string) || 86400000;
+  const businessMetrics = analyticsService.getBusinessMetrics(timeWindow);
+  
+  logger.info('Business analytics requested', {
+    requestId: req.requestId,
+    service: 'analytics',
+    metadata: { timeWindow }
+  });
+  
+  res.json(businessMetrics);
+});
+
+app.get('/api/analytics/dashboard', (req, res) => {
+  const timeWindow = parseInt(req.query.timeWindow as string) || 3600000;
+  const dashboardData = analyticsService.getDashboardData(timeWindow);
+  
+  logger.info('Analytics dashboard requested', {
+    requestId: req.requestId,
+    service: 'analytics',
+    metadata: { timeWindow }
+  });
+  
+  res.json(dashboardData);
+});
+
+app.get('/api/analytics/export', (req, res) => {
+  const format = req.query.format as 'json' | 'csv' || 'json';
+  const timeWindow = parseInt(req.query.timeWindow as string) || 86400000;
+  const exportData = analyticsService.exportData(format, timeWindow);
+  
+  const contentType = format === 'csv' ? 'text/csv' : 'application/json';
+  const filename = `analytics-${new Date().toISOString().split('T')[0]}.${format}`;
+  
+  res.setHeader('Content-Type', contentType);
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.send(exportData);
+});
+
+// APM endpoints
+app.get('/api/apm/metrics', (req, res) => {
+  const timeWindow = parseInt(req.query.timeWindow as string) || 3600000;
+  const apmMetrics = apmService.getMetrics(timeWindow);
+  
+  logger.info('APM metrics requested', {
+    requestId: req.requestId,
+    service: 'apm',
+    metadata: { timeWindow }
+  });
+  
+  res.json(apmMetrics);
+});
+
+app.get('/api/apm/active', (req, res) => {
+  const activeOperations = apmService.getActiveOperations();
+  
+  logger.info('APM active operations requested', {
+    requestId: req.requestId,
+    service: 'apm'
+  });
+  
+  res.json(activeOperations);
+});
+
+app.get('/api/apm/transaction/:id', (req, res) => {
+  const transactionId = req.params.id;
+  const transaction = apmService.getTransaction(transactionId);
+  
+  if (!transaction) {
+    return res.status(404).json({ error: 'Transaction not found' });
+  }
+  
+  logger.info('APM transaction details requested', {
+    requestId: req.requestId,
+    service: 'apm',
+    metadata: { transactionId }
+  });
+  
+  return res.json(transaction);
+});
+
+// Advanced logging endpoints
+app.get('/api/logs/metrics', (req, res) => {
+  const timeWindow = parseInt(req.query.timeWindow as string) || 3600000;
+  const logMetrics = advancedLoggerService.getLogMetrics(timeWindow);
+  
+  logger.info('Log metrics requested', {
+    requestId: req.requestId,
+    service: 'advanced-logger',
+    metadata: { timeWindow }
+  });
+  
+  res.json(logMetrics);
+});
+
+app.get('/api/logs/search', (req, res) => {
+  const filters = {
+    level: req.query.level as string,
+    service: req.query.service as string,
+    message: req.query.message as string,
+    timeWindow: parseInt(req.query.timeWindow as string) || 3600000,
+    limit: parseInt(req.query.limit as string) || 100
+  };
+  
+  const logs = advancedLoggerService.searchLogs(filters);
+  
+  logger.info('Log search requested', {
+    requestId: req.requestId,
+    service: 'advanced-logger',
+    metadata: filters
+  });
+  
+  res.json(logs);
+});
+
+app.get('/api/logs/aggregations', (req, res) => {
+  const timeWindow = req.query.timeWindow as string || '1h';
+  const service = req.query.service as string;
+  const level = req.query.level as string;
+  
+  const aggregations = advancedLoggerService.getAggregations(timeWindow, service, level);
+  
+  logger.info('Log aggregations requested', {
+    requestId: req.requestId,
+    service: 'advanced-logger',
+    metadata: { timeWindow, service, level }
+  });
+  
+  res.json(aggregations);
+});
+
+app.get('/api/logs/alerts', (req, res) => {
+  const alerts = advancedLoggerService.getActiveAlerts();
+  
+  logger.info('Log alerts requested', {
+    requestId: req.requestId,
+    service: 'advanced-logger'
+  });
+  
+  res.json(alerts);
+});
+
+app.post('/api/logs/alerts/:id/resolve', (req, res) => {
+  const alertId = req.params.id;
+  const success = advancedLoggerService.resolveAlert(alertId);
+  
+  logger.info('Log alert resolution requested', {
+    requestId: req.requestId,
+    service: 'advanced-logger',
+    metadata: { alertId, success }
+  });
+  
+  res.json({ success, message: success ? 'Alert resolved' : 'Alert not found' });
+});
+
+app.get('/api/logs/export', (req, res) => {
+  const format = req.query.format as 'json' | 'csv' | 'txt' || 'json';
+  const filters = {
+    level: req.query.level as string,
+    service: req.query.service as string,
+    timeWindow: parseInt(req.query.timeWindow as string) || 3600000
+  };
+  
+  const exportData = advancedLoggerService.exportLogs(format, filters);
+  
+  const contentTypes = {
+    json: 'application/json',
+    csv: 'text/csv',
+    txt: 'text/plain'
+  };
+  
+  const filename = `logs-${new Date().toISOString().split('T')[0]}.${format}`;
+  
+  res.setHeader('Content-Type', contentTypes[format]);
+  res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+  res.send(exportData);
+});
+
 // Voice processing routes
 app.use('/api/voice', voiceRoutes);
+
+// Legal compliance routes
+app.use('/api/legal', legalRoutes);
 
 // API routes placeholder
 app.get('/api', (req, res) => {
@@ -261,6 +568,7 @@ app.get('/api', (req, res) => {
     endpoints: {
       health: '/health',
       voice: '/api/voice/*',
+      legal: '/api/legal/*',
       websocket: '/socket.io'
     }
   });
@@ -358,16 +666,18 @@ app.use('*', (req, res) => {
 });
 
 // Graceful shutdown handling
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully');
+  await cacheService.disconnect();
   server.close(() => {
     console.log('Server closed');
     process.exit(0);
   });
 });
 
-process.on('SIGINT', () => {
+process.on('SIGINT', async () => {
   console.log('SIGINT received, shutting down gracefully');
+  await cacheService.disconnect();
   server.close(() => {
     console.log('Server closed');
     process.exit(0);

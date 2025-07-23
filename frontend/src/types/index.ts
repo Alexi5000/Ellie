@@ -22,6 +22,9 @@ export interface MessageMetadata {
   processingTime?: number;
   audioFormat?: string;
   transcriptionSource?: 'whisper' | 'browser';
+  queryComplexity?: QueryComplexity;
+  requiresProfessionalReferral?: boolean;
+  referralReason?: string;
 }
 
 export interface UserPreferences {

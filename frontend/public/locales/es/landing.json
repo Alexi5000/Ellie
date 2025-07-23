@@ -1,0 +1,38 @@
+{
+  "hero": {
+    "title": "Conoce a Ellie",
+    "subtitle": "Tu Asistente Legal con IA",
+    "description": "Obtén respuestas instantáneas a tus preguntas legales a través de nuestro asistente de IA con capacidad de voz",
+    "tryNow": "Prueba Ellie Ahora",
+    "learnMore": "Más Información"
+  },
+  "features": {
+    "title": "Cómo Ellie Puede Ayudarte",
+    "voiceInteraction": {
+      "title": "Interacción por Voz",
+      "description": "Habla naturalmente con Ellie como lo harías con una recepcionista humana"
+    },
+    "legalInformation": {
+      "title": "Información Legal",
+      "description": "Obtén información general sobre temas y servicios legales"
+    },
+    "scheduling": {
+      "title": "Programación Sencilla",
+      "description": "Programa consultas con nuestros abogados a través de Ellie"
+    },
+    "availability": {
+      "title": "Disponibilidad 24/7",
+      "description": "Obtén asistencia en cualquier momento, día o noche"
+    }
+  },
+  "about": {
+    "title": "Acerca de Ellie",
+    "description": "Ellie es una asistente legal impulsada por IA diseñada para proporcionar información general sobre temas legales y ayudarte a conectar con los profesionales legales adecuados para tus necesidades.",
+    "disclaimer": "Ellie proporciona información general únicamente y no puede dar asesoramiento legal específico. Para asuntos legales que requieran juicio profesional, por favor consulta directamente con uno de nuestros abogados."
+  },
+  "cta": {
+    "title": "¿Listo para Comenzar?",
+    "description": "Prueba Ellie ahora y experimenta el futuro de la asistencia legal",
+    "button": "Habla con Ellie"
+  }
+}

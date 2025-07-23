@@ -1,0 +1,33 @@
+{
+  "interface": {
+    "startPrompt": "Klicken Sie, um mit Ellie zu sprechen",
+    "listeningPrompt": "Höre zu...",
+    "processingPrompt": "Verarbeite...",
+    "speakingPrompt": "Ellie antwortet...",
+    "errorPrompt": "Fehler aufgetreten",
+    "retryPrompt": "Erneut versuchen",
+    "initialGreeting": "Hallo, ich bin Ellie, Ihr KI-Rechtsassistent. Wie kann ich Ihnen heute helfen?"
+  },
+  "controls": {
+    "start": "Start",
+    "stop": "Stopp",
+    "mute": "Stummschalten",
+    "unmute": "Ton einschalten",
+    "textMode": "Zum Textmodus wechseln",
+    "voiceMode": "Zum Sprachmodus wechseln",
+    "settings": "Einstellungen",
+    "clear": "Gespräch löschen"
+  },
+  "permissions": {
+    "request": "Ellie benötigt Mikrofonzugriff, um Sie zu hören",
+    "denied": "Mikrofonzugriff verweigert. Bitte aktivieren Sie ihn in Ihren Browsereinstellungen.",
+    "granted": "Mikrofonzugriff gewährt",
+    "error": "Fehler beim Zugriff auf das Mikrofon"
+  },
+  "feedback": {
+    "volumeLevel": "Lautstärke",
+    "noSpeech": "Keine Sprache erkannt. Bitte versuchen Sie es erneut.",
+    "speechTooLong": "Sprache zu lang. Bitte halten Sie Ihre Nachricht kürzer.",
+    "processingDelay": "Dies dauert länger als erwartet. Bitte warten Sie..."
+  }
+}

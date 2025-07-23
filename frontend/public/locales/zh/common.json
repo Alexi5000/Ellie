@@ -1,0 +1,33 @@
+{
+  "app": {
+    "name": "Ellie 语音接待员",
+    "tagline": "您的AI法律助手"
+  },
+  "navigation": {
+    "home": "首页",
+    "about": "关于我们",
+    "services": "服务",
+    "contact": "联系我们"
+  },
+  "language": {
+    "select": "选择语言",
+    "autoDetect": "自动检测语言",
+    "toggleAutoDetect": "切换自动语言检测",
+    "detected": "检测到的语言"
+  },
+  "errors": {
+    "general": "出现错误",
+    "tryAgain": "请重试",
+    "reload": "重新加载页面",
+    "permission": "麦克风权限被拒绝",
+    "browser": "您的浏览器不支持语音录制",
+    "network": "网络错误。请检查您的连接"
+  },
+  "accessibility": {
+    "voiceButton": "点击与Ellie对话",
+    "listening": "Ellie正在聆听...",
+    "processing": "正在处理您的请求...",
+    "speaking": "Ellie正在回答...",
+    "textMode": "切换到文本模式"
+  }
+}

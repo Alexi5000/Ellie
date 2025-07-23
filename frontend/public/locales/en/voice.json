@@ -1,0 +1,33 @@
+{
+  "interface": {
+    "startPrompt": "Click to speak with Ellie",
+    "listeningPrompt": "Listening...",
+    "processingPrompt": "Processing...",
+    "speakingPrompt": "Ellie is responding...",
+    "errorPrompt": "Error occurred",
+    "retryPrompt": "Try again",
+    "initialGreeting": "Hello, I'm Ellie, your AI legal assistant. How can I help you today?"
+  },
+  "controls": {
+    "start": "Start",
+    "stop": "Stop",
+    "mute": "Mute",
+    "unmute": "Unmute",
+    "textMode": "Switch to text mode",
+    "voiceMode": "Switch to voice mode",
+    "settings": "Settings",
+    "clear": "Clear conversation"
+  },
+  "permissions": {
+    "request": "Ellie needs microphone access to hear you",
+    "denied": "Microphone access denied. Please enable it in your browser settings.",
+    "granted": "Microphone access granted",
+    "error": "Error accessing microphone"
+  },
+  "feedback": {
+    "volumeLevel": "Volume level",
+    "noSpeech": "No speech detected. Please try again.",
+    "speechTooLong": "Speech too long. Please keep your message shorter.",
+    "processingDelay": "This is taking longer than expected. Please wait..."
+  }
+}

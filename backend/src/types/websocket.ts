@@ -9,12 +9,15 @@ export interface WebSocketEvents {
   'join-session': (data: JoinSessionData) => void;
   'leave-session': () => void;
   'ping': () => void;
+  'change-language': (data: LanguageChangeData) => void;
   
   // Server to client events
   'ai-response': (data: AIResponseData) => void;
   'error': (data: WebSocketErrorData) => void;
   'status': (data: StatusData) => void;
   'session-joined': (data: SessionJoinedData) => void;
+  'language-changed': (data: LanguageChangedData) => void;
+  'language-detected': (data: LanguageDetectedData) => void;
   'pong': () => void;
 }
 
@@ -88,4 +91,26 @@ export interface SessionManager {
   removeSession(sessionId: string): void;
   cleanupInactiveSessions(): void;
   getActiveSessionsCount(): number;
+}expo
+rt interface LanguageChangeData {
+  languageCode: string;
+  sessionId: string;
+  timestamp: number;
+  autoDetected?: boolean;
+}
+
+export interface LanguageChangedData {
+  languageCode: string;
+  sessionId: string;
+  timestamp: number;
+  languageName: string;
+}
+
+export interface LanguageDetectedData {
+  detectedLanguageCode: string;
+  detectedLanguageName: string;
+  sessionId: string;
+  timestamp: number;
+  confidence: number;
+  autoSwitched: boolean;
 }

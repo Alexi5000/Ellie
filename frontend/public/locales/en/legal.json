@@ -1,0 +1,39 @@
+{
+  "disclaimer": {
+    "title": "Legal Disclaimer",
+    "content": "I'm Ellie, an AI assistant for this law firm. I provide general information only and cannot give specific legal advice. For legal matters requiring professional judgment, please consult with one of our attorneys directly.",
+    "acknowledge": "I understand"
+  },
+  "referral": {
+    "title": "Professional Referral",
+    "prompt": "Would you like to speak with an attorney about this matter?",
+    "schedule": "Schedule a consultation",
+    "call": "Call now",
+    "email": "Email us",
+    "later": "Maybe later"
+  },
+  "practice_areas": {
+    "title": "Practice Areas",
+    "family_law": "Family Law",
+    "corporate_law": "Corporate Law",
+    "real_estate": "Real Estate",
+    "intellectual_property": "Intellectual Property",
+    "criminal_defense": "Criminal Defense",
+    "personal_injury": "Personal Injury",
+    "estate_planning": "Estate Planning",
+    "immigration": "Immigration",
+    "employment": "Employment Law",
+    "tax": "Tax Law"
+  },
+  "consultation": {
+    "title": "Schedule a Consultation",
+    "prompt": "Please provide your contact information to schedule a consultation with one of our attorneys.",
+    "name": "Full Name",
+    "email": "Email Address",
+    "phone": "Phone Number",
+    "message": "Brief description of your legal matter",
+    "submit": "Submit Request",
+    "success": "Thank you! We will contact you shortly to confirm your consultation.",
+    "error": "There was an error submitting your request. Please try again or call our office directly."
+  }
+}

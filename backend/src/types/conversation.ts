@@ -20,6 +20,8 @@ export interface MessageMetadata {
   processingTime?: number;
   apiUsed?: "groq" | "openai";
   queryComplexity?: QueryComplexity;
+  requiresProfessionalReferral?: boolean;
+  referralReason?: string;
 }
 
 export interface Message {

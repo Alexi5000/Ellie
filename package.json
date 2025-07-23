@@ -1,0 +1,40 @@
+{
+  "name": "ellie-voice-receptionist",
+  "version": "1.0.0",
+  "description": "Voice-enabled AI legal assistant with Docker containerization",
+  "scripts": {
+    "test": "jest",
+    "test:integration": "jest tests/docker-integration.test.js --testTimeout=180000",
+    "test:production": "jest tests/production-deployment.test.js --testTimeout=60000",
+    "docker:up": "docker-compose up --build",
+    "docker:down": "docker-compose down",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up --build",
+    "ssl:setup": "bash docker/ssl-setup.sh",
+    "ssl:setup-windows": "powershell -ExecutionPolicy Bypass -File docker/ssl-setup.ps1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "axios": "^1.6.0",
+    "ws": "^8.14.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testTimeout": 120000,
+    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
+  },
+  "keywords": [
+    "ai",
+    "voice",
+    "legal",
+    "assistant",
+    "docker",
+    "nginx",
+    "nodejs",
+    "react"
+  ],
+  "author": "Ellie Voice Receptionist Team",
+  "license": "MIT"
+}

@@ -1,0 +1,39 @@
+{
+  "disclaimer": {
+    "title": "Aviso Legal",
+    "content": "Soy Ellie, una asistente de IA para este bufete de abogados. Proporciono información general únicamente y no puedo dar asesoramiento legal específico. Para asuntos legales que requieran juicio profesional, por favor consulta directamente con uno de nuestros abogados.",
+    "acknowledge": "Entiendo"
+  },
+  "referral": {
+    "title": "Referencia Profesional",
+    "prompt": "¿Te gustaría hablar con un abogado sobre este asunto?",
+    "schedule": "Programar una consulta",
+    "call": "Llamar ahora",
+    "email": "Enviarnos un correo",
+    "later": "Quizás más tarde"
+  },
+  "practice_areas": {
+    "title": "Áreas de Práctica",
+    "family_law": "Derecho Familiar",
+    "corporate_law": "Derecho Corporativo",
+    "real_estate": "Bienes Raíces",
+    "intellectual_property": "Propiedad Intelectual",
+    "criminal_defense": "Defensa Criminal",
+    "personal_injury": "Lesiones Personales",
+    "estate_planning": "Planificación Patrimonial",
+    "immigration": "Inmigración",
+    "employment": "Derecho Laboral",
+    "tax": "Derecho Fiscal"
+  },
+  "consultation": {
+    "title": "Programar una Consulta",
+    "prompt": "Por favor, proporciona tu información de contacto para programar una consulta con uno de nuestros abogados.",
+    "name": "Nombre Completo",
+    "email": "Dirección de Correo Electrónico",
+    "phone": "Número de Teléfono",
+    "message": "Breve descripción de tu asunto legal",
+    "submit": "Enviar Solicitud",
+    "success": "¡Gracias! Nos pondremos en contacto contigo pronto para confirmar tu consulta.",
+    "error": "Hubo un error al enviar tu solicitud. Por favor, intenta de nuevo o llama directamente a nuestra oficina."
+  }
+}

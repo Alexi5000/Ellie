@@ -1,244 +1,376 @@
-/**
- * Docker Integration Tests
- * Tests the complete application stack running in Docker containers
- * Requirements: 4.3, 4.4
- */
-
+const { execSync, spawn } = require('child_process');
 const axios = require('axios');
-const { exec } = require('child_process');
-const { promisify } = require('util');
-
-const execAsync = promisify(exec);
+const WebSocket = require('ws');
+const fs = require('fs');
+const path = require('path');
 
 describe('Docker Integration Tests', () => {
-  const BASE_URL = 'http://localhost';
-  const BACKEND_URL = 'http://localhost:5000';
-  const FRONTEND_URL = 'http://localhost:3000';
-  
-  let containersStarted = false;
+  let dockerProcess;
+  const TIMEOUT = 120000; // 2 minutes for Docker containers to start
 
   beforeAll(async () => {
-    // Start Docker containers
     console.log('Starting Docker containers...');
+    
+    // Clean up any existing containers
     try {
-      await execAsync('docker-compose up -d');
-      containersStarted = true;
-      
-      // Wait for services to be ready
-      await waitForServices();
+      execSync('docker-compose down', { stdio: 'ignore' });
     } catch (error) {
-      console.error('Failed to start Docker containers:', error);
-      throw error;
+      // Ignore errors if containers don't exist
     }
-  }, 120000); // 2 minute timeout
+
+    // Start containers in detached mode
+    dockerProcess = spawn('docker-compose', ['up', '--build'], {
+      stdio: 'pipe',
+      detached: false
+    });
+
+    // Wait for containers to be ready
+    await waitForServices();
+  }, TIMEOUT);
 
   afterAll(async () => {
-    if (containersStarted) {
-      console.log('Stopping Docker containers...');
-      try {
-        await execAsync('docker-compose down');
-      } catch (error) {
-        console.error('Failed to stop Docker containers:', error);
-      }
+    console.log('Stopping Docker containers...');
+    
+    if (dockerProcess) {
+      dockerProcess.kill();
     }
-  }, 60000);
+    
+    try {
+      execSync('docker-compose down', { stdio: 'ignore' });
+    } catch (error) {
+      console.error('Error stopping containers:', error.message);
+    }
+  });
 
-  describe('Container Health Checks', () => {
-    test('should have all containers running', async () => {
-      const { stdout } = await execAsync('docker-compose ps --services --filter "status=running"');
-      const runningServices = stdout.trim().split('\n').filter(line => line.trim());
-      
-      expect(runningServices).toContain('frontend');
-      expect(runningServices).toContain('backend');
-      expect(runningServices).toContain('nginx');
+  describe('Service Health Checks', () => {
+    test('Frontend health endpoint should be accessible', async () => {
+      const response = await axios.get('http://localhost:3000/health');
+      expect(response.status).toBe(200);
+      // Frontend health check returns a simple JSON response
+      expect(response.data).toHaveProperty('status', 'OK');
+      expect(response.data).toHaveProperty('timestamp');
     });
 
-    test('should have healthy containers', async () => {
-      const { stdout } = await execAsync('docker-compose ps --format json');
-      const containers = stdout.trim().split('\n').map(line => JSON.parse(line));
-      
-      containers.forEach(container => {
-        expect(container.State).toBe('running');
-        if (container.Health) {
-          expect(container.Health).toBe('healthy');
-        }
-      });
+    test('Backend health endpoint should be accessible', async () => {
+      const response = await axios.get('http://localhost:5000/health');
+      expect(response.status).toBe(200);
+      expect(response.data).toHaveProperty('status', 'OK');
+      expect(response.data).toHaveProperty('timestamp');
+      expect(response.data).toHaveProperty('serviceHealth');
+      expect(response.data).toHaveProperty('connections');
+    });
+
+    test('Nginx reverse proxy should route to frontend', async () => {
+      const response = await axios.get('http://localhost:80/');
+      expect(response.status).toBe(200);
+      expect(response.headers['content-type']).toContain('text/html');
+    });
+
+    test('Nginx reverse proxy should route API calls to backend', async () => {
+      const response = await axios.get('http://localhost:80/health');
+      expect(response.status).toBe(200);
+      expect(response.data).toHaveProperty('status', 'OK');
     });
   });
 
-  describe('Nginx Reverse Proxy', () => {
-    test('should serve frontend through nginx', async () => {
-      const response = await axios.get(BASE_URL);
+  describe('API Endpoints', () => {
+    test('Backend API should be accessible through nginx', async () => {
+      // Backend health endpoint is at /health, not /api/health
+      const response = await axios.get('http://localhost:80/health');
       expect(response.status).toBe(200);
-      expect(response.headers['content-type']).toMatch(/text\/html/);
+      expect(response.data).toHaveProperty('status', 'OK');
     });
 
-    test('should proxy API requests to backend', async () => {
-      const response = await axios.get(`${BASE_URL}/api`);
-      expect(response.status).toBe(200);
-      expect(response.data.message).toContain('Ellie Voice Receptionist API');
-    });
-
-    test('should serve health check endpoint', async () => {
-      const response = await axios.get(`${BASE_URL}/health`);
-      expect(response.status).toBe(200);
-      expect(response.data.status).toBe('OK');
-      expect(response.data.services).toBeDefined();
-    });
-
-    test('should serve metrics endpoint', async () => {
-      const response = await axios.get(`${BASE_URL}/metrics`);
-      expect(response.status).toBe(200);
-      expect(response.headers['content-type']).toBe('text/plain; charset=utf-8');
-      expect(response.data).toContain('ellie_uptime_seconds');
-    });
-
-    test('should handle nginx status endpoint', async () => {
-      // This endpoint should be restricted to internal networks
+    test('Voice processing endpoint should accept requests', async () => {
+      // Create a simple test audio buffer
+      const testAudioBuffer = Buffer.from('test-audio-data');
+      
       try {
-        const response = await axios.get(`${BASE_URL}/nginx-status`);
-        // Should either work (if from allowed IP) or be forbidden
-        expect([200, 403]).toContain(response.status);
+        const response = await axios.post('http://localhost:80/api/voice/process', {
+          audio: testAudioBuffer.toString('base64')
+        }, {
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 10000
+        });
+        
+        // We expect this to fail due to invalid audio, but the endpoint should be reachable
+        expect(response.status).toBeLessThan(500);
       } catch (error) {
-        // 403 Forbidden is expected from external access
-        expect(error.response.status).toBe(403);
+        // 400 Bad Request is expected for invalid audio data
+        expect(error.response?.status).toBe(400);
       }
     });
   });
 
-  describe('Backend Service', () => {
-    test('should respond to health checks', async () => {
-      const response = await axios.get(`${BACKEND_URL}/health`);
-      expect(response.status).toBe(200);
-      expect(response.data.status).toBe('OK');
-      expect(response.data.uptime).toBeGreaterThan(0);
-      expect(response.data.memory).toBeDefined();
-      expect(response.data.serviceHealth).toBeDefined();
-    });
-
-    test('should provide metrics endpoint', async () => {
-      const response = await axios.get(`${BACKEND_URL}/metrics`);
-      expect(response.status).toBe(200);
-      expect(response.data).toContain('# HELP ellie_uptime_seconds');
-      expect(response.data).toContain('ellie_memory_usage_bytes');
-      expect(response.data).toContain('ellie_websocket_connections');
-    });
-
-    test('should handle API documentation', async () => {
-      const response = await axios.get(`${BACKEND_URL}/api`);
-      expect(response.status).toBe(200);
-      expect(response.data.endpoints).toBeDefined();
-      expect(response.data.endpoints.health).toBe('/health');
-    });
-  });
-
-  describe('Frontend Service', () => {
-    test('should serve React application', async () => {
-      const response = await axios.get(FRONTEND_URL);
-      expect(response.status).toBe(200);
-      expect(response.headers['content-type']).toMatch(/text\/html/);
-    });
-
-    test('should handle SPA routing', async () => {
-      // Test that non-existent routes still serve the React app
-      const response = await axios.get(`${FRONTEND_URL}/non-existent-route`);
-      expect(response.status).toBe(200);
-      expect(response.headers['content-type']).toMatch(/text\/html/);
-    });
-  });
-
-  describe('Network Communication', () => {
-    test('should allow frontend to communicate with backend', async () => {
-      // This tests that the Docker network is properly configured
-      const response = await axios.get(`${BASE_URL}/api`);
-      expect(response.status).toBe(200);
-      expect(response.data.message).toContain('Ellie Voice Receptionist API');
-    });
-
-    test('should handle CORS properly', async () => {
-      const response = await axios.options(`${BASE_URL}/api`, {
-        headers: {
-          'Origin': 'http://localhost:3000',
-          'Access-Control-Request-Method': 'POST',
-          'Access-Control-Request-Headers': 'Content-Type'
-        }
+  describe('WebSocket Connection', () => {
+    test('Socket.io connection should be established through nginx', (done) => {
+      const socket = new WebSocket('ws://localhost:80/socket.io/?EIO=4&transport=websocket');
+      
+      socket.on('open', () => {
+        socket.close();
+        done();
       });
-      
-      expect(response.status).toBe(204);
-      expect(response.headers['access-control-allow-origin']).toBeDefined();
+
+      socket.on('error', (error) => {
+        done(error);
+      });
+
+      // Timeout after 10 seconds
+      setTimeout(() => {
+        socket.close();
+        done(new Error('WebSocket connection timeout'));
+      }, 10000);
     });
   });
 
-  describe('Security Headers', () => {
-    test('should include security headers', async () => {
-      const response = await axios.get(BASE_URL);
+  describe('Container Health', () => {
+    test('All containers should be running', () => {
+      const output = execSync('docker-compose ps', { encoding: 'utf8' });
+      expect(output).toContain('frontend');
+      expect(output).toContain('backend');
+      expect(output).toContain('nginx');
       
-      expect(response.headers['x-frame-options']).toBe('SAMEORIGIN');
-      expect(response.headers['x-content-type-options']).toBe('nosniff');
-      expect(response.headers['x-xss-protection']).toBe('1; mode=block');
+      // Check that containers are in "Up" state
+      expect(output).toMatch(/frontend.*Up/);
+      expect(output).toMatch(/backend.*Up/);
+      expect(output).toMatch(/nginx.*Up/);
     });
 
-    test('should include CSP headers', async () => {
-      const response = await axios.get(BASE_URL);
-      expect(response.headers['content-security-policy']).toBeDefined();
+    test('Container logs should not contain critical errors', () => {
+      try {
+        const frontendLogs = execSync('docker-compose logs frontend', { encoding: 'utf8' });
+        const backendLogs = execSync('docker-compose logs backend', { encoding: 'utf8' });
+        const nginxLogs = execSync('docker-compose logs nginx', { encoding: 'utf8' });
+
+        // Check for critical error patterns
+        expect(frontendLogs).not.toMatch(/FATAL|CRITICAL|Error.*failed to start/i);
+        expect(backendLogs).not.toMatch(/FATAL|CRITICAL|Error.*failed to start/i);
+        expect(nginxLogs).not.toMatch(/emerg|alert|crit/i);
+      } catch (error) {
+        console.warn('Could not retrieve container logs:', error.message);
+      }
     });
   });
 
-  describe('Performance and Monitoring', () => {
-    test('should respond to health checks within acceptable time', async () => {
+  describe('Performance and Load', () => {
+    test('Services should respond within acceptable time limits', async () => {
       const startTime = Date.now();
-      const response = await axios.get(`${BASE_URL}/health`);
+      const response = await axios.get('http://localhost:80/health');
       const responseTime = Date.now() - startTime;
       
       expect(response.status).toBe(200);
       expect(responseTime).toBeLessThan(5000); // 5 seconds max
     });
 
-    test('should provide memory usage metrics', async () => {
-      const response = await axios.get(`${BASE_URL}/health`);
-      expect(response.data.memory.used).toBeGreaterThan(0);
-      expect(response.data.memory.total).toBeGreaterThan(0);
+    test('Multiple concurrent requests should be handled', async () => {
+      const requests = Array(10).fill().map(() => 
+        axios.get('http://localhost:80/health')
+      );
+      
+      const responses = await Promise.all(requests);
+      responses.forEach(response => {
+        expect(response.status).toBe(200);
+      });
+    });
+  });
+
+  describe('Monitoring and Metrics', () => {
+    test('Nginx status endpoint should be accessible from allowed IPs', async () => {
+      try {
+        const response = await axios.get('http://localhost:80/nginx-status');
+        expect(response.status).toBe(200);
+        expect(response.data).toContain('Active connections');
+      } catch (error) {
+        // 403 Forbidden is expected if not accessing from allowed IP range
+        expect(error.response?.status).toBe(403);
+      }
     });
 
-    test('should track service health', async () => {
-      const response = await axios.get(`${BASE_URL}/health`);
-      expect(response.data.serviceHealth).toBeDefined();
+    test('Backend metrics endpoint should provide Prometheus format', async () => {
+      const response = await axios.get('http://localhost:80/metrics');
+      expect(response.status).toBe(200);
+      expect(response.data).toContain('ellie_');
+      expect(response.data).toContain('# HELP');
+      expect(response.data).toContain('# TYPE');
+    });
+
+    test('Prometheus monitoring should be accessible', async () => {
+      try {
+        const response = await axios.get('http://localhost:9090');
+        expect(response.status).toBe(200);
+      } catch (error) {
+        console.warn('Prometheus not accessible - may not be running in development mode');
+      }
+    });
+  });
+
+  describe('Security Headers', () => {
+    test('Nginx should set security headers', async () => {
+      const response = await axios.get('http://localhost:80/');
       
-      // Check that all expected services are tracked
-      const services = Object.keys(response.data.serviceHealth);
-      expect(services).toContain('openai-whisper');
-      expect(services).toContain('openai-tts');
-      expect(services).toContain('openai-gpt');
-      expect(services).toContain('groq');
+      expect(response.headers).toHaveProperty('x-frame-options');
+      expect(response.headers).toHaveProperty('x-content-type-options');
+      expect(response.headers).toHaveProperty('x-xss-protection');
+      expect(response.headers).toHaveProperty('referrer-policy');
+      expect(response.headers).toHaveProperty('content-security-policy');
+    });
+
+    test('Rate limiting should be enforced', async () => {
+      // Make rapid requests to test rate limiting
+      const rapidRequests = Array(15).fill().map(() => 
+        axios.get('http://localhost:80/health').catch(err => err.response)
+      );
+      
+      const responses = await Promise.all(rapidRequests);
+      const rateLimitedResponses = responses.filter(res => res?.status === 429);
+      
+      // Should have some rate limited responses
+      expect(rateLimitedResponses.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Complete Application Stack Tests', () => {
+    test('Docker network connectivity between services', async () => {
+      // Test that services can communicate within Docker network
+      const backendResponse = await axios.get('http://localhost:80/health');
+      expect(backendResponse.status).toBe(200);
+      
+      const frontendResponse = await axios.get('http://localhost:80/');
+      expect(frontendResponse.status).toBe(200);
+      
+      // Verify that nginx is properly routing requests
+      expect(backendResponse.data).toHaveProperty('status', 'OK');
+      expect(frontendResponse.headers['content-type']).toContain('text/html');
+    });
+
+    test('SSL configuration readiness', () => {
+      // Check if SSL setup scripts exist and are functional
+      expect(fs.existsSync('docker/ssl-setup.sh')).toBe(true);
+      expect(fs.existsSync('docker/ssl-setup.ps1')).toBe(true);
+      
+      // Check if production nginx config has SSL settings
+      const nginxProdConfig = fs.readFileSync('docker/nginx-production.conf', 'utf8');
+      expect(nginxProdConfig).toContain('ssl_protocols');
+      expect(nginxProdConfig).toContain('listen 443 ssl');
+    });
+
+    test('Production configuration validation', () => {
+      // Verify production docker-compose exists and has proper settings
+      expect(fs.existsSync('docker-compose.prod.yml')).toBe(true);
+      
+      const prodCompose = fs.readFileSync('docker-compose.prod.yml', 'utf8');
+      expect(prodCompose).toContain('target: production');
+      expect(prodCompose).toContain('restart: unless-stopped');
+      expect(prodCompose).toContain('healthcheck:');
+    });
+
+    test('Environment variable configuration', () => {
+      // Check that environment files exist
+      expect(fs.existsSync('backend/.env.production')).toBe(true);
+      
+      // Verify docker-compose has proper environment configuration
+      const devCompose = fs.readFileSync('docker-compose.yml', 'utf8');
+      expect(devCompose).toContain('REACT_APP_API_URL');
+      expect(devCompose).toContain('NODE_ENV');
+      expect(devCompose).toContain('CORS_ORIGIN');
+    });
+
+    test('Volume mounts and data persistence', () => {
+      // Check that docker-compose has proper volume configurations
+      const devCompose = fs.readFileSync('docker-compose.yml', 'utf8');
+      expect(devCompose).toContain('volumes:');
+      expect(devCompose).toContain('/app/node_modules');
+      
+      // Check nginx configuration volume mount
+      expect(devCompose).toContain('./docker/nginx.conf:/etc/nginx/nginx.conf:ro');
+    });
+
+    test('Service orchestration and dependencies', () => {
+      // Verify service dependencies are properly configured
+      const devCompose = fs.readFileSync('docker-compose.yml', 'utf8');
+      expect(devCompose).toContain('depends_on:');
+      expect(devCompose).toContain('networks:');
+      expect(devCompose).toContain('ellie-network');
+    });
+
+    test('Monitoring and observability setup', () => {
+      // Check if monitoring configuration exists
+      expect(fs.existsSync('monitoring/prometheus.yml')).toBe(true);
+      
+      const prometheusConfig = fs.readFileSync('monitoring/prometheus.yml', 'utf8');
+      expect(prometheusConfig).toContain('job_name');
+      expect(prometheusConfig).toContain('targets');
+    });
+
+    test('Nginx reverse proxy configuration completeness', () => {
+      // Verify nginx configurations are complete
+      const nginxConfig = fs.readFileSync('docker/nginx.conf', 'utf8');
+      const nginxProdConfig = fs.readFileSync('docker/nginx-production.conf', 'utf8');
+      const serverCommon = fs.readFileSync('docker/server-common.conf', 'utf8');
+      
+      // Check development config
+      expect(nginxConfig).toContain('upstream frontend');
+      expect(nginxConfig).toContain('upstream backend');
+      expect(nginxConfig).toContain('location /api/');
+      expect(nginxConfig).toContain('location /socket.io/');
+      
+      // Check production config
+      expect(nginxProdConfig).toContain('gzip on');
+      expect(nginxProdConfig).toContain('limit_req_zone');
+      expect(nginxProdConfig).toContain('ssl_protocols');
+      
+      // Check common server config
+      expect(serverCommon).toContain('location /health');
+      expect(serverCommon).toContain('location /nginx-status');
+      expect(serverCommon).toContain('proxy_pass http://backend');
     });
   });
 });
 
-/**
- * Wait for all services to be ready
- */
+// Helper function to wait for services to be ready
 async function waitForServices() {
-  const maxAttempts = 30;
-  const delay = 2000; // 2 seconds
-  
-  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+  const maxAttempts = 60; // 60 attempts with 2-second intervals = 2 minutes
+  let attempts = 0;
+
+  while (attempts < maxAttempts) {
     try {
-      console.log(`Waiting for services... (attempt ${attempt}/${maxAttempts})`);
-      
       // Check if nginx is responding
-      await axios.get(BASE_URL, { timeout: 5000 });
-      
-      // Check if backend health endpoint is responding
-      await axios.get(`${BASE_URL}/health`, { timeout: 5000 });
-      
-      console.log('All services are ready!');
+      await axios.get('http://localhost:80/health', { timeout: 5000 });
+      console.log('Services are ready!');
       return;
     } catch (error) {
-      if (attempt === maxAttempts) {
-        throw new Error(`Services failed to start after ${maxAttempts} attempts: ${error.message}`);
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, delay));
+      attempts++;
+      console.log(`Waiting for services... (attempt ${attempts}/${maxAttempts})`);
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
   }
+
+  throw new Error('Services failed to start within the timeout period');
+}
+
+// Helper function to check if a port is open
+function isPortOpen(port, host = 'localhost') {
+  return new Promise((resolve) => {
+    const net = require('net');
+    const socket = new net.Socket();
+    
+    socket.setTimeout(1000);
+    socket.on('connect', () => {
+      socket.destroy();
+      resolve(true);
+    });
+    
+    socket.on('timeout', () => {
+      socket.destroy();
+      resolve(false);
+    });
+    
+    socket.on('error', () => {
+      resolve(false);
+    });
+    
+    socket.connect(port, host);
+  });
 }

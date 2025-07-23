@@ -47,7 +47,15 @@ export class ErrorHandler {
       [ERROR_CODES.INTERNAL_SERVER_ERROR]: 'An unexpected error occurred. Please try again later.',
       [ERROR_CODES.SERVICE_UNAVAILABLE]: 'Service is temporarily unavailable. Please try again later.',
       [ERROR_CODES.LEGAL_COMPLIANCE_VIOLATION]: 'Request violates legal compliance policies.',
-      [ERROR_CODES.INAPPROPRIATE_CONTENT]: 'Content not appropriate for this service.'
+      [ERROR_CODES.INAPPROPRIATE_CONTENT]: 'Content not appropriate for this service.',
+      [ERROR_CODES.REFERRAL_PROCESSING_FAILED]: 'Failed to process professional referral request. Please try again.',
+      [ERROR_CODES.PRIVACY_UPDATE_FAILED]: 'Failed to update privacy settings. Please try again.',
+      [ERROR_CODES.PRIVACY_RETRIEVAL_FAILED]: 'Failed to retrieve privacy settings. Please try again.',
+      [ERROR_CODES.LOGGING_FAILED]: 'Failed to log conversation data. Please try again.',
+      [ERROR_CODES.DELETION_FAILED]: 'Failed to delete data. Please try again.',
+      [ERROR_CODES.EXPORT_FAILED]: 'Failed to export user data. Please try again.',
+      [ERROR_CODES.DISCLAIMER_GENERATION_FAILED]: 'Failed to generate legal disclaimer. Please try again.',
+      [ERROR_CODES.NOT_FOUND]: 'Requested resource not found.'
     };
 
     return userMessages[code] || 'An unexpected error occurred. Please try again.';

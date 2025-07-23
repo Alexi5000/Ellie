@@ -29,6 +29,7 @@ services:
       - NODE_ENV=production
       - PORT=5000
       - CORS_ORIGIN=https://your-domain.com
+      - REDIS_URL=redis://redis:6379
     env_file:
       - ./backend/.env.production
     restart: unless-stopped
@@ -40,6 +41,21 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru --save 900 1 --save 300 10
+    restart: unless-stopped
+    networks:
+      - ellie-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
   nginx:
     image: nginx:alpine
@@ -56,6 +72,8 @@ services:
       frontend:
         condition: service_healthy
       backend:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     restart: unless-stopped
     networks:
@@ -90,3 +108,4 @@ networks:
 
 volumes:
   prometheus_data:
+  redis_data:

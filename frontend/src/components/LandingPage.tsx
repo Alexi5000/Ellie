@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 import AnimatedBackground from './AnimatedBackground';
 import VoiceInteractionManager from './VoiceInteractionManager';
+import LegalDisclaimer from './LegalDisclaimer';
+import ProfessionalReferral from './ProfessionalReferral';
+import ConversationPrivacyControls from './ConversationPrivacyControls';
+import { LegalComplianceProvider, useLegalCompliance } from '../contexts/LegalComplianceContext';
 
-const LandingPage: React.FC = () => {
+const LandingPageContent: React.FC = () => {
   const [showDemo, setShowDemo] = useState(false);
   const [demoError, setDemoError] = useState<string | null>(null);
+  const legalCompliance = useLegalCompliance();
 
   const handleStartDemo = () => {
+    if (!legalCompliance.hasAcceptedDisclaimer) {
+      // Show disclaimer first
+      return;
+    }
     setShowDemo(true);
     setDemoError(null);
   };
@@ -237,14 +246,45 @@ const LandingPage: React.FC = () => {
                 <li><a href="#contact" className="hover:text-white transition-colors hover:scale-105 inline-block">Contact</a></li>
                 <li><a href="#help" className="hover:text-white transition-colors hover:scale-105 inline-block">Help Center</a></li>
                 <li><a href="#privacy" className="hover:text-white transition-colors hover:scale-105 inline-block">Privacy Policy</a></li>
+                <li>
+                  <button 
+                    onClick={legalCompliance.openPrivacyControls}
+                    className="hover:text-white transition-colors hover:scale-105 inline-block text-left"
+                  >
+                    Privacy Controls
+                  </button>
+                </li>
               </ul>
             </div>
           </div>
         </div>
       </footer>
 
+      {/* Legal Disclaimer Modal */}
+      <LegalDisclaimer
+        isVisible={legalCompliance.showDisclaimer}
+        onAccept={legalCompliance.acceptDisclaimer}
+        onDecline={legalCompliance.declineDisclaimer}
+      />
+
+      {/* Professional Referral Modal */}
+      <ProfessionalReferral
+        isVisible={legalCompliance.showProfessionalReferral}
+        onClose={legalCompliance.closeProfessionalReferral}
+        onScheduleConsultation={legalCompliance.scheduleProfessionalConsultation}
+        reason={legalCompliance.referralReason}
+      />
+
+      {/* Privacy Controls Modal */}
+      <ConversationPrivacyControls
+        isVisible={legalCompliance.showPrivacyControls}
+        onClose={legalCompliance.closePrivacyControls}
+        onUpdateSettings={legalCompliance.updatePrivacySettings}
+        currentSettings={legalCompliance.privacySettings}
+      />
+
       {/* Voice Demo Modal */}
-      {showDemo && (
+      {showDemo && legalCompliance.hasAcceptedDisclaimer && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
             {/* Modal Header */}
@@ -306,6 +346,17 @@ const LandingPage: React.FC = () => {
         </div>
       )}
     </div>
+  );
+};
+
+const LandingPage: React.FC = () => {
+  // Generate a session ID for this session
+  const [sessionId] = useState(() => `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`);
+
+  return (
+    <LegalComplianceProvider sessionId={sessionId}>
+      <LandingPageContent />
+    </LegalComplianceProvider>
   );
 };
 

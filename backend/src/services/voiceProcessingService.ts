@@ -6,6 +6,8 @@
 import OpenAI from 'openai';
 import { AudioInput, AudioResponse, ErrorResponse, ERROR_CODES } from '../types';
 import { createErrorResponse } from '../utils/errorHandler';
+import { cacheService } from './cacheService';
+import { languageDetectionService } from './languageDetectionService';
 
 export class VoiceProcessingService {
   private openai: OpenAI;
@@ -70,11 +72,13 @@ export class VoiceProcessingService {
    * Processes audio input using OpenAI Whisper API
    * @param audioBuffer - Audio data buffer
    * @param filename - Original filename for format detection
+   * @param language - ISO language code (optional, auto-detects if not provided)
    * @returns Promise<string> - Transcribed text
    */
   public async processAudioInput(
     audioBuffer: Buffer, 
-    filename?: string
+    filename?: string,
+    language?: string
   ): Promise<string> {
     const startTime = Date.now();
 
@@ -88,12 +92,12 @@ export class VoiceProcessingService {
       const transcription = await this.openai.audio.transcriptions.create({
         file: audioFile,
         model: 'whisper-1',
-        language: 'en', // Can be made configurable later
+        language: language || null, // Use provided language or auto-detect
         response_format: 'text'
       });
 
       const processingTime = Date.now() - startTime;
-      console.log(`Audio transcription completed in ${processingTime}ms`);
+      console.log(`Audio transcription completed in ${processingTime}ms${language ? ` (language: ${language})` : ' (auto-detected language)'}`);
 
       return transcription.trim();
 
@@ -171,12 +175,14 @@ export class VoiceProcessingService {
    * @param text - Text to convert to speech
    * @param voice - Voice to use (alloy, echo, fable, onyx, nova, shimmer)
    * @param speed - Speech speed (0.25 to 4.0)
+   * @param language - Language code for voice selection (optional)
    * @returns Promise<Buffer> - Audio buffer
    */
   public async convertTextToSpeech(
     text: string,
     voice: 'alloy' | 'echo' | 'fable' | 'onyx' | 'nova' | 'shimmer' = 'alloy',
-    speed: number = 1.0
+    speed: number = 1.0,
+    language?: string
   ): Promise<Buffer> {
     const startTime = Date.now();
 
@@ -205,14 +211,21 @@ export class VoiceProcessingService {
       );
     }
 
-    // Create cache key
-    const cacheKey = `${text}-${voice}-${speed}`;
-    
-    // Check cache first
-    const cached = this.getCachedAudio(cacheKey);
-    if (cached) {
-      console.log(`TTS cache hit for key: ${cacheKey.substring(0, 50)}...`);
-      return cached;
+    // Check Redis cache first
+    const cachedAudio = await cacheService.getCachedTTSAudio(text, voice, speed, language);
+    if (cachedAudio) {
+      console.log(`TTS Redis cache hit for text: ${text.substring(0, 50)}...`);
+      return cachedAudio;
+    }
+
+    // Check local cache as fallback
+    const cacheKey = `${text}-${voice}-${speed}-${language || 'default'}`;
+    const localCached = this.getCachedAudio(cacheKey);
+    if (localCached) {
+      console.log(`TTS local cache hit for key: ${cacheKey.substring(0, 50)}...`);
+      // Also cache in Redis for future requests
+      await cacheService.cacheTTSAudio(text, voice, speed, localCached, { language });
+      return localCached;
     }
 
     try {
@@ -231,8 +244,12 @@ export class VoiceProcessingService {
       const processingTime = Date.now() - startTime;
       console.log(`Text-to-speech completed in ${processingTime}ms`);
 
-      // Cache the result
+      // Cache the result in both local and Redis cache
       this.setCachedAudio(cacheKey, audioBuffer);
+      await cacheService.cacheTTSAudio(text, voice, speed, audioBuffer, {
+        ttl: 7200, // 2 hours for TTS audio
+        language: language // Store language for cache key
+      });
 
       return audioBuffer;
 

@@ -7,10 +7,13 @@ import OpenAI from 'openai';
 import Groq from 'groq-sdk';
 import { ConversationContext, QueryComplexity, Message, MessageMetadata, ERROR_CODES } from '../types';
 import { createErrorResponse, ErrorHandler } from '../utils/errorHandler';
+import { LegalComplianceService } from './legalComplianceService';
+import { cacheService } from './cacheService';
 
 export class AIResponseService {
   private openai: OpenAI;
   private groq: Groq;
+  private legalComplianceService: LegalComplianceService;
   private readonly LEGAL_DISCLAIMER = `
 I'm Ellie, an AI assistant for this law firm. I provide general information only and cannot give specific legal advice. 
 For legal matters requiring professional judgment, please consult with one of our attorneys directly.
@@ -41,6 +44,8 @@ For legal matters requiring professional judgment, please consult with one of ou
     this.groq = new Groq({
       apiKey: process.env.GROQ_API_KEY,
     });
+
+    this.legalComplianceService = new LegalComplianceService();
   }
 
   /**
@@ -74,6 +79,13 @@ For legal matters requiring professional judgment, please consult with one of ou
     }
 
     try {
+      // Check cache first for AI responses
+      const cachedResponse = await cacheService.getCachedAIResponse(userInput, context);
+      if (cachedResponse) {
+        console.log('AI response cache hit');
+        return cachedResponse;
+      }
+
       // Determine query complexity and route to optimal API
       const complexity = this.analyzeQueryComplexity(userInput, context);
       const apiToUse = this.routeToOptimalAPI(userInput, complexity);
@@ -92,14 +104,35 @@ For legal matters requiring professional judgment, please consult with one of ou
         response = await this.processWithOpenAI(userInput, context);
       }
 
-      // Validate legal compliance
-      const isCompliant = await this.validateLegalCompliance(response);
-      if (!isCompliant) {
-        response = this.handleFallbackResponses(new Error('Legal compliance violation'));
+      // Enhanced legal compliance validation
+      const complianceResult = await this.legalComplianceService.analyzeLegalCompliance(
+        response,
+        userInput,
+        context
+      );
+
+      if (!complianceResult.isCompliant) {
+        console.warn('Legal compliance issues detected:', complianceResult.complianceIssues);
+        response = complianceResult.suggestedResponse || this.handleFallbackResponses(new Error('Legal compliance violation'));
+      }
+
+      // Add professional referral information if needed
+      if (complianceResult.requiresProfessionalReferral) {
+        const disclaimer = this.legalComplianceService.generateLegalDisclaimer(context);
+        response = `${response}\n\n${disclaimer}\n\nFor this matter, I recommend consulting with one of our qualified attorneys who can provide personalized legal guidance. Would you like me to help you schedule a consultation?`;
+        
+        // Store referral recommendation in metadata
+        metadata.requiresProfessionalReferral = true;
+        metadata.referralReason = complianceResult.referralReason;
       }
 
       metadata.processingTime = Date.now() - startTime;
       console.log(`AI response generated in ${metadata.processingTime}ms using ${apiToUse}`);
+
+      // Cache the response for future use
+      await cacheService.cacheAIResponse(userInput, context, response, {
+        ttl: complexity === QueryComplexity.SIMPLE ? 7200 : 3600 // Cache simple responses longer
+      });
 
       return response;
 
