@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ErrorHandler = void 0;
+exports.createErrorResponse = createErrorResponse;
 const errors_1 = require("../types/errors");
 const uuid_1 = require("uuid");
 class ErrorHandler {
@@ -32,7 +33,15 @@ class ErrorHandler {
             [errors_1.ERROR_CODES.INTERNAL_SERVER_ERROR]: 'An unexpected error occurred. Please try again later.',
             [errors_1.ERROR_CODES.SERVICE_UNAVAILABLE]: 'Service is temporarily unavailable. Please try again later.',
             [errors_1.ERROR_CODES.LEGAL_COMPLIANCE_VIOLATION]: 'Request violates legal compliance policies.',
-            [errors_1.ERROR_CODES.INAPPROPRIATE_CONTENT]: 'Content not appropriate for this service.'
+            [errors_1.ERROR_CODES.INAPPROPRIATE_CONTENT]: 'Content not appropriate for this service.',
+            [errors_1.ERROR_CODES.REFERRAL_PROCESSING_FAILED]: 'Failed to process professional referral request. Please try again.',
+            [errors_1.ERROR_CODES.PRIVACY_UPDATE_FAILED]: 'Failed to update privacy settings. Please try again.',
+            [errors_1.ERROR_CODES.PRIVACY_RETRIEVAL_FAILED]: 'Failed to retrieve privacy settings. Please try again.',
+            [errors_1.ERROR_CODES.LOGGING_FAILED]: 'Failed to log conversation data. Please try again.',
+            [errors_1.ERROR_CODES.DELETION_FAILED]: 'Failed to delete data. Please try again.',
+            [errors_1.ERROR_CODES.EXPORT_FAILED]: 'Failed to export user data. Please try again.',
+            [errors_1.ERROR_CODES.DISCLAIMER_GENERATION_FAILED]: 'Failed to generate legal disclaimer. Please try again.',
+            [errors_1.ERROR_CODES.NOT_FOUND]: 'Requested resource not found.'
         };
         return userMessages[code] || 'An unexpected error occurred. Please try again.';
     }
@@ -61,4 +70,7 @@ class ErrorHandler {
     }
 }
 exports.ErrorHandler = ErrorHandler;
+function createErrorResponse(code, message, details, requestId) {
+    return ErrorHandler.createErrorResponse(code, message, details, requestId);
+}
 //# sourceMappingURL=errorHandler.js.map

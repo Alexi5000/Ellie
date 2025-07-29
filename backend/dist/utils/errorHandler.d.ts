@@ -6,4 +6,5 @@ export declare class ErrorHandler {
     static handleApiError(error: any, requestId?: string): ErrorResponse;
     static createFallbackResponse(error: Error): string;
 }
+export declare function createErrorResponse(code: ErrorCode, message: string, details?: any, requestId?: string): ErrorResponse;
 //# sourceMappingURL=errorHandler.d.ts.map

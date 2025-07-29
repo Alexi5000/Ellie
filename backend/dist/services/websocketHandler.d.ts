@@ -21,5 +21,6 @@ export declare class WebSocketHandler {
         activeSessions: number;
         totalConnections: number;
     };
+    private handleLanguageChange;
 }
 //# sourceMappingURL=websocketHandler.d.ts.map

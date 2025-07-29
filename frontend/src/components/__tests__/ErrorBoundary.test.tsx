@@ -1,7 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { ErrorBoundary } from '../ErrorBoundary';
-import { vi } from 'vitest';
 import { vi } from 'vitest';
 
 // Mock component that throws an error
@@ -76,7 +75,7 @@ describe('ErrorBoundary', () => {
     );
   });
 
-  it('resets error state when Try Again is clicked', () => {
+  it('resets error state when Try Again is clicked', async () => {
     let shouldThrow = true;
     const TestComponent = () => {
       if (shouldThrow) {
@@ -93,19 +92,16 @@ describe('ErrorBoundary', () => {
 
     expect(screen.getByText('Something went wrong')).toBeInTheDocument();
 
+    // Change the component to not throw error before clicking Try Again
+    shouldThrow = false;
+
     // Click Try Again to reset error state
     fireEvent.click(screen.getByRole('button', { name: 'Try Again' }));
 
-    // Change the component to not throw error and re-render
-    shouldThrow = false;
-    rerender(
-      <ErrorBoundary>
-        <TestComponent />
-      </ErrorBoundary>
-    );
-
-    // Should now show the children without error
-    expect(screen.getByText('No error')).toBeInTheDocument();
+    // The error boundary should now render the children again
+    await waitFor(() => {
+      expect(screen.getByText('No error')).toBeInTheDocument();
+    });
   });
 
   it('shows error details in development mode', () => {

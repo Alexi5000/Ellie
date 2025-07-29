@@ -55,7 +55,7 @@ class WebSocketSessionManager {
         const session = this.sessions.get(sessionId);
         if (session) {
             this.sessions.delete(sessionId);
-            for (const [socketId, sessId] of this.socketToSession.entries()) {
+            for (const [socketId, sessId] of Array.from(this.socketToSession.entries())) {
                 if (sessId === sessionId) {
                     this.socketToSession.delete(socketId);
                     break;
@@ -73,7 +73,7 @@ class WebSocketSessionManager {
     cleanupInactiveSessions() {
         const now = new Date();
         const expiredSessions = [];
-        for (const [sessionId, session] of this.sessions.entries()) {
+        for (const [sessionId, session] of Array.from(this.sessions.entries())) {
             const timeSinceActivity = now.getTime() - session.lastActivity.getTime();
             if (timeSinceActivity > this.SESSION_TIMEOUT_MS) {
                 expiredSessions.push(sessionId);

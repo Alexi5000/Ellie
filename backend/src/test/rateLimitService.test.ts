@@ -36,8 +36,10 @@ describe('RateLimitService', () => {
     jest.clearAllMocks();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     rateLimitService.destroy();
+    // Wait for any pending async operations
+    await new Promise(resolve => setTimeout(resolve, 10));
   });
 
   describe('Singleton Pattern', () => {
@@ -247,9 +249,9 @@ describe('RateLimitService', () => {
 
       // Mock successful response
       res.statusCode = 200;
-      res.send = jest.fn().mockImplementation(function(body) {
+      res.send = jest.fn().mockImplementation((body) => {
         // Simulate response completion
-        return this;
+        return res;
       });
 
       limiter(req as Request, res as Response, next);
@@ -272,8 +274,8 @@ describe('RateLimitService', () => {
 
       // Mock failed response
       res.statusCode = 400;
-      res.send = jest.fn().mockImplementation(function(body) {
-        return this;
+      res.send = jest.fn().mockImplementation((body) => {
+        return res;
       });
 
       limiter(req as Request, res as Response, next);

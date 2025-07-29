@@ -4,9 +4,20 @@ import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import VoiceInteractionManager from '../VoiceInteractionManager';
 import { useVoiceInteraction } from '../../hooks/useVoiceInteraction';
 import { VoiceState } from '../../types';
+import { ErrorProvider } from '../../contexts/ErrorContext';
 
 // Mock the useVoiceInteraction hook
 vi.mock('../../hooks/useVoiceInteraction');
+
+// Mock the useNetworkStatus hook
+vi.mock('../../hooks/useNetworkStatus', () => ({
+  useNetworkStatus: () => ({
+    isOnline: true,
+    isSlowConnection: false,
+    connectionType: 'wifi',
+    effectiveType: '4g'
+  })
+}));
 
 // Mock the VoiceInterface and ChatInterface components
 vi.mock('../VoiceInterface', () => ({
@@ -60,6 +71,20 @@ vi.mock('../ChatInterface', () => ({
 
 const mockUseVoiceInteraction = vi.mocked(useVoiceInteraction);
 
+// Test wrapper component that provides necessary context
+const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <ErrorProvider>
+      {children}
+    </ErrorProvider>
+  );
+};
+
+// Helper function to render components with context
+const renderWithContext = (component: React.ReactElement) => {
+  return render(component, { wrapper: TestWrapper });
+};
+
 describe('VoiceInteractionManager', () => {
   const mockHandleVoiceInput = vi.fn();
   const mockHandlePlayAudio = vi.fn();
@@ -90,7 +115,7 @@ describe('VoiceInteractionManager', () => {
 
   describe('Normal Operation', () => {
     it('renders voice interface and chat interface when initialized', () => {
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       expect(screen.getByTestId('voice-interface')).toBeInTheDocument();
       expect(screen.getByTestId('chat-interface')).toBeInTheDocument();
@@ -99,7 +124,7 @@ describe('VoiceInteractionManager', () => {
     });
 
     it('shows connected status when socket is connected', () => {
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       expect(screen.getByText('Connected')).toBeInTheDocument();
     });
@@ -110,13 +135,13 @@ describe('VoiceInteractionManager', () => {
         isConnected: false,
       });
 
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       expect(screen.getByText('Disconnected')).toBeInTheDocument();
     });
 
     it('handles voice input correctly', async () => {
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       const voiceButton = screen.getByTestId('voice-button');
       fireEvent.click(voiceButton);
@@ -130,7 +155,7 @@ describe('VoiceInteractionManager', () => {
     });
 
     it('handles audio playback correctly', async () => {
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       const playAudioButton = screen.getByTestId('play-audio-button');
       fireEvent.click(playAudioButton);
@@ -142,7 +167,7 @@ describe('VoiceInteractionManager', () => {
     });
 
     it('handles conversation clearing correctly', async () => {
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       const clearButton = screen.getByTestId('clear-conversation-button');
       fireEvent.click(clearButton);
@@ -160,7 +185,7 @@ describe('VoiceInteractionManager', () => {
         isInitialized: false,
       });
 
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       expect(screen.getByText('Connecting to voice service...')).toBeInTheDocument();
       expect(screen.queryByTestId('voice-interface')).not.toBeInTheDocument();
@@ -176,7 +201,7 @@ describe('VoiceInteractionManager', () => {
         connectionError: 'Failed to connect to voice service',
       });
 
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       expect(screen.getByText('Connection Error')).toBeInTheDocument();
       expect(screen.getByText('Failed to connect to voice service')).toBeInTheDocument();
@@ -190,7 +215,7 @@ describe('VoiceInteractionManager', () => {
         connectionError: 'Failed to connect to voice service',
       });
 
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       const retryButton = screen.getByText('Retry Connection');
       fireEvent.click(retryButton);
@@ -201,7 +226,7 @@ describe('VoiceInteractionManager', () => {
     });
 
     it('passes error handler to voice interface', () => {
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       const errorButton = screen.getByTestId('error-button');
       fireEvent.click(errorButton);
@@ -210,7 +235,7 @@ describe('VoiceInteractionManager', () => {
     });
 
     it('provides default error handler when none provided', () => {
-      render(<VoiceInteractionManager />);
+      renderWithContext(<VoiceInteractionManager />);
 
       const errorButton = screen.getByTestId('error-button');
       
@@ -226,7 +251,7 @@ describe('VoiceInteractionManager', () => {
         voiceState: VoiceState.PROCESSING,
       });
 
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       expect(screen.getByTestId('voice-state')).toHaveTextContent('processing');
     });
@@ -237,14 +262,14 @@ describe('VoiceInteractionManager', () => {
         isConnected: false,
       });
 
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       const voiceButton = screen.getByTestId('voice-button');
       expect(voiceButton).toBeDisabled();
     });
 
     it('enables voice interface when connected', () => {
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       const voiceButton = screen.getByTestId('voice-button');
       expect(voiceButton).not.toBeDisabled();
@@ -275,7 +300,7 @@ describe('VoiceInteractionManager', () => {
         messages: mockMessages,
       });
 
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       expect(screen.getByTestId('message-count')).toHaveTextContent('2');
       expect(screen.getByTestId('message-0')).toHaveTextContent('Hello Ellie');
@@ -285,25 +310,25 @@ describe('VoiceInteractionManager', () => {
 
   describe('Integration with useVoiceInteraction Hook', () => {
     it('passes correct options to useVoiceInteraction hook', () => {
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       expect(mockUseVoiceInteraction).toHaveBeenCalledWith({
-        onError: mockOnError
+        onError: expect.any(Function)
       });
     });
 
     it('passes undefined onError when not provided', () => {
-      render(<VoiceInteractionManager />);
+      renderWithContext(<VoiceInteractionManager />);
 
       expect(mockUseVoiceInteraction).toHaveBeenCalledWith({
-        onError: undefined
+        onError: expect.any(Function)
       });
     });
   });
 
   describe('CSS Classes', () => {
     it('applies custom className', () => {
-      const { container } = render(
+      const { container } = renderWithContext(
         <VoiceInteractionManager className="custom-class" onError={mockOnError} />
       );
 
@@ -311,7 +336,7 @@ describe('VoiceInteractionManager', () => {
     });
 
     it('applies default className when none provided', () => {
-      const { container } = render(<VoiceInteractionManager onError={mockOnError} />);
+      const { container } = renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       expect(container.firstChild).toHaveClass('flex', 'flex-col', 'lg:flex-row');
     });

@@ -3,10 +3,13 @@ export interface WebSocketEvents {
     'join-session': (data: JoinSessionData) => void;
     'leave-session': () => void;
     'ping': () => void;
+    'change-language': (data: LanguageChangeData) => void;
     'ai-response': (data: AIResponseData) => void;
     'error': (data: WebSocketErrorData) => void;
     'status': (data: StatusData) => void;
     'session-joined': (data: SessionJoinedData) => void;
+    'language-changed': (data: LanguageChangedData) => void;
+    'language-detected': (data: LanguageDetectedData) => void;
     'pong': () => void;
 }
 export interface VoiceInputData {
@@ -43,9 +46,9 @@ export interface StatusData {
 export interface JoinSessionData {
     sessionId?: string;
     userPreferences?: {
-        voiceSpeed: number;
-        language: string;
-        accessibilityMode: boolean;
+        voiceSpeed?: number;
+        language?: string;
+        accessibilityMode?: boolean;
     };
 }
 export interface SessionJoinedData {
@@ -60,9 +63,9 @@ export interface ConnectionState {
     lastActivity: Date;
     status: 'connected' | 'idle' | 'processing' | 'disconnected';
     preferences?: {
-        voiceSpeed: number;
-        language: string;
-        accessibilityMode: boolean;
+        voiceSpeed?: number;
+        language?: string;
+        accessibilityMode?: boolean;
     };
 }
 export interface SessionManager {
@@ -72,5 +75,25 @@ export interface SessionManager {
     removeSession(sessionId: string): void;
     cleanupInactiveSessions(): void;
     getActiveSessionsCount(): number;
+}
+export interface LanguageChangeData {
+    languageCode: string;
+    sessionId: string;
+    timestamp: number;
+    autoDetected?: boolean;
+}
+export interface LanguageChangedData {
+    languageCode: string;
+    sessionId: string;
+    timestamp: number;
+    languageName: string;
+}
+export interface LanguageDetectedData {
+    detectedLanguageCode: string;
+    detectedLanguageName: string;
+    sessionId: string;
+    timestamp: number;
+    confidence: number;
+    autoSwitched: boolean;
 }
 //# sourceMappingURL=websocket.d.ts.map

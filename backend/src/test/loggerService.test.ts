@@ -262,15 +262,15 @@ describe('LoggerService', () => {
     beforeEach(() => {
       // Add some test error logs
       logger.error('Error 1', { 
-        error: { code: 'CODE_A', message: 'Error A' },
+        error: { code: 'AUDIO_PROCESSING_FAILED', message: 'Error A' },
         service: 'service-1'
       });
       logger.error('Error 2', { 
-        error: { code: 'CODE_B', message: 'Error B' },
+        error: { code: 'EXTERNAL_API_ERROR', message: 'Error B' },
         service: 'service-1'
       });
       logger.error('Error 3', { 
-        error: { code: 'CODE_A', message: 'Error A again' },
+        error: { code: 'AUDIO_PROCESSING_FAILED', message: 'Error A again' },
         service: 'service-2'
       });
     });
@@ -279,8 +279,8 @@ describe('LoggerService', () => {
       const stats = logger.getErrorStats();
       
       expect(stats.total).toBe(3);
-      expect(stats.byCode['CODE_A']).toBe(2);
-      expect(stats.byCode['CODE_B']).toBe(1);
+      expect(stats.byCode['AUDIO_PROCESSING_FAILED']).toBe(2);
+      expect(stats.byCode['EXTERNAL_API_ERROR']).toBe(1);
       expect(stats.byService['service-1']).toBe(2);
       expect(stats.byService['service-2']).toBe(1);
     });

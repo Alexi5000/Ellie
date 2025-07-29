@@ -228,7 +228,7 @@ export class AnalyticsService {
   /**
    * Get performance metrics
    */
-  public getPerformanceMetrics(timeWindow: number = 3600000): PerformanceMetrics {
+  public async getPerformanceMetrics(timeWindow: number = 3600000): Promise<PerformanceMetrics> {
     const cutoffTime = new Date(Date.now() - timeWindow);
     const recentData = this.performanceData.filter(data => data.timestamp >= cutoffTime);
 
@@ -309,7 +309,7 @@ export class AnalyticsService {
   /**
    * Generate analytics dashboard data
    */
-  public getDashboardData(timeWindow: number = 3600000): {
+  public async getDashboardData(timeWindow: number = 3600000): Promise<{
     usage: UsageMetrics;
     performance: PerformanceMetrics;
     business: BusinessMetrics;
@@ -319,9 +319,9 @@ export class AnalyticsService {
       errorRate: number;
       averageResponseTime: number;
     };
-  } {
+  }> {
     const usage = this.getUsageMetrics(timeWindow);
-    const performance = this.getPerformanceMetrics(timeWindow);
+    const performance = await this.getPerformanceMetrics(timeWindow);
     const business = this.getBusinessMetrics(timeWindow);
 
     // Real-time stats (last 5 minutes)

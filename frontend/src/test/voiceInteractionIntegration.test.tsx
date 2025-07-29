@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
 import VoiceInteractionManager from '../components/VoiceInteractionManager';
 import { VoiceState } from '../types';
+import { ErrorProvider } from '../contexts/ErrorContext';
 
 // Mock socket.io-client
 const mockSocket = {
@@ -63,6 +64,20 @@ Object.defineProperty(navigator, 'mediaDevices', {
   },
 });
 
+// Test wrapper component that provides necessary context
+const TestWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <ErrorProvider>
+      {children}
+    </ErrorProvider>
+  );
+};
+
+// Helper function to render components with context
+const renderWithContext = (component: React.ReactElement) => {
+  return render(component, { wrapper: TestWrapper });
+};
+
 describe('Voice Interaction Integration Tests', () => {
   let socketEventHandlers: Record<string, Function> = {};
 
@@ -88,7 +103,7 @@ describe('Voice Interaction Integration Tests', () => {
     it('handles complete voice interaction from recording to response', async () => {
       const mockOnError = vi.fn();
       
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       // Wait for component to initialize
       await waitFor(() => {
@@ -170,7 +185,7 @@ describe('Voice Interaction Integration Tests', () => {
       const mockOnError = vi.fn();
       mockSocket.connected = false;
       
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       // Simulate connection error
       await act(async () => {
@@ -199,7 +214,7 @@ describe('Voice Interaction Integration Tests', () => {
     it('handles voice processing errors', async () => {
       const mockOnError = vi.fn();
       
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       await waitFor(() => {
         expect(screen.getByText('Talk to Ellie')).toBeInTheDocument();
@@ -231,7 +246,7 @@ describe('Voice Interaction Integration Tests', () => {
     });
 
     it('handles status updates correctly', async () => {
-      render(<VoiceInteractionManager />);
+      renderWithContext(<VoiceInteractionManager />);
 
       await waitFor(() => {
         expect(screen.getByText('Talk to Ellie')).toBeInTheDocument();
@@ -264,7 +279,7 @@ describe('Voice Interaction Integration Tests', () => {
     });
 
     it('handles conversation clearing', async () => {
-      render(<VoiceInteractionManager />);
+      renderWithContext(<VoiceInteractionManager />);
 
       await waitFor(() => {
         expect(screen.getByText('Talk to Ellie')).toBeInTheDocument();
@@ -306,7 +321,7 @@ describe('Voice Interaction Integration Tests', () => {
     });
 
     it('handles audio playback controls', async () => {
-      render(<VoiceInteractionManager />);
+      renderWithContext(<VoiceInteractionManager />);
 
       await waitFor(() => {
         expect(screen.getByText('Talk to Ellie')).toBeInTheDocument();
@@ -352,7 +367,7 @@ describe('Voice Interaction Integration Tests', () => {
         new Error('Permission denied')
       );
 
-      render(<VoiceInteractionManager onError={mockOnError} />);
+      renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       await waitFor(() => {
         expect(screen.getByText('Talk to Ellie')).toBeInTheDocument();
@@ -384,7 +399,7 @@ describe('Voice Interaction Integration Tests', () => {
     });
 
     it('handles network disconnection and reconnection', async () => {
-      render(<VoiceInteractionManager />);
+      renderWithContext(<VoiceInteractionManager />);
 
       await waitFor(() => {
         expect(screen.getByText('Connected')).toBeInTheDocument();
@@ -400,7 +415,7 @@ describe('Voice Interaction Integration Tests', () => {
       });
 
       await waitFor(() => {
-        expect(screen.getByText('Disconnected')).toBeInTheDocument();
+        expect(screen.getByText('Connection Error')).toBeInTheDocument();
       });
 
       // Simulate reconnection
@@ -420,14 +435,14 @@ describe('Voice Interaction Integration Tests', () => {
 
   describe('Accessibility', () => {
     it('provides proper ARIA labels and roles', async () => {
-      render(<VoiceInteractionManager />);
+      renderWithContext(<VoiceInteractionManager />);
 
       await waitFor(() => {
         expect(screen.getByText('Talk to Ellie')).toBeInTheDocument();
       });
 
       // Check voice button accessibility
-      const voiceButton = screen.getByRole('button', { name: /tap to speak/i });
+      const voiceButton = screen.getByRole('button', { name: /hold to speak/i });
       expect(voiceButton).toHaveAttribute('aria-pressed');
 
       // Check chat interface accessibility
@@ -436,13 +451,13 @@ describe('Voice Interaction Integration Tests', () => {
     });
 
     it('supports keyboard navigation', async () => {
-      render(<VoiceInteractionManager />);
+      renderWithContext(<VoiceInteractionManager />);
 
       await waitFor(() => {
         expect(screen.getByText('Talk to Ellie')).toBeInTheDocument();
       });
 
-      const voiceButton = screen.getByRole('button', { name: /tap to speak/i });
+      const voiceButton = screen.getByRole('button', { name: /hold to speak/i });
       
       // Test keyboard activation
       await act(async () => {

@@ -329,7 +329,7 @@ export class LegalComplianceService {
    */
   private hasAppropriateDisclaimer(response: string): boolean {
     const disclaimerIndicators = [
-      'general information', 'not legal advice', 'consult with an attorney',
+      'general information', 'not legal advice', 'consult with an attorney', 'consulting with an attorney',
       'professional legal advice', 'qualified attorney', 'legal professional'
     ];
 
@@ -394,11 +394,10 @@ export class LegalComplianceService {
     }
 
     if (errors.length > 0) {
-      throw createErrorResponse(
-        ERROR_CODES.INVALID_INPUT,
-        'Invalid referral request',
-        { errors }
-      );
+      const error = new Error('Invalid referral request');
+      (error as any).code = ERROR_CODES.INVALID_INPUT;
+      (error as any).details = { errors };
+      throw error;
     }
   }
 

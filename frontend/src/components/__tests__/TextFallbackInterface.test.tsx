@@ -1,9 +1,13 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 import { TextFallbackInterface } from '../TextFallbackInterface';
 
 // Mock fetch
 global.fetch = vi.fn();
+
+// Mock scrollIntoView
+Element.prototype.scrollIntoView = vi.fn();
 
 describe('TextFallbackInterface', () => {
   beforeEach(() => {
@@ -44,9 +48,9 @@ describe('TextFallbackInterface', () => {
     render(<TextFallbackInterface />);
 
     const input = screen.getByPlaceholderText('Type your message...');
-    const submitButton = screen.getByRole('button', { name: /send/i });
-
     fireEvent.change(input, { target: { value: 'Hello' } });
+    
+    const submitButton = screen.getByRole('button', { name: '' }); // Submit button has no text, only icon
     fireEvent.click(submitButton);
 
     expect(fetch).toHaveBeenCalledWith('/api/chat/text', {
@@ -139,7 +143,7 @@ describe('TextFallbackInterface', () => {
   it('prevents submission of empty messages', () => {
     render(<TextFallbackInterface />);
 
-    const submitButton = screen.getByRole('button', { name: /send/i });
+    const submitButton = screen.getByRole('button', { name: '' }); // Submit button has no text, only icon
     expect(submitButton).toBeDisabled();
 
     const input = screen.getByPlaceholderText('Type your message...');
@@ -152,10 +156,9 @@ describe('TextFallbackInterface', () => {
     render(<TextFallbackInterface />);
 
     const input = screen.getByPlaceholderText('Type your message...');
-    const submitButton = screen.getByRole('button', { name: /send/i });
-
     fireEvent.change(input, { target: { value: 'Hello' } });
-
+    
+    const submitButton = screen.getByRole('button', { name: '' }); // Submit button has no text, only icon
     expect(submitButton).not.toBeDisabled();
   });
 

@@ -113,7 +113,7 @@ describe('VoiceProcessingService', () => {
       expect(mockOpenAI.audio.transcriptions.create).toHaveBeenCalledWith({
         file: expect.any(File),
         model: 'whisper-1',
-        language: 'en',
+        language: undefined, // Auto-detect when no language is provided
         response_format: 'text'
       });
     });

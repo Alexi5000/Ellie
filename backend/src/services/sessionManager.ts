@@ -86,7 +86,7 @@ export class WebSocketSessionManager implements SessionManager {
       this.sessions.delete(sessionId);
       
       // Remove socket mapping
-      for (const [socketId, sessId] of this.socketToSession.entries()) {
+      for (const [socketId, sessId] of Array.from(this.socketToSession.entries())) {
         if (sessId === sessionId) {
           this.socketToSession.delete(socketId);
           break;
@@ -114,7 +114,7 @@ export class WebSocketSessionManager implements SessionManager {
     const now = new Date();
     const expiredSessions: string[] = [];
 
-    for (const [sessionId, session] of this.sessions.entries()) {
+    for (const [sessionId, session] of Array.from(this.sessions.entries())) {
       const timeSinceActivity = now.getTime() - session.lastActivity.getTime();
       if (timeSinceActivity > this.SESSION_TIMEOUT_MS) {
         expiredSessions.push(sessionId);

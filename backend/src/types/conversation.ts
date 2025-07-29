@@ -15,6 +15,12 @@ export interface UserPreferences {
   accessibilityMode: boolean;
 }
 
+export interface PartialUserPreferences {
+  voiceSpeed?: number;
+  language?: string;
+  accessibilityMode?: boolean;
+}
+
 export interface MessageMetadata {
   confidence?: number;
   processingTime?: number;

@@ -8,11 +8,18 @@ export interface UserPreferences {
     language: string;
     accessibilityMode: boolean;
 }
+export interface PartialUserPreferences {
+    voiceSpeed?: number;
+    language?: string;
+    accessibilityMode?: boolean;
+}
 export interface MessageMetadata {
     confidence?: number;
     processingTime?: number;
     apiUsed?: "groq" | "openai";
     queryComplexity?: QueryComplexity;
+    requiresProfessionalReferral?: boolean;
+    referralReason?: string;
 }
 export interface Message {
     id: string;

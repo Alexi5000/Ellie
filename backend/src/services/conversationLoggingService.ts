@@ -3,7 +3,7 @@
  * Requirements: 6.4, 5.4, 5.5
  */
 
-import { ConversationContext, Message, ERROR_CODES } from '../types';
+import { ConversationContext, Message, QueryComplexity, ERROR_CODES } from '../types';
 import { createErrorResponse } from '../utils/errorHandler';
 
 export interface PrivacySettings {
@@ -441,13 +441,19 @@ export class ConversationLoggingService {
    * @returns Complexity distribution
    */
   private analyzeQueryComplexity(messages: Message[]): any {
-    const distribution = { simple: 0, moderate: 0, complex: 0 };
+    const distribution = { 
+      [QueryComplexity.SIMPLE]: 0, 
+      [QueryComplexity.MODERATE]: 0, 
+      [QueryComplexity.COMPLEX]: 0 
+    };
 
     messages
       .filter(msg => msg.type === 'user')
       .forEach(msg => {
-        const complexity = msg.metadata.queryComplexity || 'simple';
-        distribution[complexity as keyof typeof distribution]++;
+        const complexity = msg.metadata.queryComplexity || QueryComplexity.SIMPLE;
+        if (complexity in distribution) {
+          distribution[complexity]++;
+        }
       });
 
     return distribution;

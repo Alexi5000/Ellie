@@ -92,7 +92,7 @@ export class VoiceProcessingService {
       const transcription = await this.openai.audio.transcriptions.create({
         file: audioFile,
         model: 'whisper-1',
-        language: language || null, // Use provided language or auto-detect
+        language: language, // Use provided language or auto-detect (undefined for auto-detect)
         response_format: 'text'
       });
 

@@ -4,7 +4,7 @@
  */
 
 import { ConversationLoggingService, PrivacySettings } from '../services/conversationLoggingService';
-import { Message } from '../types';
+import { Message, QueryComplexity } from '../types';
 
 describe('ConversationLoggingService', () => {
   let loggingService: ConversationLoggingService;
@@ -29,7 +29,7 @@ describe('ConversationLoggingService', () => {
       metadata: {
         confidence: 0.95,
         processingTime: 1500,
-        queryComplexity: 'simple'
+        queryComplexity: QueryComplexity.SIMPLE
       }
     };
   });

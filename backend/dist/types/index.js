@@ -17,6 +17,5 @@ Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./conversation"), exports);
 __exportStar(require("./audio"), exports);
 __exportStar(require("./errors"), exports);
-__exportStar(require("./express"), exports);
 __exportStar(require("./websocket"), exports);
 //# sourceMappingURL=index.js.map

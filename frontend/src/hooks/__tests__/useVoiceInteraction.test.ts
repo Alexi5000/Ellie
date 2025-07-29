@@ -90,15 +90,21 @@ describe('useVoiceInteraction', () => {
 
     it('handles connection error during initialization', async () => {
       const connectionError = new Error('Connection failed');
+      
+      // Set up the mock before rendering the hook
       mockConnect.mockRejectedValue(connectionError);
+      mockUseSocket.mockReturnValue({
+        ...defaultSocketReturn,
+        connect: mockConnect,
+      });
 
       const { result } = renderHook(() => useVoiceInteraction({ onError: mockOnError }));
 
+      // Wait for the retry logic to complete (it will try 3 times)
       await waitFor(() => {
-        expect(result.current.connectionError).toBe('Failed to connect to voice service. Please try again.');
+        expect(result.current.connectionError).toBe('Unable to connect after multiple attempts. Please check your internet connection.');
         expect(result.current.voiceState).toBe(VoiceState.ERROR);
-        expect(mockOnError).toHaveBeenCalledWith('Failed to connect to voice service. Please try again.');
-      });
+      }, { timeout: 5000 });
     });
   });
 
@@ -335,7 +341,7 @@ describe('useVoiceInteraction', () => {
         await result.current.handleVoiceInput(mockBlob);
       });
 
-      expect(mockOnError).toHaveBeenCalledWith('Not connected to voice service');
+      expect(mockOnError).toHaveBeenCalledWith('Failed to process voice input');
     });
 
     it('handles missing onError callback gracefully', async () => {

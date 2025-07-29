@@ -363,9 +363,9 @@ app.get('/api/analytics/usage', (req, res) => {
   res.json(usageMetrics);
 });
 
-app.get('/api/analytics/performance', (req, res) => {
+app.get('/api/analytics/performance', async (req, res) => {
   const timeWindow = parseInt(req.query.timeWindow as string) || 3600000;
-  const performanceMetrics = analyticsService.getPerformanceMetrics(timeWindow);
+  const performanceMetrics = await analyticsService.getPerformanceMetrics(timeWindow);
   
   logger.info('Performance analytics requested', {
     requestId: req.requestId,

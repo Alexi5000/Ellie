@@ -55,7 +55,9 @@ export class LanguageDetectionService {
   constructor() {
     logger.info('Language Detection Service initialized', {
       service: 'language',
-      supportedLanguages: this.SUPPORTED_LANGUAGES.map(lang => lang.code)
+      metadata: {
+        supportedLanguages: this.SUPPORTED_LANGUAGES.map(lang => lang.code)
+      }
     });
   }
 
@@ -128,9 +130,11 @@ export class LanguageDetectionService {
 
     logger.debug('Language detected from text', {
       service: 'language',
-      detectedLanguage,
-      confidence: highestScore,
-      textSample: text.substring(0, 50) + (text.length > 50 ? '...' : '')
+      metadata: {
+        detectedLanguage,
+        confidence: highestScore,
+        textSample: text.substring(0, 50) + (text.length > 50 ? '...' : '')
+      }
     });
 
     return detectedLanguage;

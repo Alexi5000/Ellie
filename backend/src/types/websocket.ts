@@ -59,9 +59,9 @@ export interface StatusData {
 export interface JoinSessionData {
   sessionId?: string;
   userPreferences?: {
-    voiceSpeed: number;
-    language: string;
-    accessibilityMode: boolean;
+    voiceSpeed?: number;
+    language?: string;
+    accessibilityMode?: boolean;
   };
 }
 
@@ -78,9 +78,9 @@ export interface ConnectionState {
   lastActivity: Date;
   status: 'connected' | 'idle' | 'processing' | 'disconnected';
   preferences?: {
-    voiceSpeed: number;
-    language: string;
-    accessibilityMode: boolean;
+    voiceSpeed?: number;
+    language?: string;
+    accessibilityMode?: boolean;
   };
 }
 
@@ -91,8 +91,9 @@ export interface SessionManager {
   removeSession(sessionId: string): void;
   cleanupInactiveSessions(): void;
   getActiveSessionsCount(): number;
-}expo
-rt interface LanguageChangeData {
+}
+
+export interface LanguageChangeData {
   languageCode: string;
   sessionId: string;
   timestamp: number;

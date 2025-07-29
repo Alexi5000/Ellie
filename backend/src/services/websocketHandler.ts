@@ -12,7 +12,8 @@ import {
   StatusData, 
   JoinSessionData,
   SessionJoinedData,
-  LanguageChangeData
+  LanguageChangeData,
+  LanguageChangedData
 } from '../types/websocket';
 import { languageDetectionService } from './languageDetectionService';
 import { WebSocketSessionManager } from './sessionManager';
@@ -97,13 +98,15 @@ export class WebSocketHandler {
 
       // Update session with user preferences
       if (data.userPreferences) {
-        // Set default language if not provided
-        if (!data.userPreferences.language) {
-          data.userPreferences.language = languageDetectionService.getDefaultLanguage();
-        }
+        // Merge with defaults for any missing fields
+        const preferences = {
+          voiceSpeed: data.userPreferences.voiceSpeed ?? 1.0,
+          language: data.userPreferences.language ?? languageDetectionService.getDefaultLanguage(),
+          accessibilityMode: data.userPreferences.accessibilityMode ?? false
+        };
         
         this.sessionManager.updateSession(sessionId, {
-          preferences: data.userPreferences
+          preferences
         });
       }
 
@@ -281,9 +284,9 @@ export class WebSocketHandler {
       totalConnections: this.io.engine.clientsCount
     };
   }
-}  /**
-   * 
-Handles language change requests
+
+  /**
+   * Handles language change requests
    */
   private handleLanguageChange(socket: Socket, data: LanguageChangeData): void {
     try {
@@ -308,7 +311,8 @@ Handles language change requests
 
       // Update session preferences with new language
       const updatedPreferences = {
-        ...session.preferences,
+        voiceSpeed: session.preferences?.voiceSpeed ?? 1.0,
+        accessibilityMode: session.preferences?.accessibilityMode ?? false,
         language: data.languageCode
       };
 
@@ -330,3 +334,4 @@ Handles language change requests
       this.sendError(socket, ERROR_CODES.INTERNAL_SERVER_ERROR, 'Failed to change language');
     }
   }
+}

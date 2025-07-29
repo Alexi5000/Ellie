@@ -31,6 +31,9 @@ Object.defineProperty(window, 'MediaRecorder', {
   value: vi.fn().mockImplementation(() => mockMediaRecorder)
 });
 
+// Ensure MediaRecorder is available globally
+global.MediaRecorder = vi.fn().mockImplementation(() => mockMediaRecorder) as any;
+
 // Mock getUserMedia
 const mockGetUserMedia = vi.fn();
 Object.defineProperty(navigator, 'mediaDevices', {
@@ -56,11 +59,13 @@ Object.defineProperty(navigator, 'vibrate', {
 });
 
 // Mock MediaStream
-global.MediaStream = vi.fn().mockImplementation(() => ({
+const mockMediaStream = {
   getTracks: vi.fn().mockReturnValue([{ stop: vi.fn() }]),
   addTrack: vi.fn(),
   removeTrack: vi.fn()
-}));
+};
+
+global.MediaStream = vi.fn().mockImplementation(() => mockMediaStream);
 
 describe('MobileVoiceInterface', () => {
   const mockOnVoiceInput = vi.fn();
@@ -88,6 +93,11 @@ describe('MobileVoiceInterface', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     
+    // Reset MediaRecorder mock state
+    mockMediaRecorder.state = 'inactive';
+    mockMediaRecorder.start.mockClear();
+    mockMediaRecorder.stop.mockClear();
+    
     // Setup default mocks
     vi.mocked(mobileDetection.getDeviceCapabilities).mockReturnValue(mockDeviceCapabilities);
     vi.mocked(mobileDetection.getMobileAudioConstraints).mockReturnValue({
@@ -109,18 +119,23 @@ describe('MobileVoiceInterface', () => {
     });
 
     mockPermissionQuery.mockResolvedValue({ state: 'granted' });
-    mockGetUserMedia.mockResolvedValue(new MediaStream());
+    mockGetUserMedia.mockResolvedValue(mockMediaStream);
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
   });
 
-  it('renders mobile voice interface correctly', () => {
+  it('renders mobile voice interface correctly', async () => {
     render(<MobileVoiceInterface {...defaultProps} />);
     
     expect(screen.getByRole('button')).toBeInTheDocument();
-    expect(screen.getByText('Hold to Speak')).toBeInTheDocument();
+    
+    // Wait for device capabilities to be loaded
+    await waitFor(() => {
+      expect(screen.getByText('Hold to Speak')).toBeInTheDocument();
+    });
+    
     expect(screen.getByText('Hold the button to record, release to send')).toBeInTheDocument();
   });
 
@@ -137,8 +152,7 @@ describe('MobileVoiceInterface', () => {
   });
 
   it('handles touch interactions for mobile devices', async () => {
-    const mockStream = new MediaStream();
-    mockGetUserMedia.mockResolvedValue(mockStream);
+    mockGetUserMedia.mockResolvedValue(mockMediaStream);
 
     render(<MobileVoiceInterface {...defaultProps} />);
     
@@ -149,6 +163,10 @@ describe('MobileVoiceInterface', () => {
     
     await waitFor(() => {
       expect(mockGetUserMedia).toHaveBeenCalled();
+    });
+
+    // Wait for MediaRecorder to be created and started
+    await waitFor(() => {
       expect(mockMediaRecorder.start).toHaveBeenCalled();
     });
 
@@ -166,6 +184,10 @@ describe('MobileVoiceInterface', () => {
 
     render(<MobileVoiceInterface {...defaultProps} />);
     
+    // Click the button to trigger permission request
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
+    
     await waitFor(() => {
       expect(screen.getByText('Enable Microphone Access')).toBeInTheDocument();
       expect(screen.getByText(/To use voice features, please enable microphone access/)).toBeInTheDocument();
@@ -174,6 +196,7 @@ describe('MobileVoiceInterface', () => {
 
   it('shows browser-specific permission instructions', async () => {
     mockPermissionQuery.mockResolvedValue({ state: 'denied' });
+    mockGetUserMedia.mockRejectedValue(new Error('NotAllowedError'));
     vi.mocked(mobileDetection.getDeviceCapabilities).mockReturnValue({
       ...mockDeviceCapabilities,
       browserName: 'Safari',
@@ -181,6 +204,10 @@ describe('MobileVoiceInterface', () => {
     });
 
     render(<MobileVoiceInterface {...defaultProps} />);
+    
+    // Click the button to trigger permission request
+    const button = screen.getByRole('button');
+    fireEvent.click(button);
     
     await waitFor(() => {
       expect(screen.getByText('Safari: Tap the microphone icon in the address bar')).toBeInTheDocument();
@@ -215,8 +242,7 @@ describe('MobileVoiceInterface', () => {
   });
 
   it('provides haptic feedback on supported devices', async () => {
-    const mockStream = new MediaStream();
-    mockGetUserMedia.mockResolvedValue(mockStream);
+    mockGetUserMedia.mockResolvedValue(mockMediaStream);
 
     render(<MobileVoiceInterface {...defaultProps} />);
     
@@ -241,7 +267,9 @@ describe('MobileVoiceInterface', () => {
     
     // Test error state
     rerender(<MobileVoiceInterface {...defaultProps} voiceState={VoiceState.ERROR} />);
-    expect(screen.getByText('Hold to Speak')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('Hold to Speak')).toBeInTheDocument();
+    });
   });
 
   it('handles microphone errors gracefully', async () => {
@@ -256,14 +284,13 @@ describe('MobileVoiceInterface', () => {
     
     await waitFor(() => {
       expect(mockOnError).toHaveBeenCalledWith(
-        'Microphone access denied. Please allow microphone access and try again.'
+        'Microphone access denied. Please enable microphone permissions in your browser settings.'
       );
     });
   });
 
   it('handles MediaRecorder errors', async () => {
-    const mockStream = new MediaStream();
-    mockGetUserMedia.mockResolvedValue(mockStream);
+    mockGetUserMedia.mockResolvedValue(mockMediaStream);
 
     render(<MobileVoiceInterface {...defaultProps} />);
     
@@ -287,8 +314,7 @@ describe('MobileVoiceInterface', () => {
   it('auto-stops recording after timeout', async () => {
     vi.useFakeTimers();
     
-    const mockStream = new MediaStream();
-    mockGetUserMedia.mockResolvedValue(mockStream);
+    mockGetUserMedia.mockResolvedValue(mockMediaStream);
 
     render(<MobileVoiceInterface {...defaultProps} />);
     
@@ -309,7 +335,9 @@ describe('MobileVoiceInterface', () => {
     vi.useRealTimers();
   });
 
-  it('prevents default touch behavior', () => {
+  it('prevents default touch behavior', async () => {
+    mockGetUserMedia.mockResolvedValue(mockMediaStream);
+    
     render(<MobileVoiceInterface {...defaultProps} />);
     
     const button = screen.getByRole('button');

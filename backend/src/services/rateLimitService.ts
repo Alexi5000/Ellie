@@ -63,7 +63,7 @@ export class RateLimitService {
       queueTimeoutMs = 30000,
       skipSuccessfulRequests = false,
       skipFailedRequests = false,
-      keyGenerator = (req) => req.ip,
+      keyGenerator = (req) => req.ip || 'unknown',
       onLimitReached
     } = config;
 
@@ -89,12 +89,13 @@ export class RateLimitService {
       if (shouldCount) {
         // Log rate limit approach
         if (entry.count >= maxRequests * 0.8) {
-          logger.logRateLimit(req.ip, req.path, req.requestId!, entry.count, maxRequests);
+          logger.logRateLimit(req.ip || 'unknown', req.path, req.requestId!, entry.count, maxRequests);
         }
 
         // Check if limit exceeded
         if (entry.count >= maxRequests) {
-          return this.handleLimitExceeded(req, res, entry, queueSize, queueTimeoutMs, onLimitReached);
+          this.handleLimitExceeded(req, res, entry, queueSize, queueTimeoutMs, onLimitReached);
+          return;
         }
 
         entry.count++;
@@ -130,14 +131,14 @@ export class RateLimitService {
     queueSize: number,
     queueTimeoutMs: number,
     onLimitReached?: (req: Request, res: Response) => void
-  ) {
+  ): void {
     // Check if queue is full
     if (entry.queue.length >= queueSize) {
       logger.error('Rate limit queue full', {
         requestId: req.requestId,
         service: 'rate-limiter',
         metadata: {
-          ip: req.ip,
+          ip: req.ip || 'unknown',
           path: req.path,
           queueSize: entry.queue.length,
           maxQueueSize: queueSize
@@ -154,7 +155,8 @@ export class RateLimitService {
         req.requestId
       );
 
-      return res.status(429).json(errorResponse);
+      res.status(429).json(errorResponse);
+      return;
     }
 
     // Add to queue
@@ -194,7 +196,7 @@ export class RateLimitService {
       requestId: req.requestId,
       service: 'rate-limiter',
       metadata: {
-        ip: req.ip,
+        ip: req.ip || 'unknown',
         path: req.path,
         queuePosition: entry.queue.length,
         estimatedWaitTime: Math.ceil((entry.resetTime - Date.now()) / 1000)

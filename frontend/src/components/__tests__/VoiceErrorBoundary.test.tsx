@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 import { VoiceErrorBoundary } from '../VoiceErrorBoundary';
 
 // Mock the TextFallbackInterface component
@@ -103,25 +104,33 @@ describe('VoiceErrorBoundary', () => {
     );
   });
 
-  it('resets error state when Try Voice Again is clicked', () => {
+  it('resets error state when Try Voice Again is clicked', async () => {
+    let shouldThrow = true;
+    const TestComponent = () => {
+      if (shouldThrow) {
+        throw new Error('Voice error');
+      }
+      return <div>Voice working</div>;
+    };
+
     const { rerender } = render(
       <VoiceErrorBoundary>
-        <ThrowError shouldThrow={true} />
+        <TestComponent />
       </VoiceErrorBoundary>
     );
 
     expect(screen.getByText('Voice Feature Error')).toBeInTheDocument();
 
+    // Change the component to not throw error before clicking Try Again
+    shouldThrow = false;
+
+    // Click Try Again to reset error state
     fireEvent.click(screen.getByRole('button', { name: 'Try Voice Again' }));
 
-    // Re-render with no error
-    rerender(
-      <VoiceErrorBoundary>
-        <ThrowError shouldThrow={false} />
-      </VoiceErrorBoundary>
-    );
-
-    expect(screen.getByText('Voice working')).toBeInTheDocument();
+    // The error boundary should now render the children again
+    await waitFor(() => {
+      expect(screen.getByText('Voice working')).toBeInTheDocument();
+    });
   });
 
   it('shows troubleshooting tips', () => {

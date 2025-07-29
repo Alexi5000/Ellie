@@ -11,28 +11,12 @@ import {
   supportsHighQualityAudio
 } from './mobileDetection';
 
-// Mock navigator and window properties
-const mockNavigator = {
-  userAgent: '',
-  maxTouchPoints: 0,
-  vibrate: vi.fn()
-};
-
-const mockWindow = {
-  innerWidth: 1024,
-  innerHeight: 768,
-  AudioContext: vi.fn(),
-  MediaRecorder: {
-    isTypeSupported: vi.fn()
-  }
-};
-
 describe('mobileDetection', () => {
   beforeEach(() => {
     // Reset mocks
     vi.clearAllMocks();
     
-    // Setup default values
+    // Setup default navigator properties
     Object.defineProperty(navigator, 'userAgent', {
       writable: true,
       value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
@@ -43,6 +27,13 @@ describe('mobileDetection', () => {
       value: 0
     });
 
+    // Mock vibrate function
+    Object.defineProperty(navigator, 'vibrate', {
+      writable: true,
+      value: vi.fn()
+    });
+
+    // Setup default window properties
     Object.defineProperty(window, 'innerWidth', {
       writable: true,
       value: 1024
@@ -64,11 +55,23 @@ describe('mobileDetection', () => {
         isTypeSupported: vi.fn().mockReturnValue(true)
       }
     });
+
+    // Mock touch properties to ensure clean state
+    Object.defineProperty(window, 'ontouchstart', {
+      value: undefined,
+      writable: true,
+      configurable: true
+    });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   describe('isMobileDevice', () => {
     it('detects mobile devices by user agent', () => {
       Object.defineProperty(navigator, 'userAgent', {
+        writable: true,
         value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)'
       });
       
@@ -77,6 +80,7 @@ describe('mobileDetection', () => {
 
     it('detects Android devices', () => {
       Object.defineProperty(navigator, 'userAgent', {
+        writable: true,
         value: 'Mozilla/5.0 (Linux; Android 10; SM-G975F)'
       });
       
@@ -85,6 +89,7 @@ describe('mobileDetection', () => {
 
     it('detects mobile by screen width', () => {
       Object.defineProperty(window, 'innerWidth', {
+        writable: true,
         value: 480
       });
       
@@ -93,6 +98,7 @@ describe('mobileDetection', () => {
 
     it('detects mobile by touch support', () => {
       Object.defineProperty(window, 'ontouchstart', {
+        writable: true,
         value: true
       });
       
@@ -101,11 +107,21 @@ describe('mobileDetection', () => {
 
     it('returns false for desktop devices', () => {
       Object.defineProperty(navigator, 'userAgent', {
+        writable: true,
         value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       });
       Object.defineProperty(window, 'innerWidth', {
+        writable: true,
         value: 1920
       });
+      Object.defineProperty(navigator, 'maxTouchPoints', {
+        writable: true,
+        value: 0
+      });
+      // Ensure no touch support
+      if ('ontouchstart' in window) {
+        delete (window as any).ontouchstart;
+      }
       
       expect(isMobileDevice()).toBe(false);
     });
@@ -114,6 +130,7 @@ describe('mobileDetection', () => {
   describe('isTabletDevice', () => {
     it('detects iPad devices', () => {
       Object.defineProperty(navigator, 'userAgent', {
+        writable: true,
         value: 'Mozilla/5.0 (iPad; CPU OS 14_0 like Mac OS X)'
       });
       
@@ -122,6 +139,7 @@ describe('mobileDetection', () => {
 
     it('detects Android tablets', () => {
       Object.defineProperty(navigator, 'userAgent', {
+        writable: true,
         value: 'Mozilla/5.0 (Linux; Android 10; SM-T510) AppleWebKit/537.36'
       });
       
@@ -130,9 +148,11 @@ describe('mobileDetection', () => {
 
     it('detects tablets by screen size', () => {
       Object.defineProperty(navigator, 'userAgent', {
+        writable: true,
         value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)'
       });
       Object.defineProperty(window, 'innerWidth', {
+        writable: true,
         value: 800
       });
       
@@ -141,9 +161,11 @@ describe('mobileDetection', () => {
 
     it('returns false for phones', () => {
       Object.defineProperty(navigator, 'userAgent', {
+        writable: true,
         value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)'
       });
       Object.defineProperty(window, 'innerWidth', {
+        writable: true,
         value: 375
       });
       
@@ -154,15 +176,19 @@ describe('mobileDetection', () => {
   describe('getDeviceCapabilities', () => {
     it('returns comprehensive device capabilities', () => {
       Object.defineProperty(navigator, 'userAgent', {
+        writable: true,
         value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0 Mobile/15E148 Safari/604.1'
       });
       Object.defineProperty(window, 'innerWidth', {
+        writable: true,
         value: 375
       });
       Object.defineProperty(navigator, 'maxTouchPoints', {
+        writable: true,
         value: 5
       });
       Object.defineProperty(navigator, 'vibrate', {
+        writable: true,
         value: vi.fn()
       });
 
@@ -180,6 +206,7 @@ describe('mobileDetection', () => {
 
     it('detects Chrome browser correctly', () => {
       Object.defineProperty(navigator, 'userAgent', {
+        writable: true,
         value: 'Mozilla/5.0 (Linux; Android 10; SM-G975F) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.120 Mobile Safari/537.36'
       });
 
@@ -190,6 +217,7 @@ describe('mobileDetection', () => {
 
     it('detects Firefox browser correctly', () => {
       Object.defineProperty(navigator, 'userAgent', {
+        writable: true,
         value: 'Mozilla/5.0 (Mobile; rv:68.0) Gecko/68.0 Firefox/68.0'
       });
 
@@ -261,15 +289,6 @@ describe('mobileDetection', () => {
   });
 
   describe('getMediaRecorderOptions', () => {
-    beforeEach(() => {
-      Object.defineProperty(window, 'MediaRecorder', {
-        writable: true,
-        value: {
-          isTypeSupported: vi.fn()
-        }
-      });
-    });
-
     it('prefers MP4 for Safari', () => {
       const capabilities = {
         isMobile: true,
@@ -283,7 +302,12 @@ describe('mobileDetection', () => {
         osName: 'iOS'
       };
 
-      window.MediaRecorder.isTypeSupported = vi.fn().mockReturnValue(true);
+      Object.defineProperty(window, 'MediaRecorder', {
+        writable: true,
+        value: {
+          isTypeSupported: vi.fn().mockReturnValue(true)
+        }
+      });
 
       const options = getMediaRecorderOptions(capabilities);
 
@@ -303,8 +327,12 @@ describe('mobileDetection', () => {
         osName: 'Android'
       };
 
-      window.MediaRecorder.isTypeSupported = vi.fn()
-        .mockImplementation((type) => type === 'audio/webm;codecs=opus');
+      Object.defineProperty(window, 'MediaRecorder', {
+        writable: true,
+        value: {
+          isTypeSupported: vi.fn().mockImplementation((type: string) => type === 'audio/webm;codecs=opus')
+        }
+      });
 
       const options = getMediaRecorderOptions(capabilities);
 
@@ -331,48 +359,75 @@ describe('mobileDetection', () => {
   });
 
   describe('provideMobileHapticFeedback', () => {
-    beforeEach(() => {
+    it('provides light haptic feedback', () => {
+      const vibrateMock = vi.fn();
       Object.defineProperty(navigator, 'vibrate', {
         writable: true,
-        value: vi.fn()
+        value: vibrateMock
       });
-    });
 
-    it('provides light haptic feedback', () => {
       provideMobileHapticFeedback('light');
-      expect(navigator.vibrate).toHaveBeenCalledWith([10]);
+      expect(vibrateMock).toHaveBeenCalledWith([10]);
     });
 
     it('provides medium haptic feedback', () => {
+      const vibrateMock = vi.fn();
+      Object.defineProperty(navigator, 'vibrate', {
+        writable: true,
+        value: vibrateMock
+      });
+
       provideMobileHapticFeedback('medium');
-      expect(navigator.vibrate).toHaveBeenCalledWith([20]);
+      expect(vibrateMock).toHaveBeenCalledWith([20]);
     });
 
     it('provides heavy haptic feedback', () => {
+      const vibrateMock = vi.fn();
+      Object.defineProperty(navigator, 'vibrate', {
+        writable: true,
+        value: vibrateMock
+      });
+
       provideMobileHapticFeedback('heavy');
-      expect(navigator.vibrate).toHaveBeenCalledWith([30]);
+      expect(vibrateMock).toHaveBeenCalledWith([30]);
     });
 
     it('defaults to light feedback', () => {
+      const vibrateMock = vi.fn();
+      Object.defineProperty(navigator, 'vibrate', {
+        writable: true,
+        value: vibrateMock
+      });
+
       provideMobileHapticFeedback();
-      expect(navigator.vibrate).toHaveBeenCalledWith([10]);
+      expect(vibrateMock).toHaveBeenCalledWith([10]);
     });
 
     it('handles missing vibrate API gracefully', () => {
-      Object.defineProperty(navigator, 'vibrate', {
-        value: undefined
-      });
+      // Remove the vibrate property entirely
+      const originalVibrate = navigator.vibrate;
+      delete (navigator as any).vibrate;
 
       expect(() => provideMobileHapticFeedback()).not.toThrow();
+
+      // Restore the original vibrate function
+      if (originalVibrate) {
+        Object.defineProperty(navigator, 'vibrate', {
+          writable: true,
+          value: originalVibrate
+        });
+      }
     });
   });
 
   describe('isLandscapeMode', () => {
     it('detects landscape mode', () => {
       Object.defineProperty(window, 'innerWidth', {
+        writable: true,
         value: 800
       });
       Object.defineProperty(window, 'innerHeight', {
+        writable: true,
         value: 600
       });
 
@@ -381,9 +436,11 @@ describe('mobileDetection', () => {
 
     it('detects portrait mode', () => {
       Object.defineProperty(window, 'innerWidth', {
+        writable: true,
         value: 600
       });
       Object.defineProperty(window, 'innerHeight', {
+        writable: true,
         value: 800
       });
 
@@ -395,8 +452,8 @@ describe('mobileDetection', () => {
     it('returns safe area insets', () => {
       // Mock getComputedStyle
       const mockGetComputedStyle = vi.fn().mockReturnValue({
-        getPropertyValue: vi.fn().mockImplementation((prop) => {
-          const values = {
+        getPropertyValue: vi.fn().mockImplementation((prop: string) => {
+          const values: Record<string, string> = {
             'env(safe-area-inset-top)': '44px',
             'env(safe-area-inset-right)': '0px',
             'env(safe-area-inset-bottom)': '34px',
@@ -407,6 +464,7 @@ describe('mobileDetection', () => {
       });
 
       Object.defineProperty(window, 'getComputedStyle', {
+        writable: true,
         value: mockGetComputedStyle
       });
 
@@ -424,6 +482,7 @@ describe('mobileDetection', () => {
       });
 
       Object.defineProperty(window, 'getComputedStyle', {
+        writable: true,
         value: mockGetComputedStyle
       });
 

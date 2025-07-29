@@ -131,7 +131,8 @@ For legal matters requiring professional judgment, please consult with one of ou
 
       // Cache the response for future use
       await cacheService.cacheAIResponse(userInput, context, response, {
-        ttl: complexity === QueryComplexity.SIMPLE ? 7200 : 3600 // Cache simple responses longer
+        ttl: complexity === QueryComplexity.SIMPLE ? 7200 : 3600, // Cache simple responses longer
+        language: context.userPreferences?.language || 'en'
       });
 
       return response;

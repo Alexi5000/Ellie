@@ -45,6 +45,19 @@ describe('PWAInstallPrompt', () => {
   });
 
   it('renders install prompt when installable and not installed', () => {
+    vi.mocked(usePWAHook.usePWA).mockReturnValue([
+      { 
+        ...mockPWAState, 
+        capabilities: { 
+          ...mockPWAState.capabilities, 
+          isInstallable: true, 
+          isInstalled: false 
+        },
+        installPromptAvailable: true
+      },
+      mockPWAActions
+    ]);
+
     render(<PWAInstallPrompt />);
 
     expect(screen.getByText('Install Ellie Voice Assistant')).toBeInTheDocument();
@@ -52,7 +65,11 @@ describe('PWAInstallPrompt', () => {
     expect(screen.getByText('Works offline')).toBeInTheDocument();
     expect(screen.getByText('Faster loading')).toBeInTheDocument();
     expect(screen.getByText('Native app feel')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Install' })).toBeInTheDocument();
+    
+    const installButton = screen.getByRole('button', { name: 'Install' });
+    expect(installButton).toBeInTheDocument();
+    expect(installButton).not.toBeDisabled();
+    
     expect(screen.getByRole('button', { name: 'Not now' })).toBeInTheDocument();
   });
 
@@ -90,6 +107,19 @@ describe('PWAInstallPrompt', () => {
   });
 
   it('shows installing state during installation', async () => {
+    vi.mocked(usePWAHook.usePWA).mockReturnValue([
+      { 
+        ...mockPWAState, 
+        capabilities: { 
+          ...mockPWAState.capabilities, 
+          isInstallable: true, 
+          isInstalled: false 
+        },
+        installPromptAvailable: true
+      },
+      mockPWAActions
+    ]);
+
     mockPWAActions.installApp.mockImplementation(() => new Promise(resolve => setTimeout(() => resolve(true), 100)));
 
     render(<PWAInstallPrompt />);
@@ -97,8 +127,13 @@ describe('PWAInstallPrompt', () => {
     const installButton = screen.getByRole('button', { name: 'Install' });
     fireEvent.click(installButton);
 
-    expect(screen.getByText('Installing...')).toBeInTheDocument();
-    expect(installButton).toBeDisabled();
+    // Check for installing state
+    await waitFor(() => {
+      expect(screen.getByText('Installing...')).toBeInTheDocument();
+    });
+    
+    const installingButton = screen.getByRole('button', { name: 'Installing...' });
+    expect(installingButton).toBeDisabled();
 
     await waitFor(() => {
       expect(mockPWAActions.installApp).toHaveBeenCalled();
@@ -120,6 +155,19 @@ describe('PWAInstallPrompt', () => {
   });
 
   it('handles installation failure gracefully', async () => {
+    vi.mocked(usePWAHook.usePWA).mockReturnValue([
+      { 
+        ...mockPWAState, 
+        capabilities: { 
+          ...mockPWAState.capabilities, 
+          isInstallable: true, 
+          isInstalled: false 
+        },
+        installPromptAvailable: true
+      },
+      mockPWAActions
+    ]);
+
     mockPWAActions.installApp.mockResolvedValue(false);
 
     render(<PWAInstallPrompt />);
@@ -132,8 +180,11 @@ describe('PWAInstallPrompt', () => {
     });
 
     // Should still show the install button after failure
-    expect(screen.getByRole('button', { name: 'Install' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Install' })).not.toBeDisabled();
+    await waitFor(() => {
+      const resetButton = screen.getByRole('button', { name: 'Install' });
+      expect(resetButton).toBeInTheDocument();
+      expect(resetButton).not.toBeDisabled();
+    });
   });
 
   it('dismisses prompt when "Not now" is clicked', () => {
@@ -177,6 +228,19 @@ describe('PWAInstallPrompt', () => {
   });
 
   it('handles installation errors', async () => {
+    vi.mocked(usePWAHook.usePWA).mockReturnValue([
+      { 
+        ...mockPWAState, 
+        capabilities: { 
+          ...mockPWAState.capabilities, 
+          isInstallable: true, 
+          isInstalled: false 
+        },
+        installPromptAvailable: true
+      },
+      mockPWAActions
+    ]);
+
     mockPWAActions.installApp.mockRejectedValue(new Error('Installation failed'));
 
     render(<PWAInstallPrompt />);
@@ -189,7 +253,10 @@ describe('PWAInstallPrompt', () => {
     });
 
     // Should reset to normal state after error
-    expect(screen.getByRole('button', { name: 'Install' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Install' })).not.toBeDisabled();
+    await waitFor(() => {
+      const resetButton = screen.getByRole('button', { name: 'Install' });
+      expect(resetButton).toBeInTheDocument();
+      expect(resetButton).not.toBeDisabled();
+    });
   });
 });

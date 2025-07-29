@@ -5,6 +5,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      target: development
     ports:
       - "3000:3000"
     environment:
@@ -23,6 +24,7 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      target: development
     ports:
       - "5000:5000"
     environment:
@@ -41,7 +43,7 @@ services:
   redis:
     image: redis:7-alpine
     ports:
-      - "6379:6379"
+      - "6380:6379"
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
