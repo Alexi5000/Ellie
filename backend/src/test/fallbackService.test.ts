@@ -16,8 +16,11 @@ describe('FallbackService', () => {
   });
 
   afterEach(async () => {
-    // Clean up any pending operations
-    await new Promise(resolve => setTimeout(resolve, 10));
+    // Reset the singleton instance for clean tests
+    (FallbackService as any).instance = undefined;
+    
+    // Wait for any pending async operations
+    await new Promise(resolve => setImmediate(resolve));
   });
 
   describe('Singleton Pattern', () => {

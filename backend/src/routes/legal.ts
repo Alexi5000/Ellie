@@ -36,14 +36,14 @@ router.post('/referral', async (req, res) => {
     const success = await legalComplianceService.processProfessionalReferral(referralRequest);
 
     if (success) {
-      res.json({
+      return res.json({
         success: true,
         message: 'Professional referral request processed successfully',
         referralId: `REF-${Date.now()}`, // In production, this would be a proper ID
         estimatedContactTime: getReferralContactTime(referralRequest.urgency)
       });
     } else {
-      res.status(500).json(
+      return res.status(500).json(
         createErrorResponse(
           ERROR_CODES.REFERRAL_PROCESSING_FAILED,
           'Failed to process professional referral request'
@@ -53,7 +53,7 @@ router.post('/referral', async (req, res) => {
 
   } catch (error) {
     console.error('Professional referral error:', error);
-    res.status(500).json(
+    return res.status(500).json(
       createErrorResponse(
         ERROR_CODES.REFERRAL_PROCESSING_FAILED,
         'Failed to process professional referral request',
@@ -86,7 +86,7 @@ router.put('/privacy-settings/:sessionId', async (req, res) => {
     // Update privacy settings
     await conversationLoggingService.updatePrivacySettings(sessionId, privacySettings);
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Privacy settings updated successfully',
       settings: privacySettings
@@ -94,7 +94,7 @@ router.put('/privacy-settings/:sessionId', async (req, res) => {
 
   } catch (error) {
     console.error('Privacy settings update error:', error);
-    res.status(500).json(
+    return res.status(500).json(
       createErrorResponse(
         ERROR_CODES.PRIVACY_UPDATE_FAILED,
         'Failed to update privacy settings',
@@ -124,14 +124,14 @@ router.get('/privacy-settings/:sessionId', async (req, res) => {
       );
     }
 
-    res.json({
+    return res.json({
       success: true,
       settings: conversationLog.privacySettings
     });
 
   } catch (error) {
     console.error('Privacy settings retrieval error:', error);
-    res.status(500).json(
+    return res.status(500).json(
       createErrorResponse(
         ERROR_CODES.PRIVACY_RETRIEVAL_FAILED,
         'Failed to retrieve privacy settings',
@@ -156,7 +156,7 @@ router.delete('/data/:sessionId', async (req, res) => {
       reason
     });
 
-    res.json({
+    return res.json({
       success: true,
       message: immediate ? 'Data deleted immediately' : 'Data deletion scheduled',
       deletionType: immediate ? 'immediate' : 'scheduled'
@@ -164,7 +164,7 @@ router.delete('/data/:sessionId', async (req, res) => {
 
   } catch (error) {
     console.error('Data deletion error:', error);
-    res.status(500).json(
+    return res.status(500).json(
       createErrorResponse(
         ERROR_CODES.DELETION_FAILED,
         'Failed to process data deletion request',
@@ -198,7 +198,7 @@ router.get('/data-export/:sessionId', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Content-Disposition', `attachment; filename="ellie-data-export-${sessionId}.json"`);
     
-    res.json({
+    return res.json({
       exportedAt: new Date().toISOString(),
       dataSubject: sessionId,
       ...exportData
@@ -206,7 +206,7 @@ router.get('/data-export/:sessionId', async (req, res) => {
 
   } catch (error) {
     console.error('Data export error:', error);
-    res.status(500).json(
+    return res.status(500).json(
       createErrorResponse(
         ERROR_CODES.EXPORT_FAILED,
         'Failed to export user data',
@@ -249,7 +249,7 @@ router.get('/disclaimer/:sessionId', async (req, res) => {
 
     const disclaimer = legalComplianceService.generateLegalDisclaimer(context);
 
-    res.json({
+    return res.json({
       success: true,
       disclaimer,
       contextual: true
@@ -257,7 +257,7 @@ router.get('/disclaimer/:sessionId', async (req, res) => {
 
   } catch (error) {
     console.error('Disclaimer generation error:', error);
-    res.status(500).json(
+    return res.status(500).json(
       createErrorResponse(
         ERROR_CODES.DISCLAIMER_GENERATION_FAILED,
         'Failed to generate legal disclaimer',

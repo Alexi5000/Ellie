@@ -442,7 +442,7 @@ describe('Voice Interaction Integration Tests', () => {
       });
 
       // Check voice button accessibility
-      const voiceButton = screen.getByRole('button', { name: /hold to speak/i });
+      const voiceButton = screen.getByRole('button', { name: /tap to speak/i });
       expect(voiceButton).toHaveAttribute('aria-pressed');
 
       // Check chat interface accessibility
@@ -457,7 +457,7 @@ describe('Voice Interaction Integration Tests', () => {
         expect(screen.getByText('Talk to Ellie')).toBeInTheDocument();
       });
 
-      const voiceButton = screen.getByRole('button', { name: /hold to speak/i });
+      const voiceButton = screen.getByRole('button', { name: /tap to speak/i });
       
       // Test keyboard activation
       await act(async () => {

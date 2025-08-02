@@ -35,6 +35,7 @@ export interface DataDeletionRequest {
 export class ConversationLoggingService {
   private conversationLogs: Map<string, ConversationLog> = new Map();
   private deletionQueue: Map<string, Date> = new Map();
+  private cleanupIntervalId?: NodeJS.Timeout;
 
   private readonly DEFAULT_PRIVACY_SETTINGS: PrivacySettings = {
     enableConversationLogging: true,
@@ -45,8 +46,10 @@ export class ConversationLoggingService {
   };
 
   constructor() {
-    // Start cleanup scheduler
-    this.startCleanupScheduler();
+    // Start cleanup scheduler only if not in test environment
+    if (process.env.NODE_ENV !== 'test') {
+      this.startCleanupScheduler();
+    }
   }
 
   /**
@@ -381,12 +384,35 @@ export class ConversationLoggingService {
    * Starts cleanup scheduler for expired data
    */
   private startCleanupScheduler(): void {
+    // Clear any existing interval first
+    this.stopCleanupScheduler();
+    
     // Run cleanup every hour
-    setInterval(() => {
+    this.cleanupIntervalId = setInterval(() => {
       this.performScheduledCleanup();
     }, 60 * 60 * 1000);
 
     console.log('Conversation logging cleanup scheduler started');
+  }
+
+  /**
+   * Stops the cleanup scheduler
+   */
+  public stopCleanupScheduler(): void {
+    if (this.cleanupIntervalId) {
+      clearInterval(this.cleanupIntervalId);
+      this.cleanupIntervalId = undefined;
+      console.log('Conversation logging cleanup scheduler stopped');
+    }
+  }
+
+  /**
+   * Cleanup method for tests and shutdown
+   */
+  public destroy(): void {
+    this.stopCleanupScheduler();
+    this.conversationLogs.clear();
+    this.deletionQueue.clear();
   }
 
   /**

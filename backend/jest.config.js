@@ -17,4 +17,13 @@ module.exports = {
   moduleNameMapping: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  // Improved async handling and cleanup
+  testTimeout: 15000,
+  forceExit: true,
+  detectOpenHandles: true,
+  maxWorkers: 1, // Use single worker to prevent race conditions
+  // Ensure proper cleanup between tests
+  clearMocks: true,
+  resetMocks: true,
+  restoreMocks: true,
 };

@@ -10,6 +10,7 @@ export class WebSocketSessionManager implements SessionManager {
   private sessions: Map<string, ConnectionState> = new Map();
   private socketToSession: Map<string, string> = new Map();
   private readonly SESSION_TIMEOUT_MS = parseInt(process.env.SESSION_TIMEOUT_MS || '1800000'); // 30 minutes
+  private cleanupIntervalId?: NodeJS.Timeout;
 
   /**
    * Creates a new session for a socket connection
@@ -149,12 +150,35 @@ export class WebSocketSessionManager implements SessionManager {
    * Starts periodic cleanup of inactive sessions
    */
   startCleanupInterval(): void {
+    // Clear any existing interval first
+    this.stopCleanupInterval();
+    
     const cleanupInterval = Math.max(this.SESSION_TIMEOUT_MS / 4, 60000); // Every 1/4 of timeout or 1 minute minimum
     
-    setInterval(() => {
+    this.cleanupIntervalId = setInterval(() => {
       this.cleanupInactiveSessions();
     }, cleanupInterval);
 
     console.log(`[${new Date().toISOString()}] Session cleanup interval started: ${cleanupInterval}ms`);
+  }
+
+  /**
+   * Stops the cleanup interval
+   */
+  stopCleanupInterval(): void {
+    if (this.cleanupIntervalId) {
+      clearInterval(this.cleanupIntervalId);
+      this.cleanupIntervalId = undefined;
+      console.log(`[${new Date().toISOString()}] Session cleanup interval stopped`);
+    }
+  }
+
+  /**
+   * Cleanup method to be called when shutting down
+   */
+  destroy(): void {
+    this.stopCleanupInterval();
+    this.sessions.clear();
+    this.socketToSession.clear();
   }
 }

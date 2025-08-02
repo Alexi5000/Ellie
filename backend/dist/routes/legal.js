@@ -19,7 +19,7 @@ router.post('/referral', async (req, res) => {
         }
         const success = await legalComplianceService.processProfessionalReferral(referralRequest);
         if (success) {
-            res.json({
+            return res.json({
                 success: true,
                 message: 'Professional referral request processed successfully',
                 referralId: `REF-${Date.now()}`,
@@ -27,7 +27,7 @@ router.post('/referral', async (req, res) => {
             });
         }
         else {
-            res.status(500).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.REFERRAL_PROCESSING_FAILED, 'Failed to process professional referral request'));
+            return res.status(500).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.REFERRAL_PROCESSING_FAILED, 'Failed to process professional referral request'));
         }
     }
     catch (error) {
@@ -43,7 +43,7 @@ router.put('/privacy-settings/:sessionId', async (req, res) => {
             return res.status(400).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.INVALID_INPUT, 'Invalid privacy settings', { providedSettings: privacySettings }));
         }
         await conversationLoggingService.updatePrivacySettings(sessionId, privacySettings);
-        res.json({
+        return res.json({
             success: true,
             message: 'Privacy settings updated successfully',
             settings: privacySettings
@@ -61,7 +61,7 @@ router.get('/privacy-settings/:sessionId', async (req, res) => {
         if (!conversationLog) {
             return res.status(404).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.NOT_FOUND, 'Conversation log not found or has been deleted', { sessionId }));
         }
-        res.json({
+        return res.json({
             success: true,
             settings: conversationLog.privacySettings
         });
@@ -80,7 +80,7 @@ router.delete('/data/:sessionId', async (req, res) => {
             requestType: immediate ? 'immediate' : 'scheduled',
             reason
         });
-        res.json({
+        return res.json({
             success: true,
             message: immediate ? 'Data deleted immediately' : 'Data deletion scheduled',
             deletionType: immediate ? 'immediate' : 'scheduled'
@@ -100,7 +100,7 @@ router.get('/data-export/:sessionId', async (req, res) => {
         }
         res.setHeader('Content-Type', 'application/json');
         res.setHeader('Content-Disposition', `attachment; filename="ellie-data-export-${sessionId}.json"`);
-        res.json({
+        return res.json({
             exportedAt: new Date().toISOString(),
             dataSubject: sessionId,
             ...exportData
@@ -133,7 +133,7 @@ router.get('/disclaimer/:sessionId', async (req, res) => {
             legalDisclaimer: true
         };
         const disclaimer = legalComplianceService.generateLegalDisclaimer(context);
-        res.json({
+        return res.json({
             success: true,
             disclaimer,
             contextual: true

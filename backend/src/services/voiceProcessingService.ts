@@ -238,8 +238,39 @@ export class VoiceProcessingService {
         speed: speed
       });
 
-      // Convert response to buffer
-      const audioBuffer = Buffer.from(await mp3Response.arrayBuffer());
+      // Validate response exists
+      if (!mp3Response) {
+        throw new Error('OpenAI TTS API returned null response');
+      }
+
+      // Validate that arrayBuffer method exists
+      if (typeof mp3Response.arrayBuffer !== 'function') {
+        throw new Error('OpenAI TTS API response does not have arrayBuffer method');
+      }
+
+      // Convert response to buffer with proper null/undefined checks
+      let arrayBuffer: ArrayBuffer;
+      try {
+        arrayBuffer = await mp3Response.arrayBuffer();
+      } catch (arrayBufferError) {
+        throw new Error(`Failed to get array buffer from OpenAI TTS response: ${arrayBufferError instanceof Error ? arrayBufferError.message : 'Unknown error'}`);
+      }
+
+      if (!arrayBuffer) {
+        throw new Error('OpenAI TTS API returned null or undefined audio data');
+      }
+
+      // Additional validation for arrayBuffer
+      if (!(arrayBuffer instanceof ArrayBuffer)) {
+        throw new Error('OpenAI TTS API returned invalid audio data format');
+      }
+
+      let audioBuffer: Buffer;
+      try {
+        audioBuffer = Buffer.from(arrayBuffer);
+      } catch (bufferError) {
+        throw new Error(`Failed to create Buffer from ArrayBuffer: ${bufferError instanceof Error ? bufferError.message : 'Unknown buffer error'}`);
+      }
       
       const processingTime = Date.now() - startTime;
       console.log(`Text-to-speech completed in ${processingTime}ms`);
@@ -257,38 +288,48 @@ export class VoiceProcessingService {
       const processingTime = Date.now() - startTime;
       console.error('Text-to-speech failed:', error);
 
-      if (error instanceof Error) {
-        // Handle specific OpenAI API errors
-        if (error.message.includes('rate limit')) {
-          throw createErrorResponse(
-            ERROR_CODES.RATE_LIMIT_EXCEEDED,
-            'Text-to-speech service rate limit exceeded. Please try again later.',
-            { processingTime, originalError: error.message }
-          );
+      // Safely extract error message
+      let errorMessage = 'Unknown error';
+      if (error && typeof error === 'object') {
+        if ('message' in error && typeof error.message === 'string') {
+          errorMessage = error.message;
+        } else if (typeof error.toString === 'function') {
+          errorMessage = error.toString();
         }
+      } else if (typeof error === 'string') {
+        errorMessage = error;
+      }
 
-        if (error.message.includes('invalid voice')) {
-          throw createErrorResponse(
-            ERROR_CODES.INVALID_INPUT,
-            'Invalid voice selection. Please use alloy, echo, fable, onyx, nova, or shimmer.',
-            { processingTime, voice, originalError: error.message }
-          );
-        }
+      // Handle specific OpenAI API errors
+      if (errorMessage.includes('rate limit')) {
+        throw createErrorResponse(
+          ERROR_CODES.RATE_LIMIT_EXCEEDED,
+          'Text-to-speech service rate limit exceeded. Please try again later.',
+          { processingTime, originalError: errorMessage }
+        );
+      }
 
-        if (error.message.includes('content policy')) {
-          throw createErrorResponse(
-            ERROR_CODES.INAPPROPRIATE_CONTENT,
-            'Text content violates content policy. Please modify your message.',
-            { processingTime, originalError: error.message }
-          );
-        }
+      if (errorMessage.includes('invalid voice')) {
+        throw createErrorResponse(
+          ERROR_CODES.INVALID_INPUT,
+          'Invalid voice selection. Please use alloy, echo, fable, onyx, nova, or shimmer.',
+          { processingTime, voice, originalError: errorMessage }
+        );
+      }
+
+      if (errorMessage.includes('content policy')) {
+        throw createErrorResponse(
+          ERROR_CODES.INAPPROPRIATE_CONTENT,
+          'Text content violates content policy. Please modify your message.',
+          { processingTime, originalError: errorMessage }
+        );
       }
 
       // Generic TTS error
       throw createErrorResponse(
         ERROR_CODES.AUDIO_PROCESSING_FAILED,
         'Failed to convert text to speech. Please try again.',
-        { processingTime, originalError: error instanceof Error ? error.message : 'Unknown error' }
+        { processingTime, originalError: errorMessage }
       );
     }
   }

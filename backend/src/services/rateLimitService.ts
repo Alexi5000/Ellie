@@ -36,13 +36,16 @@ interface QueuedRequest {
 export class RateLimitService {
   private static instance: RateLimitService;
   private limitStore = new Map<string, RateLimitEntry>();
-  private cleanupInterval: NodeJS.Timeout;
+  private cleanupInterval?: NodeJS.Timeout;
 
   private constructor() {
-    // Clean up expired entries every minute
-    this.cleanupInterval = setInterval(() => {
-      this.cleanup();
-    }, 60000);
+    // Don't start cleanup interval in test environment
+    if (process.env.NODE_ENV !== 'test') {
+      // Clean up expired entries every minute
+      this.cleanupInterval = setInterval(() => {
+        this.cleanup();
+      }, 60000);
+    }
   }
 
   static getInstance(): RateLimitService {
@@ -50,6 +53,23 @@ export class RateLimitService {
       RateLimitService.instance = new RateLimitService();
     }
     return RateLimitService.instance;
+  }
+
+  /**
+   * Cleanup method for tests and shutdown
+   */
+  destroy(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = undefined;
+    }
+    
+    // Clear all timeouts
+    for (const entry of this.limitStore.values()) {
+      entry.queue.forEach(item => clearTimeout(item.timeoutId));
+    }
+    
+    this.limitStore.clear();
   }
 
   /**
@@ -386,21 +406,7 @@ export class RateLimitService {
     return stats;
   }
 
-  /**
-   * Cleanup on shutdown
-   */
-  destroy() {
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval);
-    }
-    
-    // Clear all timeouts
-    for (const entry of this.limitStore.values()) {
-      entry.queue.forEach(item => clearTimeout(item.timeoutId));
-    }
-    
-    this.limitStore.clear();
-  }
+
 }
 
 export const rateLimitService = RateLimitService.getInstance();

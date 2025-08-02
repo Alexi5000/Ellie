@@ -59,8 +59,16 @@ describe('AIResponseService', () => {
     };
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     jest.clearAllMocks();
+    
+    // Clean up service instance
+    if (service) {
+      // No specific cleanup needed for AI service, but wait for async operations
+    }
+    
+    // Wait for any pending async operations
+    await new Promise(resolve => setImmediate(resolve));
   });
 
   describe('constructor', () => {

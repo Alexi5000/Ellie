@@ -36,8 +36,18 @@ describe('CacheService', () => {
     (cacheService as any).client = mockRedisClient;
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     jest.clearAllMocks();
+    
+    // Clean up cache service instance
+    if (cacheService) {
+      // Simulate disconnection to prevent hanging connections
+      (cacheService as any).isConnected = false;
+      (cacheService as any).client = null;
+    }
+    
+    // Wait for any pending async operations
+    await new Promise(resolve => setImmediate(resolve));
   });
 
   describe('AI Response Caching', () => {

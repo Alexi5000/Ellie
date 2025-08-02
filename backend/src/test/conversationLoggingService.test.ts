@@ -34,6 +34,16 @@ describe('ConversationLoggingService', () => {
     };
   });
 
+  afterEach(async () => {
+    // Clean up the service instance
+    if (loggingService && typeof loggingService.destroy === 'function') {
+      loggingService.destroy();
+    }
+    
+    // Wait for any pending async operations
+    await new Promise(resolve => setImmediate(resolve));
+  });
+
   describe('logMessage', () => {
     it('should log message when conversation logging is enabled', async () => {
       const sessionId = 'test-session-123';

@@ -25,8 +25,8 @@ describe('LegalComplianceService', () => {
   });
 
   afterEach(async () => {
-    // Clean up any pending operations
-    await new Promise(resolve => setTimeout(resolve, 10));
+    // Clean up any pending async operations
+    await new Promise(resolve => setImmediate(resolve));
   });
 
   describe('analyzeLegalCompliance', () => {

@@ -31,8 +31,17 @@ describe('VoiceProcessingService', () => {
     service = new VoiceProcessingService();
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     jest.clearAllMocks();
+    
+    // Clean up service instance
+    if (service) {
+      // Clear any internal caches or timers
+      service.clearTTSCache();
+    }
+    
+    // Wait for any pending async operations
+    await new Promise(resolve => setImmediate(resolve));
   });
 
   describe('constructor', () => {

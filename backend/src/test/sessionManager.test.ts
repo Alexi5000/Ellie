@@ -13,9 +13,18 @@ describe('WebSocketSessionManager', () => {
     sessionManager = new WebSocketSessionManager();
   });
 
-  afterEach(() => {
-    // Clean up any intervals
+  afterEach(async () => {
+    // Clean up any intervals and timers
     jest.clearAllTimers();
+    
+    // Clean up session manager instances
+    if (sessionManager) {
+      // Stop any cleanup intervals and clear all sessions
+      sessionManager.destroy();
+    }
+    
+    // Wait for any pending async operations
+    await new Promise(resolve => setImmediate(resolve));
   });
 
   describe('createSession', () => {
@@ -185,8 +194,10 @@ describe('WebSocketSessionManager', () => {
       jest.useFakeTimers();
     });
 
-    afterEach(() => {
+    afterEach(async () => {
       jest.useRealTimers();
+      // Wait for any pending operations to complete
+      await new Promise(resolve => setImmediate(resolve));
     });
 
     it('should remove expired sessions', () => {

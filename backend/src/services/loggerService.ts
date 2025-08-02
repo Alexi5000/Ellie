@@ -38,8 +38,12 @@ export class LoggerService {
   private static instance: LoggerService;
   private logBuffer: LogEntry[] = [];
   private readonly maxBufferSize = 1000;
+  private testMode = false;
 
-  private constructor() {}
+  private constructor() {
+    // Check if we're in test environment
+    this.testMode = process.env.NODE_ENV === 'test';
+  }
 
   static getInstance(): LoggerService {
     if (!LoggerService.instance) {
@@ -233,6 +237,11 @@ export class LoggerService {
    * Format and output log entry to console
    */
   private outputToConsole(entry: LogEntry): void {
+    // Skip console output in test mode to prevent logging after test completion
+    if (this.testMode) {
+      return;
+    }
+
     const timestamp = entry.timestamp;
     const level = entry.level.toUpperCase().padEnd(5);
     const requestId = entry.requestId ? `[${entry.requestId.slice(0, 8)}]` : '';

@@ -36,6 +36,16 @@ describe('WebSocketHandler', () => {
     sessionManager = websocketHandler.getSessionManager();
   });
 
+  afterEach(async () => {
+    // Clean up websocket handler and session manager
+    if (sessionManager) {
+      sessionManager.destroy();
+    }
+    
+    // Wait for any pending async operations
+    await new Promise(resolve => setImmediate(resolve));
+  });
+
   describe('Initialization', () => {
     it('should initialize with session manager', () => {
       expect(websocketHandler).toBeDefined();

@@ -6,7 +6,32 @@
 import request from 'supertest';
 import { app } from '../index';
 
+// Ensure environment variables are set before importing services
+process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || 'test_openai_api_key_mock';
+process.env.GROQ_API_KEY = process.env.GROQ_API_KEY || 'test_groq_api_key_mock';
+process.env.NODE_ENV = 'test';
+
 describe('Voice Processing API Integration Tests', () => {
+  beforeEach(() => {
+    // Reset all mocks before each test
+    jest.clearAllMocks();
+    
+    // Reset mock implementations to defaults
+    const mockVoice = (global as any).mockVoiceProcessingService;
+    const mockAI = (global as any).mockAIResponseService;
+    
+    if (mockVoice) {
+      mockVoice.validateAudioFormat.mockReturnValue(true);
+      mockVoice.processAudioInput.mockResolvedValue('Mock transcription');
+      mockVoice.convertTextToSpeech.mockResolvedValue(Buffer.from('mock-audio-data'));
+      mockVoice.getCacheStats.mockReturnValue({ size: 0, keys: [] });
+    }
+    
+    if (mockAI) {
+      mockAI.generateResponse.mockResolvedValue('Mock AI response');
+    }
+  });
+
   describe('API Structure Tests', () => {
     it('should have voice processing endpoint available', async () => {
       const response = await request(app)
