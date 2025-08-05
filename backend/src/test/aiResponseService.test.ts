@@ -11,6 +11,26 @@ import { ERROR_CODES } from '../types';
 jest.mock('openai');
 jest.mock('groq-sdk');
 
+// Mock the cache service
+jest.mock('../services/cacheService', () => ({
+  cacheService: {
+    getCachedAIResponse: jest.fn().mockResolvedValue(null),
+    cacheAIResponse: jest.fn().mockResolvedValue(undefined)
+  }
+}));
+
+// Mock the legal compliance service
+jest.mock('../services/legalComplianceService', () => ({
+  LegalComplianceService: jest.fn().mockImplementation(() => ({
+    analyzeLegalCompliance: jest.fn().mockResolvedValue({
+      isCompliant: true,
+      requiresProfessionalReferral: false,
+      complianceIssues: []
+    }),
+    generateLegalDisclaimer: jest.fn().mockReturnValue('Legal disclaimer text')
+  }))
+}));
+
 describe('AIResponseService', () => {
   let service: AIResponseService;
   let mockOpenAI: any;
@@ -73,18 +93,35 @@ describe('AIResponseService', () => {
 
   describe('constructor', () => {
     it('should throw error if OPENAI_API_KEY is not set', () => {
+      const originalKey = process.env.OPENAI_API_KEY;
       delete process.env.OPENAI_API_KEY;
+      
       expect(() => new AIResponseService()).toThrow('OPENAI_API_KEY environment variable is required');
+      
+      // Restore the key
+      process.env.OPENAI_API_KEY = originalKey;
     });
 
     it('should throw error if GROQ_API_KEY is not set', () => {
+      const originalKey = process.env.GROQ_API_KEY;
       delete process.env.GROQ_API_KEY;
+      
       expect(() => new AIResponseService()).toThrow('GROQ_API_KEY environment variable is required');
+      
+      // Restore the key
+      process.env.GROQ_API_KEY = originalKey;
     });
 
     it('should initialize both OpenAI and Groq clients', () => {
       const OpenAI = require('openai');
       const Groq = require('groq-sdk');
+      
+      // Clear previous calls
+      OpenAI.mockClear();
+      Groq.mockClear();
+      
+      // Create new instance to test constructor
+      new AIResponseService();
       
       expect(OpenAI).toHaveBeenCalledWith({
         apiKey: 'test-openai-key'

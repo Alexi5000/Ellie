@@ -29,20 +29,32 @@ For legal matters requiring professional judgment, please consult with one of ou
   ];
 
   constructor() {
-    if (!process.env.OPENAI_API_KEY) {
+    // In test environment, allow mock API keys
+    const isTestEnv = process.env.NODE_ENV === 'test';
+    
+    if (!process.env.OPENAI_API_KEY && !isTestEnv) {
       throw new Error('OPENAI_API_KEY environment variable is required');
     }
     
-    if (!process.env.GROQ_API_KEY) {
+    if (!process.env.GROQ_API_KEY && !isTestEnv) {
       throw new Error('GROQ_API_KEY environment variable is required');
     }
 
+    // Use test keys or actual keys
+    const openaiKey = process.env.OPENAI_API_KEY || (isTestEnv ? 'test-openai-key' : '');
+    const groqKey = process.env.GROQ_API_KEY || (isTestEnv ? 'test-groq-key' : '');
+
+    // Validate keys are not empty in production
+    if (!isTestEnv && (!openaiKey || !groqKey)) {
+      throw new Error('API keys cannot be empty in production environment');
+    }
+
     this.openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY,
+      apiKey: openaiKey,
     });
 
     this.groq = new Groq({
-      apiKey: process.env.GROQ_API_KEY,
+      apiKey: groqKey,
     });
 
     this.legalComplianceService = new LegalComplianceService();

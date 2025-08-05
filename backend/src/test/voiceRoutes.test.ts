@@ -11,21 +11,24 @@ import fs from 'fs';
 import path from 'path';
 
 // Mock the services to avoid actual API calls during testing
-jest.mock('../services/voiceProcessingService');
-jest.mock('../services/aiResponseService');
+jest.mock('../services/voiceProcessingService', () => ({
+  VoiceProcessingService: jest.fn().mockImplementation(() => ({
+    validateAudioFormat: jest.fn(),
+    processAudioInput: jest.fn(),
+    convertTextToSpeech: jest.fn(),
+    getCacheStats: jest.fn()
+  }))
+}));
 
-const MockedVoiceProcessingService = VoiceProcessingService as jest.MockedClass<typeof VoiceProcessingService>;
-const MockedAIResponseService = AIResponseService as jest.MockedClass<typeof AIResponseService>;
-
-// Mock the route imports to use mocked services
-jest.mock('../routes/voice', () => {
-  const originalModule = jest.requireActual('../routes/voice');
-  return originalModule;
-});
+jest.mock('../services/aiResponseService', () => ({
+  AIResponseService: jest.fn().mockImplementation(() => ({
+    generateResponse: jest.fn()
+  }))
+}));
 
 describe('Voice Processing API Endpoints', () => {
-  let mockVoiceService: jest.Mocked<VoiceProcessingService>;
-  let mockAIService: jest.Mocked<AIResponseService>;
+  let mockVoiceService: any;
+  let mockAIService: any;
 
   const createMockAudioFile = () => {
     return Buffer.from('mock-audio-file-content');
@@ -34,15 +37,25 @@ describe('Voice Processing API Endpoints', () => {
   beforeEach(() => {
     // Reset mocks
     jest.clearAllMocks();
-    
+
+    // Get the mocked constructors
+    const VoiceProcessingService = require('../services/voiceProcessingService').VoiceProcessingService;
+    const AIResponseService = require('../services/aiResponseService').AIResponseService;
+
     // Create mock instances
-    mockVoiceService = new MockedVoiceProcessingService() as jest.Mocked<VoiceProcessingService>;
-    mockAIService = new MockedAIResponseService() as jest.Mocked<AIResponseService>;
+    mockVoiceService = new VoiceProcessingService();
+    mockAIService = new AIResponseService();
 
     // Setup default mock implementations
     mockVoiceService.validateAudioFormat.mockReturnValue(true);
     mockVoiceService.processAudioInput.mockResolvedValue('Hello, I need legal help');
     mockVoiceService.convertTextToSpeech.mockResolvedValue(Buffer.from('mock-audio-data'));
+    mockVoiceService.getCacheStats.mockResolvedValue({
+      totalRequests: 100,
+      cacheHits: 50,
+      cacheMisses: 50,
+      hitRate: 0.5
+    });
     mockAIService.generateResponse.mockResolvedValue('Hello! I\'m Ellie, your AI legal assistant. How can I help you today?');
   });
 

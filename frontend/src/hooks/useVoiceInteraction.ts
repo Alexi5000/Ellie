@@ -62,7 +62,7 @@ export function useVoiceInteraction(options: UseVoiceInteractionOptions = {}): U
     onMaxAttemptsReached: (error) => {
       console.error('Max connection attempts reached:', error);
       setConnectionError('Unable to connect after multiple attempts. Please check your internet connection.');
-      onError?.('Connection failed after multiple attempts. Please try again later.');
+      onError?.('Unable to connect after multiple attempts. Please check your internet connection.');
     },
   });
 
@@ -131,7 +131,7 @@ export function useVoiceInteraction(options: UseVoiceInteractionOptions = {}): U
       setConnectionError(null);
     } catch (error) {
       console.error('Failed to initialize socket connection:', error);
-      const errorMessage = 'Failed to connect to voice service. Please try again.';
+      const errorMessage = 'Unable to connect after multiple attempts. Please check your internet connection.';
       setConnectionError(errorMessage);
       setVoiceState(VoiceState.ERROR);
       onError?.(errorMessage);
@@ -314,7 +314,7 @@ export function useVoiceInteraction(options: UseVoiceInteractionOptions = {}): U
       setIsInitialized(true);
     } catch (error) {
       console.error('Retry connection failed:', error);
-      setConnectionError('Failed to reconnect. Please refresh the page.');
+      setConnectionError('Unable to connect after multiple attempts. Please check your internet connection.');
     }
   }, [forceReconnect, connect]);
 

@@ -17,6 +17,9 @@ module.exports = {
   moduleNameMapping: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  // Environment configuration
+  testEnvironment: 'node',
+  setupFiles: ['<rootDir>/src/test/env-setup.ts'],
   // Improved async handling and cleanup
   testTimeout: 15000,
   forceExit: true,

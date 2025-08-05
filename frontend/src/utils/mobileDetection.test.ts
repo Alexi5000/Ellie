@@ -118,12 +118,27 @@ describe('mobileDetection', () => {
         writable: true,
         value: 0
       });
-      // Ensure no touch support
-      if ('ontouchstart' in window) {
-        delete (window as any).ontouchstart;
-      }
+      
+      // Create a temporary window object without ontouchstart property
+      const originalWindow = global.window;
+      const mockWindow = { ...originalWindow };
+      delete (mockWindow as any).ontouchstart;
+      
+      // Temporarily replace window
+      Object.defineProperty(global, 'window', {
+        writable: true,
+        configurable: true,
+        value: mockWindow
+      });
       
       expect(isMobileDevice()).toBe(false);
+      
+      // Restore original window
+      Object.defineProperty(global, 'window', {
+        writable: true,
+        configurable: true,
+        value: originalWindow
+      });
     });
   });
 
@@ -404,19 +419,26 @@ describe('mobileDetection', () => {
     });
 
     it('handles missing vibrate API gracefully', () => {
-      // Remove the vibrate property entirely
-      const originalVibrate = navigator.vibrate;
-      delete (navigator as any).vibrate;
+      // Create a temporary navigator object without vibrate property
+      const originalNavigator = global.navigator;
+      const mockNavigator = { ...originalNavigator };
+      delete (mockNavigator as any).vibrate;
+      
+      // Temporarily replace navigator
+      Object.defineProperty(global, 'navigator', {
+        writable: true,
+        configurable: true,
+        value: mockNavigator
+      });
 
       expect(() => provideMobileHapticFeedback()).not.toThrow();
 
-      // Restore the original vibrate function
-      if (originalVibrate) {
-        Object.defineProperty(navigator, 'vibrate', {
-          writable: true,
-          value: originalVibrate
-        });
-      }
+      // Restore original navigator
+      Object.defineProperty(global, 'navigator', {
+        writable: true,
+        configurable: true,
+        value: originalNavigator
+      });
     });
   });
 

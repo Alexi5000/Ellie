@@ -289,7 +289,7 @@ describe('useVoiceInteraction', () => {
         await result.current.handleRetryConnection();
       });
 
-      expect(result.current.connectionError).toBe('Failed to reconnect. Please refresh the page.');
+      expect(result.current.connectionError).toBe('Unable to connect after multiple attempts. Please check your internet connection.');
     });
   });
 

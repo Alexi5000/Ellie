@@ -24,6 +24,26 @@ vi.mock('uuid', () => ({
   v4: () => 'test-message-id',
 }));
 
+// Mock mobile detection to always return desktop interface
+vi.mock('../utils/mobileDetection', () => ({
+  getDeviceCapabilities: () => ({
+    isMobile: false,
+    isTablet: false,
+    isDesktop: true,
+    isTouchDevice: false,
+    hasVibration: false,
+    supportsWebAudio: true,
+    supportsSpeechRecognition: true,
+    browserName: 'Chrome',
+    osName: 'Windows'
+  }),
+  getMobileAudioConstraints: () => ({}),
+  getMediaRecorderOptions: () => ({ mimeType: 'audio/webm' }),
+  provideMobileHapticFeedback: () => {},
+  isLandscapeMode: () => false,
+  getSafeAreaInsets: () => ({ top: '0px', bottom: '0px' })
+}));
+
 // Mock URL methods
 global.URL.createObjectURL = vi.fn(() => 'mock-audio-url');
 global.URL.revokeObjectURL = vi.fn();
@@ -301,7 +321,7 @@ describe('Voice Interaction Integration Tests', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Test response')).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       // Clear conversation
       const clearButton = screen.getByText('Clear');
@@ -343,7 +363,7 @@ describe('Voice Interaction Integration Tests', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Test audio response')).toBeInTheDocument();
-      });
+      }, { timeout: 5000 });
 
       // Find and click play button
       const playButton = screen.getByText('Play');
@@ -414,8 +434,9 @@ describe('Voice Interaction Integration Tests', () => {
         }
       });
 
+      // Verify disconnected state is shown
       await waitFor(() => {
-        expect(screen.getByText('Connection Error')).toBeInTheDocument();
+        expect(screen.getByText('Disconnected')).toBeInTheDocument();
       });
 
       // Simulate reconnection

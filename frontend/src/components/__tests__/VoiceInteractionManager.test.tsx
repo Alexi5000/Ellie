@@ -198,13 +198,13 @@ describe('VoiceInteractionManager', () => {
       mockUseVoiceInteraction.mockReturnValue({
         ...defaultMockReturn,
         isConnected: false,
-        connectionError: 'Failed to connect to voice service',
+        connectionError: 'Unable to connect after multiple attempts. Please check your internet connection.',
       });
 
       renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
 
       expect(screen.getByText('Connection Error')).toBeInTheDocument();
-      expect(screen.getByText('Failed to connect to voice service')).toBeInTheDocument();
+      expect(screen.getByText('Unable to connect after multiple attempts. Please check your internet connection.')).toBeInTheDocument();
       expect(screen.getByText('Retry Connection')).toBeInTheDocument();
     });
 
@@ -212,7 +212,7 @@ describe('VoiceInteractionManager', () => {
       mockUseVoiceInteraction.mockReturnValue({
         ...defaultMockReturn,
         isConnected: false,
-        connectionError: 'Failed to connect to voice service',
+        connectionError: 'Unable to connect after multiple attempts. Please check your internet connection.',
       });
 
       renderWithContext(<VoiceInteractionManager onError={mockOnError} />);
