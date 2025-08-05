@@ -134,7 +134,32 @@ class VoiceProcessingService {
                 response_format: 'mp3',
                 speed: speed
             });
-            const audioBuffer = Buffer.from(await mp3Response.arrayBuffer());
+            if (!mp3Response) {
+                throw new Error('OpenAI TTS API returned null response');
+            }
+            if (typeof mp3Response.arrayBuffer !== 'function') {
+                throw new Error('OpenAI TTS API response does not have arrayBuffer method');
+            }
+            let arrayBuffer;
+            try {
+                arrayBuffer = await mp3Response.arrayBuffer();
+            }
+            catch (arrayBufferError) {
+                throw new Error(`Failed to get array buffer from OpenAI TTS response: ${arrayBufferError instanceof Error ? arrayBufferError.message : 'Unknown error'}`);
+            }
+            if (!arrayBuffer) {
+                throw new Error('OpenAI TTS API returned null or undefined audio data');
+            }
+            if (!(arrayBuffer instanceof ArrayBuffer)) {
+                throw new Error('OpenAI TTS API returned invalid audio data format');
+            }
+            let audioBuffer;
+            try {
+                audioBuffer = Buffer.from(arrayBuffer);
+            }
+            catch (bufferError) {
+                throw new Error(`Failed to create Buffer from ArrayBuffer: ${bufferError instanceof Error ? bufferError.message : 'Unknown buffer error'}`);
+            }
             const processingTime = Date.now() - startTime;
             console.log(`Text-to-speech completed in ${processingTime}ms`);
             this.setCachedAudio(cacheKey, audioBuffer);
@@ -147,18 +172,28 @@ class VoiceProcessingService {
         catch (error) {
             const processingTime = Date.now() - startTime;
             console.error('Text-to-speech failed:', error);
-            if (error instanceof Error) {
-                if (error.message.includes('rate limit')) {
-                    throw (0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.RATE_LIMIT_EXCEEDED, 'Text-to-speech service rate limit exceeded. Please try again later.', { processingTime, originalError: error.message });
+            let errorMessage = 'Unknown error';
+            if (error && typeof error === 'object') {
+                if ('message' in error && typeof error.message === 'string') {
+                    errorMessage = error.message;
                 }
-                if (error.message.includes('invalid voice')) {
-                    throw (0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.INVALID_INPUT, 'Invalid voice selection. Please use alloy, echo, fable, onyx, nova, or shimmer.', { processingTime, voice, originalError: error.message });
-                }
-                if (error.message.includes('content policy')) {
-                    throw (0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.INAPPROPRIATE_CONTENT, 'Text content violates content policy. Please modify your message.', { processingTime, originalError: error.message });
+                else if (typeof error.toString === 'function') {
+                    errorMessage = error.toString();
                 }
             }
-            throw (0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.AUDIO_PROCESSING_FAILED, 'Failed to convert text to speech. Please try again.', { processingTime, originalError: error instanceof Error ? error.message : 'Unknown error' });
+            else if (typeof error === 'string') {
+                errorMessage = error;
+            }
+            if (errorMessage.includes('rate limit')) {
+                throw (0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.RATE_LIMIT_EXCEEDED, 'Text-to-speech service rate limit exceeded. Please try again later.', { processingTime, originalError: errorMessage });
+            }
+            if (errorMessage.includes('invalid voice')) {
+                throw (0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.INVALID_INPUT, 'Invalid voice selection. Please use alloy, echo, fable, onyx, nova, or shimmer.', { processingTime, voice, originalError: errorMessage });
+            }
+            if (errorMessage.includes('content policy')) {
+                throw (0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.INAPPROPRIATE_CONTENT, 'Text content violates content policy. Please modify your message.', { processingTime, originalError: errorMessage });
+            }
+            throw (0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.AUDIO_PROCESSING_FAILED, 'Failed to convert text to speech. Please try again.', { processingTime, originalError: errorMessage });
         }
     }
     getCachedAudio(cacheKey) {

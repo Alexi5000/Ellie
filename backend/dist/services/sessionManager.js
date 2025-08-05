@@ -94,11 +94,24 @@ class WebSocketSessionManager {
         return Array.from(this.sessions.values());
     }
     startCleanupInterval() {
+        this.stopCleanupInterval();
         const cleanupInterval = Math.max(this.SESSION_TIMEOUT_MS / 4, 60000);
-        setInterval(() => {
+        this.cleanupIntervalId = setInterval(() => {
             this.cleanupInactiveSessions();
         }, cleanupInterval);
         console.log(`[${new Date().toISOString()}] Session cleanup interval started: ${cleanupInterval}ms`);
+    }
+    stopCleanupInterval() {
+        if (this.cleanupIntervalId) {
+            clearInterval(this.cleanupIntervalId);
+            this.cleanupIntervalId = undefined;
+            console.log(`[${new Date().toISOString()}] Session cleanup interval stopped`);
+        }
+    }
+    destroy() {
+        this.stopCleanupInterval();
+        this.sessions.clear();
+        this.socketToSession.clear();
     }
 }
 exports.WebSocketSessionManager = WebSocketSessionManager;

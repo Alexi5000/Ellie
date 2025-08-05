@@ -32,7 +32,7 @@ router.post('/referral', async (req, res) => {
     }
     catch (error) {
         console.error('Professional referral error:', error);
-        res.status(500).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.REFERRAL_PROCESSING_FAILED, 'Failed to process professional referral request', { error: error instanceof Error ? error.message : 'Unknown error' }));
+        return res.status(500).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.REFERRAL_PROCESSING_FAILED, 'Failed to process professional referral request', { error: error instanceof Error ? error.message : 'Unknown error' }));
     }
 });
 router.put('/privacy-settings/:sessionId', async (req, res) => {
@@ -51,7 +51,7 @@ router.put('/privacy-settings/:sessionId', async (req, res) => {
     }
     catch (error) {
         console.error('Privacy settings update error:', error);
-        res.status(500).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.PRIVACY_UPDATE_FAILED, 'Failed to update privacy settings', { sessionId: req.params.sessionId }));
+        return res.status(500).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.PRIVACY_UPDATE_FAILED, 'Failed to update privacy settings', { sessionId: req.params.sessionId }));
     }
 });
 router.get('/privacy-settings/:sessionId', async (req, res) => {
@@ -68,7 +68,7 @@ router.get('/privacy-settings/:sessionId', async (req, res) => {
     }
     catch (error) {
         console.error('Privacy settings retrieval error:', error);
-        res.status(500).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.PRIVACY_RETRIEVAL_FAILED, 'Failed to retrieve privacy settings', { sessionId: req.params.sessionId }));
+        return res.status(500).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.PRIVACY_RETRIEVAL_FAILED, 'Failed to retrieve privacy settings', { sessionId: req.params.sessionId }));
     }
 });
 router.delete('/data/:sessionId', async (req, res) => {
@@ -88,7 +88,7 @@ router.delete('/data/:sessionId', async (req, res) => {
     }
     catch (error) {
         console.error('Data deletion error:', error);
-        res.status(500).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.DELETION_FAILED, 'Failed to process data deletion request', { sessionId: req.params.sessionId }));
+        return res.status(500).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.DELETION_FAILED, 'Failed to process data deletion request', { sessionId: req.params.sessionId }));
     }
 });
 router.get('/data-export/:sessionId', async (req, res) => {
@@ -108,7 +108,7 @@ router.get('/data-export/:sessionId', async (req, res) => {
     }
     catch (error) {
         console.error('Data export error:', error);
-        res.status(500).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.EXPORT_FAILED, 'Failed to export user data', { sessionId: req.params.sessionId }));
+        return res.status(500).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.EXPORT_FAILED, 'Failed to export user data', { sessionId: req.params.sessionId }));
     }
 });
 router.get('/disclaimer/:sessionId', async (req, res) => {
@@ -141,7 +141,7 @@ router.get('/disclaimer/:sessionId', async (req, res) => {
     }
     catch (error) {
         console.error('Disclaimer generation error:', error);
-        res.status(500).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.DISCLAIMER_GENERATION_FAILED, 'Failed to generate legal disclaimer', { sessionId: req.params.sessionId }));
+        return res.status(500).json((0, errorHandler_1.createErrorResponse)(types_1.ERROR_CODES.DISCLAIMER_GENERATION_FAILED, 'Failed to generate legal disclaimer', { sessionId: req.params.sessionId }));
     }
 });
 function getReferralContactTime(urgency) {

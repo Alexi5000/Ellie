@@ -23,18 +23,31 @@ For legal matters requiring professional judgment, please consult with one of ou
         this.INAPPROPRIATE_CONTENT_KEYWORDS = [
             'illegal activity', 'violence', 'harassment', 'discrimination', 'hate speech'
         ];
-        if (!process.env.OPENAI_API_KEY) {
-            throw new Error('OPENAI_API_KEY environment variable is required');
+        const isTestEnv = process.env.NODE_ENV === 'test';
+        if (isTestEnv) {
+            const openaiKey = process.env.OPENAI_API_KEY || 'test-openai-key';
+            const groqKey = process.env.GROQ_API_KEY || 'test-groq-key';
+            this.openai = new openai_1.default({
+                apiKey: openaiKey,
+            });
+            this.groq = new groq_sdk_1.default({
+                apiKey: groqKey,
+            });
         }
-        if (!process.env.GROQ_API_KEY) {
-            throw new Error('GROQ_API_KEY environment variable is required');
+        else {
+            if (!process.env.OPENAI_API_KEY) {
+                throw new Error('OPENAI_API_KEY environment variable is required');
+            }
+            if (!process.env.GROQ_API_KEY) {
+                throw new Error('GROQ_API_KEY environment variable is required');
+            }
+            this.openai = new openai_1.default({
+                apiKey: process.env.OPENAI_API_KEY,
+            });
+            this.groq = new groq_sdk_1.default({
+                apiKey: process.env.GROQ_API_KEY,
+            });
         }
-        this.openai = new openai_1.default({
-            apiKey: process.env.OPENAI_API_KEY,
-        });
-        this.groq = new groq_sdk_1.default({
-            apiKey: process.env.GROQ_API_KEY,
-        });
         this.legalComplianceService = new legalComplianceService_1.LegalComplianceService();
     }
     async generateResponse(userInput, context) {

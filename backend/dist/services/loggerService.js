@@ -13,6 +13,8 @@ class LoggerService {
     constructor() {
         this.logBuffer = [];
         this.maxBufferSize = 1000;
+        this.testMode = false;
+        this.testMode = process.env.NODE_ENV === 'test';
     }
     static getInstance() {
         if (!LoggerService.instance) {
@@ -118,6 +120,9 @@ class LoggerService {
         }
     }
     outputToConsole(entry) {
+        if (this.testMode) {
+            return;
+        }
         const timestamp = entry.timestamp;
         const level = entry.level.toUpperCase().padEnd(5);
         const requestId = entry.requestId ? `[${entry.requestId.slice(0, 8)}]` : '';

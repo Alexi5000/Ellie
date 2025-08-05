@@ -14,7 +14,9 @@ class ConversationLoggingService {
             allowAnalytics: false,
             allowQualityImprovement: false
         };
-        this.startCleanupScheduler();
+        if (process.env.NODE_ENV !== 'test') {
+            this.startCleanupScheduler();
+        }
     }
     async logMessage(sessionId, message, privacySettings) {
         try {
@@ -200,10 +202,23 @@ class ConversationLoggingService {
         console.log(`All data deleted for user ${userId} (${sessionsToDelete.length} sessions)`);
     }
     startCleanupScheduler() {
-        setInterval(() => {
+        this.stopCleanupScheduler();
+        this.cleanupIntervalId = setInterval(() => {
             this.performScheduledCleanup();
         }, 60 * 60 * 1000);
         console.log('Conversation logging cleanup scheduler started');
+    }
+    stopCleanupScheduler() {
+        if (this.cleanupIntervalId) {
+            clearInterval(this.cleanupIntervalId);
+            this.cleanupIntervalId = undefined;
+            console.log('Conversation logging cleanup scheduler stopped');
+        }
+    }
+    destroy() {
+        this.stopCleanupScheduler();
+        this.conversationLogs.clear();
+        this.deletionQueue.clear();
     }
     async performScheduledCleanup() {
         const now = new Date();

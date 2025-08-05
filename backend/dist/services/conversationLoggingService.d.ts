@@ -25,6 +25,7 @@ export interface DataDeletionRequest {
 export declare class ConversationLoggingService {
     private conversationLogs;
     private deletionQueue;
+    private cleanupIntervalId?;
     private readonly DEFAULT_PRIVACY_SETTINGS;
     constructor();
     logMessage(sessionId: string, message: Message, privacySettings: PrivacySettings): Promise<void>;
@@ -38,6 +39,8 @@ export declare class ConversationLoggingService {
     private deleteConversationLog;
     private deleteUserData;
     private startCleanupScheduler;
+    stopCleanupScheduler(): void;
+    destroy(): void;
     private performScheduledCleanup;
     private calculateAverageResponseTime;
     private analyzeQueryComplexity;

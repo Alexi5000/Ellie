@@ -504,9 +504,11 @@ process.on('SIGINT', async () => {
         process.exit(0);
     });
 });
-server.listen(PORT, () => {
-    console.log(`[${new Date().toISOString()}] Ellie Voice Receptionist Backend running on port ${PORT}`);
-    console.log(`[${new Date().toISOString()}] Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`[${new Date().toISOString()}] Health check available at: http://localhost:${PORT}/health`);
-});
+if (process.env.NODE_ENV !== 'test') {
+    server.listen(PORT, () => {
+        console.log(`[${new Date().toISOString()}] Ellie Voice Receptionist Backend running on port ${PORT}`);
+        console.log(`[${new Date().toISOString()}] Environment: ${process.env.NODE_ENV || 'development'}`);
+        console.log(`[${new Date().toISOString()}] Health check available at: http://localhost:${PORT}/health`);
+    });
+}
 //# sourceMappingURL=index.js.map

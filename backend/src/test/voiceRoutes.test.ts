@@ -4,27 +4,11 @@
  */
 
 import request from 'supertest';
-import { app } from '../index';
-import { VoiceProcessingService } from '../services/voiceProcessingService';
-import { AIResponseService } from '../services/aiResponseService';
 import fs from 'fs';
 import path from 'path';
 
-// Mock the services to avoid actual API calls during testing
-jest.mock('../services/voiceProcessingService', () => ({
-  VoiceProcessingService: jest.fn().mockImplementation(() => ({
-    validateAudioFormat: jest.fn(),
-    processAudioInput: jest.fn(),
-    convertTextToSpeech: jest.fn(),
-    getCacheStats: jest.fn()
-  }))
-}));
-
-jest.mock('../services/aiResponseService', () => ({
-  AIResponseService: jest.fn().mockImplementation(() => ({
-    generateResponse: jest.fn()
-  }))
-}));
+// Import app after mocks are set up in setup.ts
+let app: any;
 
 describe('Voice Processing API Endpoints', () => {
   let mockVoiceService: any;
@@ -34,29 +18,57 @@ describe('Voice Processing API Endpoints', () => {
     return Buffer.from('mock-audio-file-content');
   };
 
-  beforeEach(() => {
+  beforeEach(async () => {
+    // Import app after mocks are set up
+    if (!app) {
+      const { app: importedApp } = await import('../index');
+      app = importedApp;
+    }
+
     // Reset mocks
     jest.clearAllMocks();
 
-    // Get the mocked constructors
-    const VoiceProcessingService = require('../services/voiceProcessingService').VoiceProcessingService;
-    const AIResponseService = require('../services/aiResponseService').AIResponseService;
+    // Use the global mock instances from setup.ts
+    mockVoiceService = (global as any).mockVoiceProcessingService;
+    mockAIService = (global as any).mockAIResponseService;
 
-    // Create mock instances
-    mockVoiceService = new VoiceProcessingService();
-    mockAIService = new AIResponseService();
+    // Reset and setup default mock implementations
+    mockVoiceService.validateAudioFormat.mockReset();
+    mockVoiceService.processAudioInput.mockReset();
+    mockVoiceService.convertTextToSpeech.mockReset();
+    mockVoiceService.getCacheStats.mockReset();
+    mockVoiceService.clearTTSCache.mockReset();
+    mockVoiceService.createAudioInput.mockReset();
+
+    mockAIService.generateResponse.mockReset();
+    mockAIService.routeToOptimalAPI.mockReset();
+    mockAIService.processWithGroq.mockReset();
+    mockAIService.processWithOpenAI.mockReset();
+    mockAIService.validateLegalCompliance.mockReset();
+    mockAIService.handleFallbackResponses.mockReset();
 
     // Setup default mock implementations
     mockVoiceService.validateAudioFormat.mockReturnValue(true);
     mockVoiceService.processAudioInput.mockResolvedValue('Hello, I need legal help');
     mockVoiceService.convertTextToSpeech.mockResolvedValue(Buffer.from('mock-audio-data'));
-    mockVoiceService.getCacheStats.mockResolvedValue({
-      totalRequests: 100,
-      cacheHits: 50,
-      cacheMisses: 50,
-      hitRate: 0.5
+    mockVoiceService.getCacheStats.mockReturnValue({
+      size: 5,
+      keys: ['key1...', 'key2...', 'key3...']
     });
+    mockVoiceService.clearTTSCache.mockReturnValue(undefined);
+    mockVoiceService.createAudioInput.mockReturnValue({
+      buffer: Buffer.from('mock-audio-data'),
+      format: 'audio/wav',
+      duration: 0,
+      sampleRate: 0
+    });
+
     mockAIService.generateResponse.mockResolvedValue('Hello! I\'m Ellie, your AI legal assistant. How can I help you today?');
+    mockAIService.routeToOptimalAPI.mockReturnValue('groq');
+    mockAIService.processWithGroq.mockResolvedValue('Mock Groq response');
+    mockAIService.processWithOpenAI.mockResolvedValue('Mock OpenAI response');
+    mockAIService.validateLegalCompliance.mockResolvedValue(true);
+    mockAIService.handleFallbackResponses.mockReturnValue('Fallback response');
   });
 
   describe('POST /api/voice/process', () => {

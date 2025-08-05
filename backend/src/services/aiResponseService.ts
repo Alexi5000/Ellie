@@ -29,33 +29,40 @@ For legal matters requiring professional judgment, please consult with one of ou
   ];
 
   constructor() {
-    // In test environment, allow mock API keys
+    // Check if we're in test environment
     const isTestEnv = process.env.NODE_ENV === 'test';
     
-    if (!process.env.OPENAI_API_KEY && !isTestEnv) {
-      throw new Error('OPENAI_API_KEY environment variable is required');
+    // In test environment, we need to validate that the test setup has provided keys
+    if (isTestEnv) {
+      // For tests, we expect the test setup to provide keys or we use defaults
+      const openaiKey = process.env.OPENAI_API_KEY || 'test-openai-key';
+      const groqKey = process.env.GROQ_API_KEY || 'test-groq-key';
+      
+      this.openai = new OpenAI({
+        apiKey: openaiKey,
+      });
+
+      this.groq = new Groq({
+        apiKey: groqKey,
+      });
+    } else {
+      // Production environment - strict validation
+      if (!process.env.OPENAI_API_KEY) {
+        throw new Error('OPENAI_API_KEY environment variable is required');
+      }
+      
+      if (!process.env.GROQ_API_KEY) {
+        throw new Error('GROQ_API_KEY environment variable is required');
+      }
+
+      this.openai = new OpenAI({
+        apiKey: process.env.OPENAI_API_KEY,
+      });
+
+      this.groq = new Groq({
+        apiKey: process.env.GROQ_API_KEY,
+      });
     }
-    
-    if (!process.env.GROQ_API_KEY && !isTestEnv) {
-      throw new Error('GROQ_API_KEY environment variable is required');
-    }
-
-    // Use test keys or actual keys
-    const openaiKey = process.env.OPENAI_API_KEY || (isTestEnv ? 'test-openai-key' : '');
-    const groqKey = process.env.GROQ_API_KEY || (isTestEnv ? 'test-groq-key' : '');
-
-    // Validate keys are not empty in production
-    if (!isTestEnv && (!openaiKey || !groqKey)) {
-      throw new Error('API keys cannot be empty in production environment');
-    }
-
-    this.openai = new OpenAI({
-      apiKey: openaiKey,
-    });
-
-    this.groq = new Groq({
-      apiKey: groqKey,
-    });
 
     this.legalComplianceService = new LegalComplianceService();
   }

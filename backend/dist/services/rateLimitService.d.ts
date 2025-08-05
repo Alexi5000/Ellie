@@ -12,9 +12,10 @@ interface RateLimitConfig {
 export declare class RateLimitService {
     private static instance;
     private limitStore;
-    private cleanupInterval;
+    private cleanupInterval?;
     private constructor();
     static getInstance(): RateLimitService;
+    destroy(): void;
     createLimiter(config: RateLimitConfig): (req: Request, res: Response, next: NextFunction) => void;
     private handleLimitExceeded;
     private removeFromQueue;
@@ -38,7 +39,6 @@ export declare class RateLimitService {
             queueLength: number;
         }>;
     };
-    destroy(): void;
 }
 export declare const rateLimitService: RateLimitService;
 export {};

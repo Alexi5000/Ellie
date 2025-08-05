@@ -173,12 +173,8 @@ jest.mock('../services/voiceProcessingService', () => {
   };
 });
 
-// Mock AIResponseService
-jest.mock('../services/aiResponseService', () => {
-  return {
-    AIResponseService: jest.fn().mockImplementation(() => mockAIResponseService)
-  };
-});
+// Note: AIResponseService is not mocked globally to allow unit testing
+// Individual tests can mock it if needed
 
 // Export mocks for use in tests
 (global as any).mockVoiceProcessingService = mockVoiceProcessingService;

@@ -7,15 +7,27 @@ const loggerService_1 = require("./loggerService");
 class RateLimitService {
     constructor() {
         this.limitStore = new Map();
-        this.cleanupInterval = setInterval(() => {
-            this.cleanup();
-        }, 60000);
+        if (process.env.NODE_ENV !== 'test') {
+            this.cleanupInterval = setInterval(() => {
+                this.cleanup();
+            }, 60000);
+        }
     }
     static getInstance() {
         if (!RateLimitService.instance) {
             RateLimitService.instance = new RateLimitService();
         }
         return RateLimitService.instance;
+    }
+    destroy() {
+        if (this.cleanupInterval) {
+            clearInterval(this.cleanupInterval);
+            this.cleanupInterval = undefined;
+        }
+        for (const entry of this.limitStore.values()) {
+            entry.queue.forEach(item => clearTimeout(item.timeoutId));
+        }
+        this.limitStore.clear();
     }
     createLimiter(config) {
         const { windowMs, maxRequests, queueSize = 10, queueTimeoutMs = 30000, skipSuccessfulRequests = false, skipFailedRequests = false, keyGenerator = (req) => req.ip || 'unknown', onLimitReached } = config;
@@ -232,15 +244,6 @@ class RateLimitService {
             .sort((a, b) => b.count - a.count)
             .slice(0, 10);
         return stats;
-    }
-    destroy() {
-        if (this.cleanupInterval) {
-            clearInterval(this.cleanupInterval);
-        }
-        for (const entry of this.limitStore.values()) {
-            entry.queue.forEach(item => clearTimeout(item.timeoutId));
-        }
-        this.limitStore.clear();
     }
 }
 exports.RateLimitService = RateLimitService;

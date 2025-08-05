@@ -29,6 +29,7 @@ export declare class LoggerService {
     private static instance;
     private logBuffer;
     private readonly maxBufferSize;
+    private testMode;
     private constructor();
     static getInstance(): LoggerService;
     error(message: string, options?: Partial<LogEntry>): void;
