@@ -418,3 +418,6 @@ export class LegalComplianceService {
     console.log(`Professional referral processed for ${request.name} (${request.urgency} priority)`);
   }
 }
+
+// Export singleton instance
+export const legalComplianceService = new LegalComplianceService();

@@ -427,3 +427,6 @@ Current conversation context:
     );
   }
 }
+
+// Export singleton instance
+export const aiResponseService = new AIResponseService();

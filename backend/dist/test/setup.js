@@ -151,6 +151,118 @@ jest.mock('../services/aiResponseService', () => {
         AIResponseService: jest.fn().mockImplementation(() => mockAIResponseService)
     };
 });
+jest.mock('../services/loggerService', () => ({
+    logger: {
+        info: jest.fn(),
+        error: jest.fn(),
+        warn: jest.fn(),
+        debug: jest.fn(),
+        logRequest: jest.fn(),
+        logVoiceProcessing: jest.fn(),
+        getErrorStats: jest.fn().mockReturnValue({}),
+        getRecentLogs: jest.fn().mockReturnValue([])
+    }
+}));
+jest.mock('../services/rateLimitService', () => ({
+    rateLimitService: {
+        createApiRateLimiter: jest.fn().mockReturnValue((req, res, next) => next()),
+        createVoiceRateLimiter: jest.fn().mockReturnValue((req, res, next) => next()),
+        createVoiceProcessingLimiter: jest.fn().mockReturnValue((req, res, next) => next()),
+        createTTSLimiter: jest.fn().mockReturnValue((req, res, next) => next()),
+        getStats: jest.fn().mockReturnValue({ totalKeys: 0, totalQueuedRequests: 0, averageQueueLength: 0 })
+    }
+}));
+jest.mock('../services/fallbackService', () => ({
+    fallbackService: {
+        getContextualFallback: jest.fn().mockReturnValue({
+            text: 'Mock fallback response',
+            isFallback: true,
+            fallbackReason: 'Mock fallback'
+        }),
+        getServiceHealth: jest.fn().mockReturnValue({}),
+        getFallbackStats: jest.fn().mockReturnValue({})
+    }
+}));
+jest.mock('../services/cacheService', () => ({
+    cacheService: {
+        isAvailable: jest.fn().mockReturnValue(true),
+        getCacheStats: jest.fn().mockResolvedValue({ size: 0, keys: [] }),
+        clearCache: jest.fn().mockResolvedValue(true),
+        invalidateByPattern: jest.fn().mockResolvedValue(0),
+        disconnect: jest.fn().mockResolvedValue(undefined),
+        getCachedTTSAudio: jest.fn().mockResolvedValue(null),
+        cacheTTSAudio: jest.fn().mockResolvedValue(undefined)
+    }
+}));
+jest.mock('../services/cdnService', () => ({
+    cdnService: {
+        cacheMiddleware: jest.fn().mockReturnValue((req, res, next) => next()),
+        getFrontendConfig: jest.fn().mockReturnValue({}),
+        getStats: jest.fn().mockReturnValue({}),
+        purgeCDNCache: jest.fn().mockResolvedValue(true)
+    }
+}));
+jest.mock('../services/analyticsService', () => ({
+    analyticsService: {
+        getServiceStats: jest.fn().mockReturnValue({}),
+        getUsageMetrics: jest.fn().mockReturnValue({}),
+        getPerformanceMetrics: jest.fn().mockResolvedValue({}),
+        getBusinessMetrics: jest.fn().mockReturnValue({}),
+        getDashboardData: jest.fn().mockReturnValue({}),
+        exportData: jest.fn().mockReturnValue('')
+    }
+}));
+jest.mock('../services/apmService', () => ({
+    apmService: {
+        createExpressMiddleware: jest.fn().mockReturnValue((req, res, next) => next()),
+        getServiceStats: jest.fn().mockReturnValue({}),
+        getMetrics: jest.fn().mockReturnValue({}),
+        getActiveOperations: jest.fn().mockReturnValue([]),
+        getTransaction: jest.fn().mockReturnValue(null)
+    }
+}));
+jest.mock('../services/advancedLoggerService', () => ({
+    advancedLoggerService: {
+        getServiceStats: jest.fn().mockReturnValue({}),
+        getLogMetrics: jest.fn().mockReturnValue({}),
+        searchLogs: jest.fn().mockReturnValue([]),
+        getAggregations: jest.fn().mockReturnValue({}),
+        getActiveAlerts: jest.fn().mockReturnValue([]),
+        resolveAlert: jest.fn().mockReturnValue(true),
+        exportLogs: jest.fn().mockReturnValue('')
+    }
+}));
+jest.mock('../services/websocketHandler', () => ({
+    WebSocketHandler: jest.fn().mockImplementation(() => ({
+        getConnectionStats: jest.fn().mockReturnValue({
+            activeConnections: 0,
+            totalConnections: 0
+        })
+    }))
+}));
+jest.mock('../services/legalComplianceService', () => ({
+    LegalComplianceService: jest.fn().mockImplementation(() => ({
+        analyzeLegalCompliance: jest.fn().mockResolvedValue({
+            isCompliant: true,
+            requiresDisclaimer: false,
+            suggestedResponse: 'Mock legal response'
+        }),
+        processReferralRequest: jest.fn().mockResolvedValue({
+            success: true,
+            referralId: 'mock-referral-id'
+        })
+    }))
+}));
+jest.mock('../services/conversationLoggingService', () => ({
+    ConversationLoggingService: jest.fn().mockImplementation(() => ({
+        logMessage: jest.fn().mockResolvedValue(undefined),
+        getConversationHistory: jest.fn().mockResolvedValue([]),
+        deleteConversationData: jest.fn().mockResolvedValue(true),
+        updatePrivacySettings: jest.fn().mockResolvedValue(undefined),
+        getAnalyticsData: jest.fn().mockResolvedValue(null),
+        exportConversationData: jest.fn().mockResolvedValue('')
+    }))
+}));
 global.mockVoiceProcessingService = mockVoiceProcessingService;
 global.mockAIResponseService = mockAIResponseService;
 jest.mock('groq-sdk', () => {

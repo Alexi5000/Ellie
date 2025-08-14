@@ -20,17 +20,46 @@ const testEnv = {
 };
 
 // Mock Web Audio API for testing
-Object.defineProperty(window, 'MediaRecorder', {
-  writable: true,
-  value: vi.fn().mockImplementation(() => ({
-    start: vi.fn(),
-    stop: vi.fn(),
-    addEventListener: vi.fn(),
+const mockMediaRecorder = vi.fn().mockImplementation(() => {
+  const recorder = {
+    start: vi.fn().mockImplementation(() => {
+      // Simulate async start behavior
+      setTimeout(() => {
+        if (recorder.onstart) recorder.onstart(new Event('start'));
+      }, 10);
+    }),
+    stop: vi.fn().mockImplementation(() => {
+      // Simulate async stop behavior with data
+      setTimeout(() => {
+        if (recorder.ondataavailable) {
+          const mockBlob = new Blob(['mock audio data'], { type: 'audio/webm' });
+          recorder.ondataavailable({ data: mockBlob });
+        }
+        if (recorder.onstop) recorder.onstop(new Event('stop'));
+      }, 10);
+    }),
+    addEventListener: vi.fn().mockImplementation((event, handler) => {
+      if (event === 'start') recorder.onstart = handler;
+      if (event === 'stop') recorder.onstop = handler;
+      if (event === 'dataavailable') recorder.ondataavailable = handler;
+    }),
     removeEventListener: vi.fn(),
     state: 'inactive',
     mimeType: 'audio/webm',
-  })),
+    onstart: null,
+    onstop: null,
+    ondataavailable: null,
+  };
+  return recorder;
 });
+
+Object.defineProperty(window, 'MediaRecorder', {
+  writable: true,
+  value: mockMediaRecorder,
+});
+
+// Make MediaRecorder available globally for tests
+(global as any).MockMediaRecorder = mockMediaRecorder;
 
 // Mock getUserMedia
 Object.defineProperty(navigator, 'mediaDevices', {
@@ -77,11 +106,27 @@ Object.defineProperty(navigator, 'serviceWorker', {
   },
 });
 
-// Mock navigator.vibrate for mobile tests
-Object.defineProperty(navigator, 'vibrate', {
-  writable: true,
-  value: vi.fn().mockReturnValue(true),
-});
+// Mock navigator.vibrate for mobile tests - handle non-configurable property
+try {
+  Object.defineProperty(navigator, 'vibrate', {
+    writable: true,
+    configurable: true,
+    value: vi.fn().mockReturnValue(true),
+  });
+} catch (error) {
+  // If property is not configurable, use a different approach
+  if ('vibrate' in navigator) {
+    // Property exists but is not configurable, mock it differently
+    const originalVibrate = navigator.vibrate;
+    (navigator as any).vibrate = vi.fn().mockReturnValue(true);
+    
+    // Store original for cleanup
+    (global as any).originalNavigatorVibrate = originalVibrate;
+  } else {
+    // Property doesn't exist, add it
+    (navigator as any).vibrate = vi.fn().mockReturnValue(true);
+  }
+}
 
 // Mock import.meta.env with test environment variables
 Object.defineProperty(import.meta, 'env', {
@@ -133,10 +178,36 @@ console.error = (...args: any[]) => {
   originalConsoleError(...args);
 };
 
-// Log test environment setup
-console.log('Frontend test environment setup completed:', {
-  VITE_API_URL: testEnv.VITE_API_URL,
-  VITE_TEST_MODE: testEnv.VITE_TEST_MODE,
-  VITE_MOCK_AUDIO: testEnv.VITE_MOCK_AUDIO,
-  VITE_SKIP_PERMISSIONS: testEnv.VITE_SKIP_PERMISSIONS,
-});
+// Log test environment setup (only in verbose mode)
+if (process.env.VITEST_VERBOSE === 'true') {
+  console.log('Frontend test environment setup completed:', {
+    VITE_API_URL: testEnv.VITE_API_URL,
+    VITE_TEST_MODE: testEnv.VITE_TEST_MODE,
+    VITE_MOCK_AUDIO: testEnv.VITE_MOCK_AUDIO,
+    VITE_SKIP_PERMISSIONS: testEnv.VITE_SKIP_PERMISSIONS,
+  });
+}
+
+// Global test cleanup function
+(global as any).cleanupFrontendTest = () => {
+  // Reset all mocks
+  vi.clearAllMocks();
+  
+  // Clear any pending timers
+  vi.clearAllTimers();
+  
+  // Reset fetch mock
+  if (global.fetch && vi.isMockFunction(global.fetch)) {
+    (global.fetch as any).mockClear();
+  }
+  
+  // Reset WebSocket mock
+  if (global.WebSocket && vi.isMockFunction(global.WebSocket)) {
+    (global.WebSocket as any).mockClear();
+  }
+  
+  // Reset Audio mock
+  if (global.Audio && vi.isMockFunction(global.Audio)) {
+    (global.Audio as any).mockClear();
+  }
+};

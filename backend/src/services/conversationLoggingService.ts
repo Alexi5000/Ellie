@@ -274,11 +274,15 @@ export class ConversationLoggingService {
       return null;
     }
 
+    // Calculate conversation duration, ensuring minimum of 1ms if same timestamps
+    const duration = log.lastUpdatedAt.getTime() - log.createdAt.getTime();
+    const conversationDuration = duration > 0 ? duration : 1;
+
     // Return anonymized analytics data
     return {
       messageCount: log.messages.length,
       averageResponseTime: this.calculateAverageResponseTime(log.messages),
-      conversationDuration: log.lastUpdatedAt.getTime() - log.createdAt.getTime(),
+      conversationDuration,
       queryComplexityDistribution: this.analyzeQueryComplexity(log.messages),
       // No personal information included
     };
@@ -485,3 +489,6 @@ export class ConversationLoggingService {
     return distribution;
   }
 }
+
+// Export singleton instance
+export const conversationLoggingService = new ConversationLoggingService();

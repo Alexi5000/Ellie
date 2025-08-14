@@ -16,6 +16,10 @@ describe('Voice Processing API Integration Tests', () => {
     // Reset all mocks before each test
     jest.clearAllMocks();
     
+    // Reset rate limiting
+    (global as any).disableRateLimiting();
+    (global as any).resetRateLimitCounts();
+    
     // Reset mock implementations to defaults
     const mockVoice = (global as any).mockVoiceProcessingService;
     const mockAI = (global as any).mockAIResponseService;
@@ -102,7 +106,10 @@ describe('Voice Processing API Integration Tests', () => {
 
   describe('Rate Limiting Tests', () => {
     it('should enforce rate limiting on voice processing endpoint', async () => {
-      // Make multiple requests quickly to trigger rate limiting
+      // Enable rate limiting for this test
+      (global as any).enableRateLimiting();
+      
+      // Make multiple requests quickly to trigger rate limiting (limit is 10)
       const requests = Array(12).fill(null).map(() =>
         request(app)
           .post('/api/voice/process')
@@ -120,7 +127,10 @@ describe('Voice Processing API Integration Tests', () => {
     });
 
     it('should enforce rate limiting on TTS endpoint', async () => {
-      // Make multiple requests quickly to trigger rate limiting
+      // Enable rate limiting for this test
+      (global as any).enableRateLimiting();
+      
+      // Make multiple requests quickly to trigger rate limiting (limit is 20)
       const requests = Array(22).fill(null).map(() =>
         request(app)
           .get('/api/voice/synthesize/test')

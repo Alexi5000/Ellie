@@ -415,3 +415,6 @@ export class VoiceProcessingService {
     };
   }
 }
+
+// Export singleton instance
+export const voiceProcessingService = new VoiceProcessingService();

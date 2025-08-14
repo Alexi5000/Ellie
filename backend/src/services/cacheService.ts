@@ -670,5 +670,5 @@ export class CacheService {
   }
 }
 
-// Create and export singleton instance
+// Export singleton instance
 export const cacheService = new CacheService();

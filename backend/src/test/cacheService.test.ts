@@ -3,7 +3,7 @@
  * Requirements: 15.1 - Advanced caching strategies testing
  */
 
-import { CacheService } from '../services/cacheService';
+import { CacheService, cacheService } from '../services/cacheService';
 
 // Mock Redis client
 const mockRedisClient = {
@@ -26,24 +26,37 @@ jest.mock('redis', () => ({
 }));
 
 describe('CacheService', () => {
-  let cacheService: CacheService;
+  let testCacheService: CacheService;
 
   beforeEach(() => {
     jest.clearAllMocks();
-    cacheService = new CacheService();
+    
+    // Create a new instance for testing to avoid singleton issues
+    testCacheService = new CacheService();
+    
+    // Mock the Redis client connection
+    mockRedisClient.connect.mockResolvedValue(undefined);
+    mockRedisClient.on.mockImplementation((event: string, callback: Function) => {
+      if (event === 'ready') {
+        // Simulate successful connection
+        setTimeout(() => callback(), 0);
+      }
+      return mockRedisClient;
+    });
+    
     // Simulate connected state
-    (cacheService as any).isConnected = true;
-    (cacheService as any).client = mockRedisClient;
+    (testCacheService as any).isConnected = true;
+    (testCacheService as any).client = mockRedisClient;
   });
 
   afterEach(async () => {
     jest.clearAllMocks();
     
     // Clean up cache service instance
-    if (cacheService) {
+    if (testCacheService) {
       // Simulate disconnection to prevent hanging connections
-      (cacheService as any).isConnected = false;
-      (cacheService as any).client = null;
+      (testCacheService as any).isConnected = false;
+      (testCacheService as any).client = null;
     }
     
     // Wait for any pending async operations
@@ -58,7 +71,7 @@ describe('CacheService', () => {
       const context = { sessionId: 'test-session', conversationHistory: [] };
       const response = 'I can help you with legal information.';
 
-      const result = await cacheService.cacheAIResponse(userInput, context, response);
+      const result = await testCacheService.cacheAIResponse(userInput, context, response);
 
       expect(result).toBe(true);
       expect(mockRedisClient.setEx).toHaveBeenCalledWith(
@@ -81,7 +94,7 @@ describe('CacheService', () => {
       const userInput = 'Hello, how can you help me?';
       const context = { sessionId: 'test-session', conversationHistory: [] };
 
-      const result = await cacheService.getCachedAIResponse(userInput, context);
+      const result = await testCacheService.getCachedAIResponse(userInput, context);
 
       expect(result).toBe('Cached response');
       expect(mockRedisClient.get).toHaveBeenCalledWith(
@@ -95,7 +108,7 @@ describe('CacheService', () => {
       const userInput = 'Hello, how can you help me?';
       const context = { sessionId: 'test-session', conversationHistory: [] };
 
-      const result = await cacheService.getCachedAIResponse(userInput, context);
+      const result = await testCacheService.getCachedAIResponse(userInput, context);
 
       expect(result).toBeNull();
     });
@@ -107,7 +120,7 @@ describe('CacheService', () => {
       const context = { sessionId: 'test-session', conversationHistory: [] };
       const response = 'I can help you with legal information.';
 
-      const result = await cacheService.cacheAIResponse(userInput, context, response);
+      const result = await testCacheService.cacheAIResponse(userInput, context, response);
 
       expect(result).toBe(false);
     });
@@ -122,7 +135,7 @@ describe('CacheService', () => {
       const speed = 1.0;
       const audioBuffer = Buffer.from('fake audio data');
 
-      const result = await cacheService.cacheTTSAudio(text, voice, speed, audioBuffer);
+      const result = await testCacheService.cacheTTSAudio(text, voice, speed, audioBuffer);
 
       expect(result).toBe(true);
       expect(mockRedisClient.setEx).toHaveBeenCalledWith(
@@ -140,7 +153,7 @@ describe('CacheService', () => {
         text: 'Hello',
         voice: 'alloy',
         speed: 1.0,
-        size: audioBuffer.length
+        bufferLength: audioBuffer.length
       });
 
       mockRedisClient.get.mockResolvedValue(cachedData);
@@ -149,7 +162,7 @@ describe('CacheService', () => {
       const voice = 'alloy';
       const speed = 1.0;
 
-      const result = await cacheService.getCachedTTSAudio(text, voice, speed);
+      const result = await testCacheService.getCachedTTSAudio(text, voice, speed);
 
       expect(result).toEqual(audioBuffer);
       expect(mockRedisClient.get).toHaveBeenCalledWith(
@@ -164,7 +177,7 @@ describe('CacheService', () => {
       const voice = 'alloy';
       const speed = 1.0;
 
-      const result = await cacheService.getCachedTTSAudio(text, voice, speed);
+      const result = await testCacheService.getCachedTTSAudio(text, voice, speed);
 
       expect(result).toBeNull();
     });
@@ -177,7 +190,7 @@ describe('CacheService', () => {
       const sessionId = 'test-session-123';
       const sessionData = { userId: 'user123', preferences: { voice: 'alloy' } };
 
-      const result = await cacheService.cacheUserSession(sessionId, sessionData);
+      const result = await testCacheService.cacheUserSession(sessionId, sessionData);
 
       expect(result).toBe(true);
       expect(mockRedisClient.setEx).toHaveBeenCalledWith(
@@ -193,7 +206,7 @@ describe('CacheService', () => {
 
       const sessionId = 'test-session-123';
 
-      const result = await cacheService.getCachedUserSession(sessionId);
+      const result = await testCacheService.getCachedUserSession(sessionId);
 
       expect(result).toEqual(sessionData);
       expect(mockRedisClient.get).toHaveBeenCalledWith(`user_session:${sessionId}`);
@@ -207,7 +220,7 @@ describe('CacheService', () => {
       mockRedisClient.del.mockResolvedValue(3);
 
       const pattern = 'ai_response:*';
-      const result = await cacheService.invalidateByPattern(pattern);
+      const result = await testCacheService.invalidateByPattern(pattern);
 
       expect(result).toBe(3);
       expect(mockRedisClient.keys).toHaveBeenCalledWith(pattern);
@@ -217,7 +230,7 @@ describe('CacheService', () => {
     it('should clear all cache entries', async () => {
       mockRedisClient.flushDb.mockResolvedValue('OK');
 
-      const result = await cacheService.clearCache();
+      const result = await testCacheService.clearCache();
 
       expect(result).toBe(true);
       expect(mockRedisClient.flushDb).toHaveBeenCalled();
@@ -227,7 +240,7 @@ describe('CacheService', () => {
       mockRedisClient.info.mockResolvedValue('used_memory_human:10.5M\nother_info:value');
       mockRedisClient.dbSize.mockResolvedValue(150);
 
-      const stats = await cacheService.getCacheStats();
+      const stats = await testCacheService.getCacheStats();
 
       expect(stats).toEqual(
         expect.objectContaining({
@@ -240,15 +253,15 @@ describe('CacheService', () => {
 
   describe('Availability and Error Handling', () => {
     it('should return false when Redis is not available', () => {
-      (cacheService as any).isConnected = false;
+      (testCacheService as any).isConnected = false;
 
-      expect(cacheService.isAvailable()).toBe(false);
+      expect(testCacheService.isAvailable()).toBe(false);
     });
 
     it('should handle Redis connection errors', async () => {
-      (cacheService as any).isConnected = false;
+      (testCacheService as any).isConnected = false;
 
-      const result = await cacheService.cacheAIResponse('test', {}, 'response');
+      const result = await testCacheService.cacheAIResponse('test', {}, 'response');
 
       expect(result).toBe(false);
     });
@@ -256,7 +269,7 @@ describe('CacheService', () => {
     it('should handle invalid cached data gracefully', async () => {
       mockRedisClient.get.mockResolvedValue('invalid json data');
 
-      const result = await cacheService.getCachedAIResponse('test', {});
+      const result = await testCacheService.getCachedAIResponse('test', {});
 
       expect(result).toBeNull();
     });
@@ -269,8 +282,8 @@ describe('CacheService', () => {
       const userInput = 'Hello, how can you help me?';
       const context = { sessionId: 'test-session', conversationHistory: [] };
 
-      await cacheService.cacheAIResponse(userInput, context, 'response1');
-      await cacheService.cacheAIResponse(userInput, context, 'response2');
+      await testCacheService.cacheAIResponse(userInput, context, 'response1');
+      await testCacheService.cacheAIResponse(userInput, context, 'response2');
 
       const calls = mockRedisClient.setEx.mock.calls;
       expect(calls[0][0]).toBe(calls[1][0]); // Same cache key
@@ -283,8 +296,8 @@ describe('CacheService', () => {
       const context1 = { sessionId: 'session1', conversationHistory: [] };
       const context2 = { sessionId: 'session2', conversationHistory: [] };
 
-      await cacheService.cacheAIResponse(userInput, context1, 'response1');
-      await cacheService.cacheAIResponse(userInput, context2, 'response2');
+      await testCacheService.cacheAIResponse(userInput, context1, 'response1');
+      await testCacheService.cacheAIResponse(userInput, context2, 'response2');
 
       const calls = mockRedisClient.setEx.mock.calls;
       expect(calls[0][0]).not.toBe(calls[1][0]); // Different cache keys

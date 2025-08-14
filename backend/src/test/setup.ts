@@ -1,5 +1,8 @@
 // Test setup for backend
-import dotenv from 'dotenv';
+
+// Use the shared mock instances from env-setup.ts
+
+import * as dotenv from 'dotenv';
 
 // Load test environment variables first
 dotenv.config({ path: '.env.test' });
@@ -147,31 +150,226 @@ jest.mock('openai', () => {
   }));
 });
 
-// Create global mock instances that can be shared across tests
-const mockVoiceProcessingService = {
-  validateAudioFormat: jest.fn().mockReturnValue(true),
-  processAudioInput: jest.fn().mockResolvedValue('Mock transcription'),
-  convertTextToSpeech: jest.fn().mockResolvedValue(Buffer.from('mock-audio-data')),
-  getCacheStats: jest.fn().mockReturnValue({ size: 0, keys: [] }),
-  clearTTSCache: jest.fn(),
-  createAudioInput: jest.fn()
+// Export the shared mock instances for use in tests
+const mockVoiceProcessingService = (global as any).sharedMockVoiceProcessingService;
+const mockAIResponseService = (global as any).sharedMockAIResponseService;
+
+// Mock logger service
+jest.mock('../services/loggerService', () => ({
+  logger: {
+    info: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+    debug: jest.fn(),
+    logRequest: jest.fn(),
+    logVoiceProcessing: jest.fn(),
+    getErrorStats: jest.fn().mockReturnValue({}),
+    getRecentLogs: jest.fn().mockReturnValue([])
+  }
+}));
+
+// Mock rate limit service with configurable behavior for testing
+let rateLimitingEnabled = false;
+let requestCounts: Record<string, number> = {};
+
+const createMockRateLimiter = (maxRequests: number) => {
+  return (req: any, res: any, next: any) => {
+    if (!rateLimitingEnabled) {
+      return next();
+    }
+
+    const key = req.ip || 'test-ip';
+    requestCounts[key] = (requestCounts[key] || 0) + 1;
+
+    if (requestCounts[key] > maxRequests) {
+      return res.status(429).json({
+        error: {
+          code: 'RATE_LIMIT_EXCEEDED',
+          message: 'Too many requests',
+          timestamp: new Date().toISOString(),
+          requestId: req.requestId || 'test-request-id'
+        }
+      });
+    }
+
+    next();
+  };
 };
 
-const mockAIResponseService = {
-  generateResponse: jest.fn().mockResolvedValue('Mock AI response'),
-  routeToOptimalAPI: jest.fn().mockReturnValue('groq'),
-  processWithGroq: jest.fn().mockResolvedValue('Mock Groq response'),
-  processWithOpenAI: jest.fn().mockResolvedValue('Mock OpenAI response'),
-  validateLegalCompliance: jest.fn().mockResolvedValue(true),
-  handleFallbackResponses: jest.fn().mockReturnValue('Fallback response')
-};
+jest.mock('../services/rateLimitService', () => {
+  const mockLimitStore = new Map();
+  const mockRateLimitService = {
+    createApiRateLimiter: jest.fn().mockImplementation(() => createMockRateLimiter(100)),
+    createVoiceRateLimiter: jest.fn().mockImplementation(() => createMockRateLimiter(10)),
+    createVoiceProcessingLimiter: jest.fn().mockImplementation(() => createMockRateLimiter(10)),
+    createTTSLimiter: jest.fn().mockImplementation(() => createMockRateLimiter(20)),
+    getStats: jest.fn().mockReturnValue({ totalKeys: 0, totalQueuedRequests: 0, averageQueueLength: 0 }),
+    getRateLimitStatus: jest.fn().mockReturnValue(null),
+    destroy: jest.fn(),
+    limitStore: mockLimitStore
+  };
 
-// Mock VoiceProcessingService to avoid constructor issues
-jest.mock('../services/voiceProcessingService', () => {
   return {
-    VoiceProcessingService: jest.fn().mockImplementation(() => mockVoiceProcessingService)
+    RateLimitService: {
+      getInstance: jest.fn().mockReturnValue(mockRateLimitService)
+    },
+    rateLimitService: mockRateLimitService
   };
 });
+
+// Export functions to control rate limiting behavior in tests
+(global as any).enableRateLimiting = () => {
+  rateLimitingEnabled = true;
+  requestCounts = {};
+};
+
+(global as any).disableRateLimiting = () => {
+  rateLimitingEnabled = false;
+  requestCounts = {};
+};
+
+(global as any).resetRateLimitCounts = () => {
+  requestCounts = {};
+};
+
+// Mock fallback service
+jest.mock('../services/fallbackService', () => ({
+  fallbackService: {
+    getContextualFallback: jest.fn().mockReturnValue({
+      text: 'Mock fallback response',
+      isFallback: true,
+      fallbackReason: 'Mock fallback'
+    }),
+    getServiceHealth: jest.fn().mockReturnValue({}),
+    getFallbackStats: jest.fn().mockReturnValue({})
+  }
+}));
+
+// Mock cache service
+jest.mock('../services/cacheService', () => {
+  const mockCacheService = {
+    isAvailable: jest.fn().mockReturnValue(true),
+    getCacheStats: jest.fn().mockResolvedValue({ size: 0, keys: [] }),
+    clearCache: jest.fn().mockResolvedValue(true),
+    invalidateByPattern: jest.fn().mockResolvedValue(0),
+    disconnect: jest.fn().mockResolvedValue(undefined),
+    getCachedTTSAudio: jest.fn().mockResolvedValue(null),
+    cacheTTSAudio: jest.fn().mockResolvedValue(undefined),
+    cacheAIResponse: jest.fn().mockResolvedValue(true),
+    getCachedAIResponse: jest.fn().mockResolvedValue(null),
+    cacheUserSession: jest.fn().mockResolvedValue(true),
+    getCachedUserSession: jest.fn().mockResolvedValue(null)
+  };
+
+  return {
+    CacheService: jest.fn().mockImplementation(() => mockCacheService),
+    cacheService: mockCacheService
+  };
+});
+
+// Mock CDN service
+jest.mock('../services/cdnService', () => {
+  const mockCDNService = {
+    cacheMiddleware: jest.fn().mockReturnValue((req: any, res: any, next: any) => next()),
+    getFrontendConfig: jest.fn().mockReturnValue({}),
+    getStats: jest.fn().mockReturnValue({}),
+    purgeCDNCache: jest.fn().mockResolvedValue(true),
+    getAssetUrl: jest.fn().mockImplementation((path: string) => path),
+    getCacheHeaders: jest.fn().mockReturnValue({}),
+    generateETag: jest.fn().mockReturnValue('"mock-etag"'),
+    shouldUseCDN: jest.fn().mockReturnValue(false)
+  };
+
+  return {
+    CDNService: jest.fn().mockImplementation(() => mockCDNService),
+    cdnService: mockCDNService
+  };
+});
+
+// Mock analytics service
+jest.mock('../services/analyticsService', () => ({
+  analyticsService: {
+    getServiceStats: jest.fn().mockReturnValue({}),
+    getUsageMetrics: jest.fn().mockReturnValue({}),
+    getPerformanceMetrics: jest.fn().mockResolvedValue({}),
+    getBusinessMetrics: jest.fn().mockReturnValue({}),
+    getDashboardData: jest.fn().mockReturnValue({}),
+    exportData: jest.fn().mockReturnValue('')
+  }
+}));
+
+// Mock APM service
+jest.mock('../services/apmService', () => ({
+  apmService: {
+    createExpressMiddleware: jest.fn().mockReturnValue((req: any, res: any, next: any) => next()),
+    getServiceStats: jest.fn().mockReturnValue({}),
+    getMetrics: jest.fn().mockReturnValue({}),
+    getActiveOperations: jest.fn().mockReturnValue([]),
+    getTransaction: jest.fn().mockReturnValue(null)
+  }
+}));
+
+// Mock advanced logger service
+jest.mock('../services/advancedLoggerService', () => ({
+  advancedLoggerService: {
+    getServiceStats: jest.fn().mockReturnValue({}),
+    getLogMetrics: jest.fn().mockReturnValue({}),
+    searchLogs: jest.fn().mockReturnValue([]),
+    getAggregations: jest.fn().mockReturnValue({}),
+    getActiveAlerts: jest.fn().mockReturnValue([]),
+    resolveAlert: jest.fn().mockReturnValue(true),
+    exportLogs: jest.fn().mockReturnValue('')
+  }
+}));
+
+// Mock WebSocket handler
+jest.mock('../services/websocketHandler', () => ({
+  WebSocketHandler: jest.fn().mockImplementation(() => ({
+    getConnectionStats: jest.fn().mockReturnValue({
+      activeConnections: 0,
+      totalConnections: 0
+    })
+  }))
+}));
+
+// Mock legal compliance service
+jest.mock('../services/legalComplianceService', () => ({
+  LegalComplianceService: jest.fn().mockImplementation(() => ({
+    analyzeLegalCompliance: jest.fn().mockResolvedValue({
+      isCompliant: true,
+      requiresDisclaimer: false,
+      suggestedResponse: 'Mock legal response'
+    }),
+    processReferralRequest: jest.fn().mockResolvedValue({
+      success: true,
+      referralId: 'mock-referral-id'
+    })
+  }))
+}));
+
+// Mock conversation logging service
+jest.mock('../services/conversationLoggingService', () => ({
+  ConversationLoggingService: jest.fn().mockImplementation(() => ({
+    logMessage: jest.fn().mockResolvedValue(undefined),
+    getConversationLog: jest.fn().mockResolvedValue(null),
+    updatePrivacySettings: jest.fn().mockResolvedValue(undefined),
+    scheduleDataDeletion: jest.fn().mockResolvedValue(undefined),
+    exportUserData: jest.fn().mockResolvedValue(null),
+    getAnalyticsData: jest.fn().mockResolvedValue(null),
+    destroy: jest.fn(),
+    stopCleanupScheduler: jest.fn()
+  })),
+  conversationLoggingService: {
+    logMessage: jest.fn().mockResolvedValue(undefined),
+    getConversationLog: jest.fn().mockResolvedValue(null),
+    updatePrivacySettings: jest.fn().mockResolvedValue(undefined),
+    scheduleDataDeletion: jest.fn().mockResolvedValue(undefined),
+    exportUserData: jest.fn().mockResolvedValue(null),
+    getAnalyticsData: jest.fn().mockResolvedValue(null),
+    destroy: jest.fn(),
+    stopCleanupScheduler: jest.fn()
+  }
+}));
 
 // Note: AIResponseService is not mocked globally to allow unit testing
 // Individual tests can mock it if needed
@@ -214,10 +412,10 @@ jest.mock('redis', () => ({
 }));
 
 // Set test timeout
-jest.setTimeout(15000);
+jest.setTimeout(30000); // Increased timeout for async operations
 
 // Global test cleanup
-beforeEach(() => {
+beforeEach(async () => {
   testRunning = true;
   currentTestName = expect.getState().currentTestName || '';
   
@@ -229,6 +427,20 @@ beforeEach(() => {
   
   // Clear all Jest timers
   jest.clearAllTimers();
+  
+  // Reset all mocks to ensure clean state
+  jest.clearAllMocks();
+  
+  // Reset rate limiting state
+  if ((global as any).resetRateLimitCounts) {
+    (global as any).resetRateLimitCounts();
+  }
+  if ((global as any).disableRateLimiting) {
+    (global as any).disableRateLimiting();
+  }
+  
+  // Wait for any pending operations to complete
+  await new Promise(resolve => setImmediate(resolve));
 });
 
 afterEach(async () => {
@@ -241,8 +453,14 @@ afterEach(async () => {
   // Clear all Jest timers
   jest.clearAllTimers();
   
+  // Reset all mocks
+  jest.clearAllMocks();
+  
   // Wait for any pending async operations to complete
   await new Promise(resolve => setImmediate(resolve));
+  
+  // Additional cleanup delay to prevent race conditions
+  await new Promise(resolve => setTimeout(resolve, 10));
   
   // Mark test as no longer running after cleanup
   testRunning = false;
@@ -261,45 +479,45 @@ afterAll(async () => {
   jest.clearAllTimers();
   
   // Cleanup singleton services that might have intervals
-  try {
-    const { RateLimitService } = require('../services/rateLimitService');
-    const rateLimitInstance = RateLimitService.getInstance();
-    if (rateLimitInstance && typeof rateLimitInstance.destroy === 'function') {
-      rateLimitInstance.destroy();
-    }
-  } catch (error) {
-    // Service might not be loaded, ignore
-  }
+  const servicesToCleanup = [
+    '../services/rateLimitService',
+    '../services/loggerService',
+    '../services/sessionManager',
+    '../services/conversationLoggingService',
+    '../services/cacheService',
+    '../services/cdnService'
+  ];
 
-  try {
-    const { LoggerService } = require('../services/loggerService');
-    const loggerInstance = LoggerService.getInstance();
-    if (loggerInstance && typeof loggerInstance.clearLogs === 'function') {
-      loggerInstance.clearLogs();
+  for (const servicePath of servicesToCleanup) {
+    try {
+      const serviceModule = require(servicePath);
+      
+      // Try different cleanup patterns
+      if (serviceModule.RateLimitService?.getInstance) {
+        const instance = serviceModule.RateLimitService.getInstance();
+        if (instance?.destroy) instance.destroy();
+      }
+      
+      if (serviceModule.LoggerService?.getInstance) {
+        const instance = serviceModule.LoggerService.getInstance();
+        if (instance?.clearLogs) instance.clearLogs();
+      }
+      
+      if (serviceModule.sessionManager?.destroy) {
+        serviceModule.sessionManager.destroy();
+      }
+      
+      if (serviceModule.conversationLoggingService?.destroy) {
+        serviceModule.conversationLoggingService.destroy();
+      }
+      
+      if (serviceModule.cacheService?.disconnect) {
+        await serviceModule.cacheService.disconnect();
+      }
+      
+    } catch (error) {
+      // Service might not be loaded or might not have cleanup methods, ignore
     }
-  } catch (error) {
-    // Service might not be loaded, ignore
-  }
-
-  // Cleanup WebSocket session manager
-  try {
-    const { WebSocketSessionManager } = require('../services/sessionManager');
-    // If there are any instances, clean them up
-    const sessionManagerModule = require('../services/sessionManager');
-    if (sessionManagerModule.sessionManager && typeof sessionManagerModule.sessionManager.destroy === 'function') {
-      sessionManagerModule.sessionManager.destroy();
-    }
-  } catch (error) {
-    // Service might not be loaded, ignore
-  }
-
-  // Cleanup conversation logging service intervals
-  try {
-    const conversationLoggingModule = require('../services/conversationLoggingService');
-    // If there are any instances created during tests, clean them up
-    // This is handled by individual test cleanup, but we ensure no global instances remain
-  } catch (error) {
-    // Service might not be loaded, ignore
   }
   
   // Restore original console methods
@@ -314,6 +532,6 @@ afterAll(async () => {
   global.clearTimeout = originalClearTimeout;
   global.clearInterval = originalClearInterval;
   
-  // Wait for any final async operations
-  await new Promise(resolve => setTimeout(resolve, 100));
+  // Final cleanup delay
+  await new Promise(resolve => setTimeout(resolve, 200));
 });

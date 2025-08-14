@@ -28,9 +28,9 @@ describe('Voice Processing API Endpoints', () => {
     // Reset mocks
     jest.clearAllMocks();
 
-    // Use the global mock instances from setup.ts
-    mockVoiceService = (global as any).mockVoiceProcessingService;
-    mockAIService = (global as any).mockAIResponseService;
+    // Use the global mock instances from env-setup.ts
+    mockVoiceService = (global as any).sharedMockVoiceProcessingService;
+    mockAIService = (global as any).sharedMockAIResponseService;
 
     // Reset and setup default mock implementations
     mockVoiceService.validateAudioFormat.mockReset();
@@ -47,10 +47,19 @@ describe('Voice Processing API Endpoints', () => {
     mockAIService.validateLegalCompliance.mockReset();
     mockAIService.handleFallbackResponses.mockReset();
 
-    // Setup default mock implementations
-    mockVoiceService.validateAudioFormat.mockReturnValue(true);
-    mockVoiceService.processAudioInput.mockResolvedValue('Hello, I need legal help');
-    mockVoiceService.convertTextToSpeech.mockResolvedValue(Buffer.from('mock-audio-data'));
+    // Setup default mock implementations with debugging
+    mockVoiceService.validateAudioFormat.mockImplementation((file: any) => {
+      console.log('validateAudioFormat called with:', file ? 'file object' : 'no file');
+      return true;
+    });
+    mockVoiceService.processAudioInput.mockImplementation(async (buffer: any, filename: any) => {
+      console.log('processAudioInput called with buffer size:', buffer?.length, 'filename:', filename);
+      return 'Hello, I need legal help';
+    });
+    mockVoiceService.convertTextToSpeech.mockImplementation(async (text: any, voice: any, speed: any) => {
+      console.log('convertTextToSpeech called with text:', text, 'voice:', voice, 'speed:', speed);
+      return Buffer.from('mock-audio-data');
+    });
     mockVoiceService.getCacheStats.mockReturnValue({
       size: 5,
       keys: ['key1...', 'key2...', 'key3...']
@@ -63,7 +72,10 @@ describe('Voice Processing API Endpoints', () => {
       sampleRate: 0
     });
 
-    mockAIService.generateResponse.mockResolvedValue('Hello! I\'m Ellie, your AI legal assistant. How can I help you today?');
+    mockAIService.generateResponse.mockImplementation(async (userInput: any, context: any) => {
+      console.log('generateResponse called with input:', userInput, 'context keys:', Object.keys(context || {}));
+      return 'Hello! I\'m Ellie, your AI legal assistant. How can I help you today?';
+    });
     mockAIService.routeToOptimalAPI.mockReturnValue('groq');
     mockAIService.processWithGroq.mockResolvedValue('Mock Groq response');
     mockAIService.processWithOpenAI.mockResolvedValue('Mock OpenAI response');
@@ -82,8 +94,12 @@ describe('Voice Processing API Endpoints', () => {
         .field('sessionId', 'test-session-123')
         .field('voiceSpeed', '1.0')
         .field('language', 'en')
-        .field('legalDisclaimer', 'true')
-        .expect(200);
+        .field('legalDisclaimer', 'true');
+      
+      console.log('Response status:', response.status);
+      console.log('Response body:', response.body);
+      
+      expect(response.status).toBe(200);
 
       expect(response.body.success).toBe(true);
       expect(response.body.data).toHaveProperty('transcribedText');

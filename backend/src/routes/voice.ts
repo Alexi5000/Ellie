@@ -16,7 +16,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const router = express.Router();
 
-// Initialize services
+// Initialize services - will be mocked in tests
 const voiceProcessingService = new VoiceProcessingService();
 const aiResponseService = new AIResponseService();
 
@@ -295,6 +295,21 @@ router.post('/process', voiceProcessingLimiter, upload.single('audio'), async (r
       return res.status(400).json(errorResponse);
     }
 
+    // Handle file filter errors (invalid audio format)
+    if (error instanceof Error && error.message.includes('Invalid audio format')) {
+      const errorResponse = ErrorHandler.createErrorResponse(
+        ERROR_CODES.INVALID_AUDIO_FORMAT,
+        error.message,
+        { 
+          fileSize: req.file?.size,
+          mimeType: req.file?.mimetype,
+          originalName: req.file?.originalname
+        },
+        requestId
+      );
+      return res.status(400).json(errorResponse);
+    }
+
     // Generic error handling
     const errorResponse = ErrorHandler.createErrorResponse(
       ERROR_CODES.AUDIO_PROCESSING_FAILED,
@@ -460,6 +475,21 @@ router.get('/synthesize/:text', rateLimitService.createApiRateLimiter(), async (
 
     return res.status(500).json(errorResponse);
   }
+});
+
+/**
+ * GET /api/voice/synthesize/ (empty text handling)
+ * Handle empty text parameter for TTS endpoint
+ */
+router.get('/synthesize/', (req, res) => {
+  const requestId = req.requestId || uuidv4();
+  const errorResponse = ErrorHandler.createErrorResponse(
+    ERROR_CODES.INVALID_INPUT,
+    'Text parameter is required for speech synthesis.',
+    undefined,
+    requestId
+  );
+  return res.status(400).json(errorResponse);
 });
 
 /**

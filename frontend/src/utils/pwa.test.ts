@@ -122,15 +122,34 @@ describe('PWA utilities', () => {
       const capabilities = getPWACapabilities();
       expect(capabilities.supportsNotifications).toBe(true);
 
-      // Test without Notification API by deleting it from window
-      const originalNotification = (window as any).Notification;
-      delete (window as any).Notification;
+      // Test without Notification API by creating a new window object without the property
+      const originalWindow = global.window;
+      const mockWindow = Object.create(Object.getPrototypeOf(originalWindow));
+      Object.getOwnPropertyNames(originalWindow).forEach(prop => {
+        if (prop !== 'Notification') {
+          const descriptor = Object.getOwnPropertyDescriptor(originalWindow, prop);
+          if (descriptor) {
+            Object.defineProperty(mockWindow, prop, descriptor);
+          }
+        }
+      });
+      
+      // Temporarily replace window
+      Object.defineProperty(global, 'window', {
+        writable: true,
+        configurable: true,
+        value: mockWindow
+      });
       
       const capabilitiesWithoutNotifications = getPWACapabilities();
       expect(capabilitiesWithoutNotifications.supportsNotifications).toBe(false);
       
-      // Restore for other tests
-      (window as any).Notification = originalNotification;
+      // Restore original window
+      Object.defineProperty(global, 'window', {
+        writable: true,
+        configurable: true,
+        value: originalWindow
+      });
     });
 
     it('detects service worker support correctly', () => {
@@ -174,7 +193,14 @@ describe('PWA utilities', () => {
 
     it('returns false when not in standalone mode', () => {
       (window.matchMedia as any).mockReturnValue({ matches: false });
-      delete (navigator as any).standalone;
+      
+      // Use Object.defineProperty to properly handle non-configurable properties
+      Object.defineProperty(navigator, 'standalone', {
+        value: undefined,
+        writable: true,
+        configurable: true
+      });
+      
       Object.defineProperty(document, 'referrer', {
         value: 'https://example.com',
         writable: true,
@@ -275,14 +301,34 @@ describe('PWA utilities', () => {
     });
 
     it('returns denied when Notification API is not supported', async () => {
-      const originalNotification = (window as any).Notification;
-      delete (window as any).Notification;
+      // Create a new window object without the Notification property
+      const originalWindow = global.window;
+      const mockWindow = Object.create(Object.getPrototypeOf(originalWindow));
+      Object.getOwnPropertyNames(originalWindow).forEach(prop => {
+        if (prop !== 'Notification') {
+          const descriptor = Object.getOwnPropertyDescriptor(originalWindow, prop);
+          if (descriptor) {
+            Object.defineProperty(mockWindow, prop, descriptor);
+          }
+        }
+      });
+      
+      // Temporarily replace window
+      Object.defineProperty(global, 'window', {
+        writable: true,
+        configurable: true,
+        value: mockWindow
+      });
 
       const permission = await requestNotificationPermission();
       expect(permission).toBe('denied');
       
-      // Restore for other tests
-      (window as any).Notification = originalNotification;
+      // Restore original window
+      Object.defineProperty(global, 'window', {
+        writable: true,
+        configurable: true,
+        value: originalWindow
+      });
     });
   });
 
@@ -308,13 +354,33 @@ describe('PWA utilities', () => {
     });
 
     it('rejects when Notification API is not supported', async () => {
-      const originalNotification = (window as any).Notification;
-      delete (window as any).Notification;
+      // Create a new window object without the Notification property
+      const originalWindow = global.window;
+      const mockWindow = Object.create(Object.getPrototypeOf(originalWindow));
+      Object.getOwnPropertyNames(originalWindow).forEach(prop => {
+        if (prop !== 'Notification') {
+          const descriptor = Object.getOwnPropertyDescriptor(originalWindow, prop);
+          if (descriptor) {
+            Object.defineProperty(mockWindow, prop, descriptor);
+          }
+        }
+      });
+      
+      // Temporarily replace window
+      Object.defineProperty(global, 'window', {
+        writable: true,
+        configurable: true,
+        value: mockWindow
+      });
 
       await expect(showNotification('Test Title')).rejects.toThrow('Notifications not supported');
       
-      // Restore for other tests
-      (window as any).Notification = originalNotification;
+      // Restore original window
+      Object.defineProperty(global, 'window', {
+        writable: true,
+        configurable: true,
+        value: originalWindow
+      });
     });
 
     it('handles notification creation errors', async () => {

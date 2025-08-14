@@ -3,6 +3,9 @@
  * Requirements: 6.4, 5.4, 5.5
  */
 
+// Unmock the service to test the actual implementation
+jest.unmock('../services/conversationLoggingService');
+
 import { ConversationLoggingService, PrivacySettings } from '../services/conversationLoggingService';
 import { Message, QueryComplexity } from '../types';
 
@@ -247,11 +250,24 @@ describe('ConversationLoggingService', () => {
       };
       await loggingService.logMessage(sessionId, messageWithTiming, analyticsEnabledSettings);
 
+      // Add a small delay to ensure different timestamps
+      await new Promise(resolve => setTimeout(resolve, 1));
+      
+      // Log another message to update lastUpdatedAt with same processing time
+      const secondMessage = {
+        ...mockMessage,
+        id: 'msg-124',
+        type: 'assistant' as const,
+        content: 'Response message',
+        metadata: { ...mockMessage.metadata, processingTime: 1500 }
+      };
+      await loggingService.logMessage(sessionId, secondMessage, analyticsEnabledSettings);
+
       const analyticsData = await loggingService.getAnalyticsData(sessionId);
 
       expect(analyticsData).toBeDefined();
-      expect(analyticsData.messageCount).toBe(1);
-      expect(analyticsData.averageResponseTime).toBe(1200);
+      expect(analyticsData.messageCount).toBe(2);
+      expect(analyticsData.averageResponseTime).toBe(1350); // (1200 + 1500) / 2
       expect(analyticsData.conversationDuration).toBeGreaterThan(0);
     });
 

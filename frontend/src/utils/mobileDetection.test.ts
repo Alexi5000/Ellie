@@ -121,8 +121,18 @@ describe('mobileDetection', () => {
       
       // Create a temporary window object without ontouchstart property
       const originalWindow = global.window;
-      const mockWindow = { ...originalWindow };
-      delete (mockWindow as any).ontouchstart;
+      
+      // Create a new window object without the ontouchstart property
+      // This avoids issues with non-configurable properties
+      const mockWindow = Object.create(Object.getPrototypeOf(originalWindow));
+      Object.getOwnPropertyNames(originalWindow).forEach(prop => {
+        if (prop !== 'ontouchstart') {
+          const descriptor = Object.getOwnPropertyDescriptor(originalWindow, prop);
+          if (descriptor) {
+            Object.defineProperty(mockWindow, prop, descriptor);
+          }
+        }
+      });
       
       // Temporarily replace window
       Object.defineProperty(global, 'window', {
@@ -421,8 +431,18 @@ describe('mobileDetection', () => {
     it('handles missing vibrate API gracefully', () => {
       // Create a temporary navigator object without vibrate property
       const originalNavigator = global.navigator;
-      const mockNavigator = { ...originalNavigator };
-      delete (mockNavigator as any).vibrate;
+      
+      // Create a new navigator object without the vibrate property
+      // This avoids issues with non-configurable properties
+      const mockNavigator = Object.create(Object.getPrototypeOf(originalNavigator));
+      Object.getOwnPropertyNames(originalNavigator).forEach(prop => {
+        if (prop !== 'vibrate') {
+          const descriptor = Object.getOwnPropertyDescriptor(originalNavigator, prop);
+          if (descriptor) {
+            Object.defineProperty(mockNavigator, prop, descriptor);
+          }
+        }
+      });
       
       // Temporarily replace navigator
       Object.defineProperty(global, 'navigator', {

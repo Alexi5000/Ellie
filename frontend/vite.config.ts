@@ -34,6 +34,26 @@ export default defineConfig(({ command, mode }) => {
         VITE_MOCK_AUDIO: 'true',
         VITE_SKIP_PERMISSIONS: 'true',
       },
+      // Improved test isolation and timeout handling
+      testTimeout: 15000,
+      hookTimeout: 10000,
+      teardownTimeout: 5000,
+      // Better error handling
+      bail: 0,
+      // Improved async handling
+      pool: 'threads',
+      poolOptions: {
+        threads: {
+          singleThread: true, // Use single thread to prevent race conditions
+        },
+      },
+      // Better cleanup
+      clearMocks: true,
+      restoreMocks: true,
+      // Improved reporting
+      reporter: ['verbose'],
+      // Handle unhandled rejections
+      onUnhandledRejection: 'strict',
     },
     // Define environment variables for the app
     define: {

@@ -56,6 +56,16 @@ export class RateLimitService {
   }
 
   /**
+   * Reset singleton instance (for testing purposes only)
+   */
+  static resetInstance(): void {
+    if (RateLimitService.instance) {
+      RateLimitService.instance.destroy();
+      RateLimitService.instance = undefined as any;
+    }
+  }
+
+  /**
    * Cleanup method for tests and shutdown
    */
   destroy(): void {

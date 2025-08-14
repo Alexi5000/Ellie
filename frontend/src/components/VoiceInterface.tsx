@@ -208,7 +208,7 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
     if (disabled) return 'disabled';
     if (voiceState === VoiceState.PROCESSING) return 'processing';
     if (voiceState === VoiceState.SPEAKING) return 'speaking';
-    if (isRecording || voiceState === VoiceState.LISTENING) return 'recording';
+    if (voiceState === VoiceState.LISTENING || isRecording) return 'recording';
     return 'idle';
   };
 
@@ -222,6 +222,8 @@ export const VoiceInterface: React.FC<VoiceInterfaceProps> = ({
         return 'Speaking...';
       case VoiceState.ERROR:
         return 'Try Again';
+      case VoiceState.IDLE:
+        return isRecording ? 'Recording...' : 'Tap to Speak';
       default:
         return isRecording ? 'Recording...' : 'Tap to Speak';
     }

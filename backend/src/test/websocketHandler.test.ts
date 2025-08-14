@@ -3,6 +3,10 @@
  * Requirements: 5.5, 7.1, 7.2
  */
 
+// Unmock WebSocketHandler for this test file since we want to test the real implementation
+jest.unmock('../services/websocketHandler');
+jest.unmock('../services/sessionManager');
+
 import { WebSocketHandler } from '../services/websocketHandler';
 import { WebSocketSessionManager } from '../services/sessionManager';
 import { Server as SocketIOServer } from 'socket.io';
