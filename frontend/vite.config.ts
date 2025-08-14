@@ -9,7 +9,29 @@ export default defineConfig(({ command, mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   
   return {
-    plugins: [react()],
+    plugins: [
+      react(),
+      // Custom plugin to handle health endpoint
+      {
+        name: 'health-endpoint',
+        configureServer(server) {
+          server.middlewares.use('/health', (req, res, next) => {
+            if (req.method === 'GET') {
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({
+                status: 'OK',
+                timestamp: new Date().toISOString(),
+                version: '1.0.0',
+                environment: process.env.NODE_ENV || 'development',
+                service: 'frontend'
+              }));
+            } else {
+              next();
+            }
+          });
+        }
+      }
+    ],
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),

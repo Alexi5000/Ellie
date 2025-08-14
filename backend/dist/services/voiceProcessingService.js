@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.VoiceProcessingService = void 0;
+exports.voiceProcessingService = exports.VoiceProcessingService = void 0;
 const openai_1 = __importDefault(require("openai"));
 const types_1 = require("../types");
 const errorHandler_1 = require("../utils/errorHandler");
@@ -243,4 +243,5 @@ class VoiceProcessingService {
     }
 }
 exports.VoiceProcessingService = VoiceProcessingService;
+exports.voiceProcessingService = new VoiceProcessingService();
 //# sourceMappingURL=voiceProcessingService.js.map

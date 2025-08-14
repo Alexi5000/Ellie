@@ -26,11 +26,13 @@ class DatabaseService {
         };
         loggerService_1.logger.info('Database Service initialized (not connected)', {
             service: 'database',
-            config: {
-                host: this.config.host,
-                port: this.config.port,
-                database: this.config.database,
-                poolSize: this.config.poolSize
+            metadata: {
+                config: {
+                    host: this.config.host,
+                    port: this.config.port,
+                    database: this.config.database,
+                    poolSize: this.config.poolSize
+                }
             }
         });
     }
@@ -39,7 +41,9 @@ class DatabaseService {
             if (process.env.DB_ENABLED !== 'true') {
                 loggerService_1.logger.info('Database is disabled in configuration', {
                     service: 'database',
-                    status: 'disabled'
+                    metadata: {
+                        status: 'disabled'
+                    }
                 });
                 return false;
             }
@@ -184,15 +188,19 @@ class DatabaseService {
             this.updateAverageResponseTime(processingTime);
             loggerService_1.logger.debug('Database query executed', {
                 service: 'database',
-                sql: sql.substring(0, 100) + '...',
-                processingTime
+                metadata: {
+                    sql: sql.substring(0, 100) + '...',
+                    processingTime
+                }
             });
             return { rows: [], rowCount: 0 };
         }
         catch (error) {
             loggerService_1.logger.error('Database query failed', {
                 service: 'database',
-                sql: sql.substring(0, 100) + '...',
+                metadata: {
+                    sql: sql.substring(0, 100) + '...'
+                },
                 error: {
                     message: error instanceof Error ? error.message : 'Unknown error'
                 }

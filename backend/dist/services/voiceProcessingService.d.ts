@@ -20,4 +20,5 @@ export declare class VoiceProcessingService {
     };
     createAudioInput(file: Express.Multer.File): AudioInput;
 }
+export declare const voiceProcessingService: VoiceProcessingService;
 //# sourceMappingURL=voiceProcessingService.d.ts.map

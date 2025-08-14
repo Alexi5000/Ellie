@@ -15,6 +15,7 @@ export declare class RateLimitService {
     private cleanupInterval?;
     private constructor();
     static getInstance(): RateLimitService;
+    static resetInstance(): void;
     destroy(): void;
     createLimiter(config: RateLimitConfig): (req: Request, res: Response, next: NextFunction) => void;
     private handleLimitExceeded;

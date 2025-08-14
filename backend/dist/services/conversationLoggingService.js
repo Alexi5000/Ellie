@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ConversationLoggingService = void 0;
+exports.conversationLoggingService = exports.ConversationLoggingService = void 0;
 const types_1 = require("../types");
 const errorHandler_1 = require("../utils/errorHandler");
 class ConversationLoggingService {
@@ -147,10 +147,12 @@ class ConversationLoggingService {
         if (!log || log.isDeleted || !log.privacySettings.allowAnalytics) {
             return null;
         }
+        const duration = log.lastUpdatedAt.getTime() - log.createdAt.getTime();
+        const conversationDuration = duration > 0 ? duration : 1;
         return {
             messageCount: log.messages.length,
             averageResponseTime: this.calculateAverageResponseTime(log.messages),
-            conversationDuration: log.lastUpdatedAt.getTime() - log.createdAt.getTime(),
+            conversationDuration,
             queryComplexityDistribution: this.analyzeQueryComplexity(log.messages),
         };
     }
@@ -266,4 +268,5 @@ class ConversationLoggingService {
     }
 }
 exports.ConversationLoggingService = ConversationLoggingService;
+exports.conversationLoggingService = new ConversationLoggingService();
 //# sourceMappingURL=conversationLoggingService.js.map

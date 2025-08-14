@@ -213,6 +213,14 @@ router.post('/process', voiceProcessingLimiter, upload.single('audio'), async (r
             }
             return res.status(400).json(errorResponse);
         }
+        if (error instanceof Error && error.message.includes('Invalid audio format')) {
+            const errorResponse = errorHandler_1.ErrorHandler.createErrorResponse(types_1.ERROR_CODES.INVALID_AUDIO_FORMAT, error.message, {
+                fileSize: req.file?.size,
+                mimeType: req.file?.mimetype,
+                originalName: req.file?.originalname
+            }, requestId);
+            return res.status(400).json(errorResponse);
+        }
         const errorResponse = errorHandler_1.ErrorHandler.createErrorResponse(types_1.ERROR_CODES.AUDIO_PROCESSING_FAILED, 'Failed to process voice input. Please try again.', {
             processingTime,
             originalError: error instanceof Error ? error.message : 'Unknown error'
@@ -307,6 +315,11 @@ router.get('/synthesize/:text', rateLimitService_1.rateLimitService.createApiRat
         }, requestId);
         return res.status(500).json(errorResponse);
     }
+});
+router.get('/synthesize/', (req, res) => {
+    const requestId = req.requestId || (0, uuid_1.v4)();
+    const errorResponse = errorHandler_1.ErrorHandler.createErrorResponse(types_1.ERROR_CODES.INVALID_INPUT, 'Text parameter is required for speech synthesis.', undefined, requestId);
+    return res.status(400).json(errorResponse);
 });
 router.get('/cache-stats', (req, res) => {
     try {

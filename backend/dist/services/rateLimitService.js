@@ -19,6 +19,12 @@ class RateLimitService {
         }
         return RateLimitService.instance;
     }
+    static resetInstance() {
+        if (RateLimitService.instance) {
+            RateLimitService.instance.destroy();
+            RateLimitService.instance = undefined;
+        }
+    }
     destroy() {
         if (this.cleanupInterval) {
             clearInterval(this.cleanupInterval);

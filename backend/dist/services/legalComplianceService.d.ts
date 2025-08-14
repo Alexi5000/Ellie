@@ -31,4 +31,5 @@ export declare class LegalComplianceService {
     private validateReferralRequest;
     private simulateReferralProcessing;
 }
+export declare const legalComplianceService: LegalComplianceService;
 //# sourceMappingURL=legalComplianceService.d.ts.map

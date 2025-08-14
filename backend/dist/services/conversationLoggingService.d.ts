@@ -45,4 +45,5 @@ export declare class ConversationLoggingService {
     private calculateAverageResponseTime;
     private analyzeQueryComplexity;
 }
+export declare const conversationLoggingService: ConversationLoggingService;
 //# sourceMappingURL=conversationLoggingService.d.ts.map

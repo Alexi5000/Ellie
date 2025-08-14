@@ -52,11 +52,13 @@ export class DatabaseService {
 
     logger.info('Database Service initialized (not connected)', {
       service: 'database',
-      config: {
-        host: this.config.host,
-        port: this.config.port,
-        database: this.config.database,
-        poolSize: this.config.poolSize
+      metadata: {
+        config: {
+          host: this.config.host,
+          port: this.config.port,
+          database: this.config.database,
+          poolSize: this.config.poolSize
+        }
       }
     });
   }
@@ -70,7 +72,9 @@ export class DatabaseService {
       if (process.env.DB_ENABLED !== 'true') {
         logger.info('Database is disabled in configuration', {
           service: 'database',
-          status: 'disabled'
+          metadata: {
+            status: 'disabled'
+          }
         });
         return false;
       }
@@ -108,7 +112,7 @@ export class DatabaseService {
       });
 
       // Event handlers for monitoring pool health
-      this.pool.on('connect', (client) => {
+      this.pool.on('connect', (client: any) => {
         this.stats.totalConnections++;
         this.stats.activeConnections++;
         
@@ -132,7 +136,7 @@ export class DatabaseService {
         this.stats.activeConnections--;
       });
 
-      this.pool.on('error', (error, client) => {
+      this.pool.on('error', (error: any, client: any) => {
         logger.error('Database pool error', {
           service: 'database',
           error: { 
@@ -262,8 +266,10 @@ export class DatabaseService {
 
       logger.debug('Database query executed', {
         service: 'database',
-        sql: sql.substring(0, 100) + '...',
-        processingTime
+        metadata: {
+          sql: sql.substring(0, 100) + '...',
+          processingTime
+        }
       });
 
       // Return placeholder result
@@ -272,7 +278,9 @@ export class DatabaseService {
     } catch (error) {
       logger.error('Database query failed', {
         service: 'database',
-        sql: sql.substring(0, 100) + '...',
+        metadata: {
+          sql: sql.substring(0, 100) + '...'
+        },
         error: {
           message: error instanceof Error ? error.message : 'Unknown error'
         }

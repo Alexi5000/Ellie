@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.LegalComplianceService = void 0;
+exports.legalComplianceService = exports.LegalComplianceService = void 0;
 const types_1 = require("../types");
 const errorHandler_1 = require("../utils/errorHandler");
 class LegalComplianceService {
@@ -244,4 +244,5 @@ class LegalComplianceService {
     }
 }
 exports.LegalComplianceService = LegalComplianceService;
+exports.legalComplianceService = new LegalComplianceService();
 //# sourceMappingURL=legalComplianceService.js.map

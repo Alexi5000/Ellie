@@ -171,7 +171,7 @@ export class MockAPIHelper {
    */
   static createMockTTSResponse(size: number = 1024) {
     return {
-      arrayBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(size))
+      arrayBuffer: jest.fn(() => Promise.resolve(new ArrayBuffer(size)))
     };
   }
 

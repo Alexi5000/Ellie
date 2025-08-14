@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.AIResponseService = void 0;
+exports.aiResponseService = exports.AIResponseService = void 0;
 const openai_1 = __importDefault(require("openai"));
 const groq_sdk_1 = __importDefault(require("groq-sdk"));
 const types_1 = require("../types");
@@ -259,4 +259,5 @@ Current conversation context:
     }
 }
 exports.AIResponseService = AIResponseService;
+exports.aiResponseService = new AIResponseService();
 //# sourceMappingURL=aiResponseService.js.map

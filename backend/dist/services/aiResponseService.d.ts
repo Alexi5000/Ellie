@@ -18,4 +18,5 @@ export declare class AIResponseService {
     private buildConversationHistory;
     private containsInappropriateContent;
 }
+export declare const aiResponseService: AIResponseService;
 //# sourceMappingURL=aiResponseService.d.ts.map
