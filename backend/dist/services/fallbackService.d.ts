@@ -19,10 +19,12 @@ export declare class FallbackService {
     private fallbackResponses;
     private circuitBreakerThreshold;
     private circuitBreakerTimeout;
+    private logger;
     private constructor();
     static getInstance(): FallbackService;
+    static resetInstance(): void;
     private initializeFallbackResponses;
-    private initializeServiceStatus;
+    initializeServiceStatus(): void;
     recordServiceCall(service: string, success: boolean, responseTime: number, error?: Error): void;
     private resetCircuitBreaker;
     isServiceAvailable(service: string): boolean;

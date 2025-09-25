@@ -3,6 +3,9 @@
  * Requirements: 5.4, 5.5
  */
 
+// Unmock the loggerService for this test file
+jest.unmock('../services/loggerService');
+
 import { LoggerService, LogLevel } from '../services/loggerService';
 
 describe('LoggerService', () => {

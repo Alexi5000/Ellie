@@ -8,6 +8,7 @@ class FallbackService {
         this.fallbackResponses = {};
         this.circuitBreakerThreshold = 5;
         this.circuitBreakerTimeout = 60000;
+        this.logger = loggerService_1.LoggerService.getInstance();
         this.initializeFallbackResponses();
         this.initializeServiceStatus();
     }
@@ -16,6 +17,9 @@ class FallbackService {
             FallbackService.instance = new FallbackService();
         }
         return FallbackService.instance;
+    }
+    static resetInstance() {
+        FallbackService.instance = undefined;
     }
     initializeFallbackResponses() {
         this.fallbackResponses = {
@@ -81,7 +85,7 @@ class FallbackService {
             status.consecutiveFailures++;
             if (status.consecutiveFailures >= this.circuitBreakerThreshold) {
                 status.isAvailable = false;
-                loggerService_1.logger.error(`Service circuit breaker opened for ${service}`, {
+                this.logger.error(`Service circuit breaker opened for ${service}`, {
                     service: 'fallback-service',
                     metadata: {
                         serviceName: service,
@@ -106,7 +110,7 @@ class FallbackService {
         if (status) {
             status.isAvailable = true;
             status.consecutiveFailures = 0;
-            loggerService_1.logger.info(`Service circuit breaker reset for ${service}`, {
+            this.logger.info(`Service circuit breaker reset for ${service}`, {
                 service: 'fallback-service',
                 metadata: { serviceName: service }
             });
@@ -117,7 +121,7 @@ class FallbackService {
         return status ? status.isAvailable : false;
     }
     getFallbackForTranscription(error, requestId) {
-        loggerService_1.logger.warn('Using fallback for transcription failure', {
+        this.logger.warn('Using fallback for transcription failure', {
             requestId,
             service: 'fallback-service',
             error: {
@@ -134,7 +138,7 @@ class FallbackService {
         };
     }
     getFallbackForAI(userInput, error, requestId) {
-        loggerService_1.logger.warn('Using fallback for AI service failure', {
+        this.logger.warn('Using fallback for AI service failure', {
             requestId,
             service: 'fallback-service',
             metadata: { userInput: userInput.substring(0, 100) },
@@ -163,7 +167,7 @@ class FallbackService {
         };
     }
     getFallbackForTTS(text, error, requestId) {
-        loggerService_1.logger.warn('Using fallback for TTS failure', {
+        this.logger.warn('Using fallback for TTS failure', {
             requestId,
             service: 'fallback-service',
             metadata: { textLength: text.length },
@@ -193,7 +197,7 @@ class FallbackService {
         if (context === 'inquiry' || context === 'complex') {
             response += ' ' + this.getRandomResponse('legalDisclaimer');
         }
-        loggerService_1.logger.info('Generated contextual fallback response', {
+        this.logger.info('Generated contextual fallback response', {
             requestId,
             service: 'fallback-service',
             metadata: {
@@ -248,7 +252,7 @@ class FallbackService {
     updateCircuitBreakerSettings(threshold, timeout) {
         this.circuitBreakerThreshold = threshold;
         this.circuitBreakerTimeout = timeout;
-        loggerService_1.logger.info('Circuit breaker settings updated', {
+        this.logger.info('Circuit breaker settings updated', {
             service: 'fallback-service',
             metadata: { threshold, timeout }
         });

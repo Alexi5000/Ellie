@@ -209,15 +209,15 @@ function Test-SSLCertificateGeneration {
     Write-Host "Testing PowerShell SSL setup script..." -ForegroundColor Yellow
     try {
         # Test with self-signed certificate generation
-        & .\docker\ssl-setup.ps1 -Domain "test.local" -SelfSigned
+        & .\ssl-setup.ps1 -Domain "test.local" -SelfSigned
         
         # Check if SSL directories were created
-        $testResults.DirectoryCreation = (Test-Path "./ssl/certs") -and (Test-Path "./ssl/private")
+        $testResults.DirectoryCreation = (Test-Path "../ssl/certs") -and (Test-Path "../ssl/private")
         
         # Check if self-signed certificates were generated (if OpenSSL is available)
         $opensslAvailable = Get-Command openssl -ErrorAction SilentlyContinue
         if ($opensslAvailable) {
-            $testResults.SelfSignedGeneration = (Test-Path "./ssl/certs/ellie.crt") -and (Test-Path "./ssl/private/ellie.key")
+            $testResults.SelfSignedGeneration = (Test-Path "../ssl/certs/ellie.crt") -and (Test-Path "../ssl/private/ellie.key")
         } else {
             Write-Host "OpenSSL not available, skipping certificate generation test" -ForegroundColor Yellow
             $testResults.SelfSignedGeneration = $null
@@ -236,7 +236,7 @@ function Test-SSLCertificateGeneration {
     try {
         $wslAvailable = Get-Command wsl -ErrorAction SilentlyContinue
         if ($wslAvailable) {
-            wsl bash ./docker/ssl-setup.sh test.local --self-signed
+            wsl bash ./ssl-setup.sh test.local --self-signed
             $testResults.BashScript = $true
             Write-Host "Bash SSL setup script executed successfully" -ForegroundColor Green
         } else {

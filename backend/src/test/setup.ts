@@ -155,18 +155,38 @@ const mockVoiceProcessingService = (global as any).sharedMockVoiceProcessingServ
 const mockAIResponseService = (global as any).sharedMockAIResponseService;
 
 // Mock logger service
-jest.mock('../services/loggerService', () => ({
-  logger: {
+jest.mock('../services/loggerService', () => {
+  const mockLoggerService = {
     info: jest.fn(),
     error: jest.fn(),
     warn: jest.fn(),
     debug: jest.fn(),
     logRequest: jest.fn(),
     logVoiceProcessing: jest.fn(),
+    logWebSocketEvent: jest.fn(),
+    logExternalApiCall: jest.fn(),
+    logRateLimit: jest.fn(),
     getErrorStats: jest.fn().mockReturnValue({}),
-    getRecentLogs: jest.fn().mockReturnValue([])
-  }
-}));
+    getRecentLogs: jest.fn().mockReturnValue([]),
+    getRequestLogs: jest.fn().mockReturnValue([]),
+    clearLogs: jest.fn(),
+    getInstance: jest.fn()
+  };
+
+  // Make getInstance return the mock instance
+  mockLoggerService.getInstance.mockReturnValue(mockLoggerService);
+
+  return {
+    LoggerService: jest.fn().mockImplementation(() => mockLoggerService),
+    LogLevel: {
+      ERROR: 'error',
+      WARN: 'warn',
+      INFO: 'info',
+      DEBUG: 'debug'
+    },
+    logger: mockLoggerService
+  };
+});
 
 // Mock rate limit service with configurable behavior for testing
 let rateLimitingEnabled = false;
@@ -233,17 +253,47 @@ jest.mock('../services/rateLimitService', () => {
 };
 
 // Mock fallback service
-jest.mock('../services/fallbackService', () => ({
-  fallbackService: {
+jest.mock('../services/fallbackService', () => {
+  const mockFallbackService = {
     getContextualFallback: jest.fn().mockReturnValue({
       text: 'Mock fallback response',
       isFallback: true,
       fallbackReason: 'Mock fallback'
     }),
     getServiceHealth: jest.fn().mockReturnValue({}),
-    getFallbackStats: jest.fn().mockReturnValue({})
-  }
-}));
+    getFallbackStats: jest.fn().mockReturnValue({}),
+    getInstance: jest.fn(),
+    resetInstance: jest.fn(),
+    initializeServiceStatus: jest.fn(),
+    recordServiceCall: jest.fn(),
+    isServiceAvailable: jest.fn().mockReturnValue(true),
+    getFallbackForTranscription: jest.fn().mockReturnValue({
+      text: 'Mock transcription fallback',
+      isFallback: true,
+      fallbackReason: 'Mock fallback'
+    }),
+    getFallbackForAI: jest.fn().mockReturnValue({
+      text: 'Mock AI fallback',
+      isFallback: true,
+      fallbackReason: 'Mock fallback'
+    }),
+    getFallbackForTTS: jest.fn().mockReturnValue({
+      text: 'Mock TTS fallback',
+      isFallback: true,
+      fallbackReason: 'Mock fallback'
+    }),
+    addCustomFallbackResponses: jest.fn(),
+    updateCircuitBreakerSettings: jest.fn()
+  };
+
+  // Make getInstance return the mock instance
+  mockFallbackService.getInstance.mockReturnValue(mockFallbackService);
+
+  return {
+    FallbackService: jest.fn().mockImplementation(() => mockFallbackService),
+    fallbackService: mockFallbackService
+  };
+});
 
 // Mock cache service
 jest.mock('../services/cacheService', () => {

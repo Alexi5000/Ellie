@@ -3,7 +3,7 @@
  * Requirements: 5.4, 5.5
  */
 
-import { logger } from './loggerService';
+import { LoggerService } from './loggerService';
 import { ErrorCode, ERROR_CODES } from '../types/errors';
 
 export interface FallbackResponse {
@@ -29,8 +29,10 @@ export class FallbackService {
   private fallbackResponses: Record<string, string[]> = {};
   private circuitBreakerThreshold = 5; // Failures before circuit opens
   private circuitBreakerTimeout = 60000; // 1 minute before retry
+  private logger: LoggerService;
 
   private constructor() {
+    this.logger = LoggerService.getInstance();
     this.initializeFallbackResponses();
     this.initializeServiceStatus();
   }
@@ -40,6 +42,13 @@ export class FallbackService {
       FallbackService.instance = new FallbackService();
     }
     return FallbackService.instance;
+  }
+
+  /**
+   * Reset singleton instance (for testing purposes)
+   */
+  static resetInstance(): void {
+    FallbackService.instance = undefined as any;
   }
 
   /**
@@ -94,7 +103,7 @@ export class FallbackService {
   /**
    * Initialize service status tracking
    */
-  private initializeServiceStatus() {
+  public initializeServiceStatus() {
     const services = ['openai-whisper', 'openai-tts', 'openai-gpt', 'groq'];
     
     services.forEach(service => {
@@ -132,7 +141,7 @@ export class FallbackService {
       if (status.consecutiveFailures >= this.circuitBreakerThreshold) {
         status.isAvailable = false;
         
-        logger.error(`Service circuit breaker opened for ${service}`, {
+        this.logger.error(`Service circuit breaker opened for ${service}`, {
           service: 'fallback-service',
           metadata: {
             serviceName: service,
@@ -167,7 +176,7 @@ export class FallbackService {
       status.isAvailable = true;
       status.consecutiveFailures = 0;
       
-      logger.info(`Service circuit breaker reset for ${service}`, {
+      this.logger.info(`Service circuit breaker reset for ${service}`, {
         service: 'fallback-service',
         metadata: { serviceName: service }
       });
@@ -186,7 +195,7 @@ export class FallbackService {
    * Get fallback response for speech-to-text failure
    */
   getFallbackForTranscription(error: Error, requestId: string): FallbackResponse {
-    logger.warn('Using fallback for transcription failure', {
+    this.logger.warn('Using fallback for transcription failure', {
       requestId,
       service: 'fallback-service',
       error: {
@@ -208,7 +217,7 @@ export class FallbackService {
    * Get fallback response for AI service failure
    */
   getFallbackForAI(userInput: string, error: Error, requestId: string): FallbackResponse {
-    logger.warn('Using fallback for AI service failure', {
+    this.logger.warn('Using fallback for AI service failure', {
       requestId,
       service: 'fallback-service',
       metadata: { userInput: userInput.substring(0, 100) },
@@ -243,7 +252,7 @@ export class FallbackService {
    * Get fallback response for text-to-speech failure
    */
   getFallbackForTTS(text: string, error: Error, requestId: string): FallbackResponse {
-    logger.warn('Using fallback for TTS failure', {
+    this.logger.warn('Using fallback for TTS failure', {
       requestId,
       service: 'fallback-service',
       metadata: { textLength: text.length },
@@ -286,7 +295,7 @@ export class FallbackService {
       response += ' ' + this.getRandomResponse('legalDisclaimer');
     }
 
-    logger.info('Generated contextual fallback response', {
+    this.logger.info('Generated contextual fallback response', {
       requestId,
       service: 'fallback-service',
       metadata: {
@@ -375,7 +384,7 @@ export class FallbackService {
     this.circuitBreakerThreshold = threshold;
     this.circuitBreakerTimeout = timeout;
     
-    logger.info('Circuit breaker settings updated', {
+    this.logger.info('Circuit breaker settings updated', {
       service: 'fallback-service',
       metadata: { threshold, timeout }
     });

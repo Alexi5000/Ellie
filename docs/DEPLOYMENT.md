@@ -1,322 +1,194 @@
-# Ellie Voice Receptionist - Production Deployment Guide
+# Deployment Guide
 
-This guide covers the production deployment of the Ellie Voice Receptionist application using Docker containers with Nginx reverse proxy and SSL support.
+This guide covers deploying Ellie Voice Receptionist using Docker containers.
 
 ## Prerequisites
 
-- Docker and Docker Compose installed
-- Domain name configured to point to your server
-- SSL certificates (Let's Encrypt recommended)
-- VPS or dedicated server with sufficient resources
+- Docker Desktop installed and running
+- Docker Compose v2.0 or higher
+- Node.js 18+ (for local development)
+- OpenSSL (for SSL certificate generation)
 
-## Quick Start
+## Quick Deployment
 
-1. **Clone and prepare the application:**
-   ```bash
-   git clone <repository-url>
-   cd ellie-voice-receptionist
-   ```
-
-2. **Configure environment variables:**
-   ```bash
-   cp backend/.env.example backend/.env.production
-   # Edit backend/.env.production with your production values
-   ```
-
-3. **Set up SSL certificates:**
-   ```bash
-   # For self-signed certificates (development only)
-   ./docker/ssl-setup.sh your-domain.com --self-signed
-   
-   # For production, place your certificates in:
-   # ssl/certs/ellie.crt
-   # ssl/private/ellie.key
-   ```
-
-4. **Update domain configuration:**
-   ```bash
-   # Edit docker-compose.prod.yml and replace "your-domain.com" with your actual domain
-   sed -i 's/your-domain.com/yourdomain.com/g' docker-compose.prod.yml
-   ```
-
-5. **Deploy the application:**
-   ```bash
-   docker-compose -f docker-compose.prod.yml up -d
-   ```
-
-## Detailed Configuration
-
-### SSL Certificate Setup
-
-#### Option 1: Let's Encrypt (Recommended)
+### Development Environment
 
 ```bash
-# Install certbot
-sudo apt-get update
-sudo apt-get install certbot
+# Start development environment
+npm run docker:up
 
-# Obtain certificates
-sudo certbot certonly --standalone -d yourdomain.com
-
-# Copy certificates to the project
-sudo cp /etc/letsencrypt/live/yourdomain.com/fullchain.pem ssl/certs/ellie.crt
-sudo cp /etc/letsencrypt/live/yourdomain.com/privkey.pem ssl/private/ellie.key
-sudo chown $USER:$USER ssl/certs/ellie.crt ssl/private/ellie.key
+# Or directly with Docker Compose
+cd docker
+docker-compose up --build
 ```
 
-#### Option 2: Self-Signed (Development Only)
+**Services Available:**
+- Frontend: http://localhost:3000
+- Backend: http://localhost:5000
+- Nginx Proxy: http://localhost:80
+- Redis: localhost:6380
+
+### Production Environment
 
 ```bash
-# Linux/macOS
-./docker/ssl-setup.sh yourdomain.com --self-signed
+# Start production environment
+npm run docker:prod
 
-# Windows
-powershell -ExecutionPolicy Bypass -File docker/ssl-setup.ps1 -Domain yourdomain.com -SelfSigned
+# Or directly with Docker Compose
+cd docker
+docker-compose -f docker-compose.prod.yml up --build
 ```
 
-### Environment Configuration
+**Services Available:**
+- Application: http://localhost:80 (https://localhost:443 with SSL)
+- Monitoring: http://localhost:9090
 
-#### Backend Environment Variables
+## Configuration
 
-Edit `backend/.env.production`:
+### Environment Variables
 
+Create the following environment files:
+
+**backend/.env** (Development):
 ```env
-# Required API Keys
-OPENAI_API_KEY=sk-your-openai-key
-GROQ_API_KEY=gsk_your-groq-key
-
-# Domain Configuration
-CORS_ORIGIN=https://yourdomain.com
-
-# Security
-SESSION_SECRET=your-secure-random-string
-JWT_SECRET=another-secure-random-string
-
-# Performance Tuning
-RATE_LIMIT_MAX_REQUESTS=100
-MAX_AUDIO_FILE_SIZE=10485760
+NODE_ENV=development
+OPENAI_API_KEY=your_openai_api_key
+GROQ_API_KEY=your_groq_api_key
+REDIS_URL=redis://redis:6379
 ```
 
-#### Frontend Environment Variables
+**backend/.env.production** (Production):
+```env
+NODE_ENV=production
+OPENAI_API_KEY=your_openai_api_key
+GROQ_API_KEY=your_groq_api_key
+REDIS_URL=redis://redis:6379
+```
 
-Update `docker-compose.prod.yml`:
+### SSL Configuration
+
+Generate SSL certificates for production:
+
+```bash
+# Using PowerShell (Windows)
+npm run ssl:setup-windows
+
+# Using Bash (Linux/macOS/WSL)
+npm run ssl:setup
+```
+
+## Verification
+
+### Configuration Verification
+
+```bash
+# Verify Docker configuration
+npm run docker:verify
+```
+
+### Deployment Testing
+
+```bash
+# Test both development and production deployments
+npm run docker:test
+
+# Test with SSL certificate generation
+cd docker
+powershell -ExecutionPolicy Bypass -File docker-deployment-test.ps1 -TestSSL
+```
+
+## Monitoring
+
+The production environment includes Prometheus monitoring:
+
+- **Prometheus UI**: http://localhost:9090
+- **Metrics Endpoints**:
+  - Backend health: http://backend:5000/health
+  - Frontend health: http://frontend:3000/health
+  - Nginx status: http://nginx:80/nginx-status
+
+## Scaling
+
+### Horizontal Scaling
+
+Scale individual services:
+
+```bash
+cd docker
+docker-compose up --scale backend=3 --scale frontend=2
+```
+
+### Resource Limits
+
+Modify docker-compose files to add resource constraints:
 
 ```yaml
-environment:
-  - REACT_APP_API_URL=https://yourdomain.com
-  - REACT_APP_SOCKET_URL=https://yourdomain.com
+services:
+  backend:
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 256M
 ```
 
-### Nginx Configuration
+## Backup and Recovery
 
-The production Nginx configuration includes:
-
-- SSL/TLS termination with modern security settings
-- Rate limiting for API endpoints
-- Security headers (HSTS, CSP, etc.)
-- Gzip compression
-- WebSocket support for Socket.io
-- Health check endpoints
-
-Key features:
-- **Rate Limiting**: 10 req/s for API, 5 req/s for voice processing
-- **SSL Security**: TLS 1.2/1.3 with secure cipher suites
-- **Security Headers**: XSS protection, content type sniffing prevention
-- **Performance**: Gzip compression, connection keep-alive
-
-### Health Checks and Monitoring
-
-#### Health Check Endpoints
-
-- **Frontend**: `https://yourdomain.com/health`
-- **Backend**: `https://yourdomain.com/api/health`
-- **Nginx Status**: `https://yourdomain.com/nginx-status` (restricted access)
-- **Metrics**: `https://yourdomain.com/metrics` (Prometheus format)
-
-#### Monitoring with Prometheus
-
-The production setup includes Prometheus monitoring:
+### Redis Data Backup
 
 ```bash
-# Access Prometheus dashboard
-http://yourdomain.com:9090
+# Create backup
+docker exec ellie-redis-1 redis-cli BGSAVE
+
+# Copy backup file
+docker cp ellie-redis-1:/data/dump.rdb ./backup/
 ```
 
-Available metrics:
-- Request rates and response times
-- WebSocket connection counts
-- Service health status
-- Error rates and types
-
-## Deployment Commands
-
-### Initial Deployment
+### Volume Backup
 
 ```bash
-# Build and start all services
-docker-compose -f docker-compose.prod.yml up -d --build
-
-# Check service status
-docker-compose -f docker-compose.prod.yml ps
-
-# View logs
-docker-compose -f docker-compose.prod.yml logs -f
+# Backup all volumes
+docker run --rm -v ellie_redis_data:/data -v $(pwd)/backup:/backup alpine tar czf /backup/redis_backup.tar.gz -C /data .
 ```
-
-### Updates and Maintenance
-
-```bash
-# Update application
-git pull
-docker-compose -f docker-compose.prod.yml up -d --build
-
-# Restart specific service
-docker-compose -f docker-compose.prod.yml restart backend
-
-# View service logs
-docker-compose -f docker-compose.prod.yml logs -f backend
-
-# Scale services (if needed)
-docker-compose -f docker-compose.prod.yml up -d --scale backend=2
-```
-
-### Backup and Recovery
-
-```bash
-# Backup configuration
-tar -czf ellie-backup-$(date +%Y%m%d).tar.gz \
-  docker-compose.prod.yml \
-  docker/ \
-  ssl/ \
-  backend/.env.production
-
-# Stop services for maintenance
-docker-compose -f docker-compose.prod.yml down
-
-# Start services after maintenance
-docker-compose -f docker-compose.prod.yml up -d
-```
-
-## Security Considerations
-
-### SSL/TLS Configuration
-
-- Use TLS 1.2 or higher
-- Implement HSTS headers
-- Regular certificate renewal (Let's Encrypt auto-renewal recommended)
-
-### API Security
-
-- Rate limiting enabled by default
-- CORS properly configured
-- Input validation on all endpoints
-- No sensitive data in logs
-
-### Container Security
-
-- Non-root user in containers
-- Minimal base images
-- Regular security updates
-- Environment variable protection
-
-## Performance Optimization
-
-### Resource Requirements
-
-**Minimum Requirements:**
-- CPU: 2 cores
-- RAM: 4GB
-- Storage: 20GB
-- Network: 100Mbps
-
-**Recommended for Production:**
-- CPU: 4+ cores
-- RAM: 8GB+
-- Storage: 50GB+ SSD
-- Network: 1Gbps
-
-### Scaling Considerations
-
-- Backend can be horizontally scaled
-- Use load balancer for multiple backend instances
-- Consider CDN for static assets
-- Database clustering for high availability (future enhancement)
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **SSL Certificate Errors**
-   ```bash
-   # Check certificate validity
-   openssl x509 -in ssl/certs/ellie.crt -text -noout
-   
-   # Verify certificate chain
-   openssl verify -CAfile ssl/certs/ca-bundle.crt ssl/certs/ellie.crt
-   ```
+1. **Port Conflicts**: Ensure ports 80, 443, 3000, 5000, 6380, 9090 are available
+2. **Memory Issues**: Increase Docker Desktop memory allocation
+3. **SSL Certificate Issues**: Ensure OpenSSL is installed and accessible
 
-2. **Service Health Check Failures**
-   ```bash
-   # Check service logs
-   docker-compose -f docker-compose.prod.yml logs backend
-   
-   # Test health endpoints
-   curl -k https://yourdomain.com/health
-   ```
-
-3. **Rate Limiting Issues**
-   ```bash
-   # Check Nginx logs
-   docker-compose -f docker-compose.prod.yml logs nginx
-   
-   # Adjust rate limits in docker/nginx-production.conf
-   ```
-
-### Log Analysis
+### Logs
 
 ```bash
-# Application logs
-docker-compose -f docker-compose.prod.yml logs -f backend
+# View all service logs
+cd docker
+docker-compose logs -f
 
-# Nginx access logs
-docker-compose -f docker-compose.prod.yml exec nginx tail -f /var/log/nginx/access.log
-
-# System resource usage
-docker stats
+# View specific service logs
+docker-compose logs -f backend
+docker-compose logs -f frontend
 ```
 
-## Testing Production Deployment
-
-Run the production deployment tests:
+### Health Checks
 
 ```bash
-# Install test dependencies
-npm install --dev
-
-# Run production configuration tests
-npm run test:production
-
-# Run Docker integration tests
-npm run test:docker
+# Check service health
+curl http://localhost:5000/health
+curl http://localhost:3000/health
 ```
 
-## Support and Maintenance
+## Production Checklist
 
-### Regular Maintenance Tasks
-
-1. **Certificate Renewal** (monthly)
-2. **Security Updates** (weekly)
-3. **Log Rotation** (daily)
-4. **Backup Verification** (weekly)
-5. **Performance Monitoring** (continuous)
-
-### Monitoring Alerts
-
-Set up alerts for:
-- Service downtime
-- High error rates
-- Certificate expiration
-- Resource exhaustion
-- Security incidents
-
-For additional support, refer to the main README.md or create an issue in the project repository.
+- [ ] Environment variables configured
+- [ ] SSL certificates generated
+- [ ] Firewall rules configured
+- [ ] Monitoring alerts set up
+- [ ] Backup strategy implemented
+- [ ] Log rotation configured
+- [ ] Resource limits set
+- [ ] Health checks verified

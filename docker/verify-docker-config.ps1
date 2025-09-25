@@ -44,89 +44,89 @@ function Test-FileContent {
 Write-Host "=== Checking Docker Compose Files ===" -ForegroundColor Cyan
 
 # Check docker-compose.yml (development)
-Test-FileExists "docker-compose.yml" "Development Docker Compose"
-Test-FileContent "docker-compose.yml" "frontend:" "Frontend service definition"
-Test-FileContent "docker-compose.yml" "backend:" "Backend service definition"
-Test-FileContent "docker-compose.yml" "redis:" "Redis service definition"
-Test-FileContent "docker-compose.yml" "nginx:" "Nginx service definition"
-Test-FileContent "docker-compose.yml" "target: development" "Development build target"
+Test-FileExists "./docker-compose.yml" "Development Docker Compose"
+Test-FileContent "./docker-compose.yml" "frontend:" "Frontend service definition"
+Test-FileContent "./docker-compose.yml" "backend:" "Backend service definition"
+Test-FileContent "./docker-compose.yml" "redis:" "Redis service definition"
+Test-FileContent "./docker-compose.yml" "nginx:" "Nginx service definition"
+Test-FileContent "./docker-compose.yml" "target: development" "Development build target"
 
 # Check docker-compose.prod.yml (production)
-Test-FileExists "docker-compose.prod.yml" "Production Docker Compose"
-Test-FileContent "docker-compose.prod.yml" "target: production" "Production build target"
-Test-FileContent "docker-compose.prod.yml" "healthcheck:" "Health check configuration"
-Test-FileContent "docker-compose.prod.yml" "restart: unless-stopped" "Restart policy"
-Test-FileContent "docker-compose.prod.yml" "monitoring:" "Monitoring service"
+Test-FileExists "./docker-compose.prod.yml" "Production Docker Compose"
+Test-FileContent "./docker-compose.prod.yml" "target: production" "Production build target"
+Test-FileContent "./docker-compose.prod.yml" "healthcheck:" "Health check configuration"
+Test-FileContent "./docker-compose.prod.yml" "restart: unless-stopped" "Restart policy"
+Test-FileContent "./docker-compose.prod.yml" "monitoring:" "Monitoring service"
 
 Write-Host ""
 Write-Host "=== Checking Dockerfile Configurations ===" -ForegroundColor Cyan
 
 # Check frontend Dockerfile
-Test-FileExists "frontend/Dockerfile" "Frontend Dockerfile"
-Test-FileContent "frontend/Dockerfile" "FROM node:18-alpine as development" "Frontend development stage"
-Test-FileContent "frontend/Dockerfile" "FROM node:18-alpine as production" "Frontend production stage"
-Test-FileContent "frontend/Dockerfile" "HEALTHCHECK" "Frontend health check"
+Test-FileExists "../frontend/Dockerfile" "Frontend Dockerfile"
+Test-FileContent "../frontend/Dockerfile" "FROM node:18-alpine as development" "Frontend development stage"
+Test-FileContent "../frontend/Dockerfile" "FROM node:18-alpine as production" "Frontend production stage"
+Test-FileContent "../frontend/Dockerfile" "HEALTHCHECK" "Frontend health check"
 
 # Check backend Dockerfile
-Test-FileExists "backend/Dockerfile" "Backend Dockerfile"
-Test-FileContent "backend/Dockerfile" "FROM node:18-alpine as development" "Backend development stage"
-Test-FileContent "backend/Dockerfile" "FROM node:18-alpine as production" "Backend production stage"
-Test-FileContent "backend/Dockerfile" "HEALTHCHECK" "Backend health check"
+Test-FileExists "../backend/Dockerfile" "Backend Dockerfile"
+Test-FileContent "../backend/Dockerfile" "FROM node:18-alpine as development" "Backend development stage"
+Test-FileContent "../backend/Dockerfile" "FROM node:18-alpine as production" "Backend production stage"
+Test-FileContent "../backend/Dockerfile" "HEALTHCHECK" "Backend health check"
 
 Write-Host ""
 Write-Host "=== Checking Environment Configuration ===" -ForegroundColor Cyan
 
 # Check environment files
-Test-FileExists "backend/.env" "Development environment file"
-Test-FileExists "backend/.env.example" "Environment example file"
-Test-FileExists "backend/.env.production" "Production environment file"
+Test-FileExists "../backend/.env" "Development environment file"
+Test-FileExists "../backend/.env.example" "Environment example file"
+Test-FileExists "../backend/.env.production" "Production environment file"
 
 # Check environment variables
-Test-FileContent "backend/.env" "OPENAI_API_KEY" "OpenAI API key configuration"
-Test-FileContent "backend/.env" "GROQ_API_KEY" "Groq API key configuration"
-Test-FileContent "backend/.env" "REDIS_URL" "Redis URL configuration"
-Test-FileContent "backend/.env.production" "NODE_ENV=production" "Production environment setting"
+Test-FileContent "../backend/.env" "OPENAI_API_KEY" "OpenAI API key configuration"
+Test-FileContent "../backend/.env" "GROQ_API_KEY" "Groq API key configuration"
+Test-FileContent "../backend/.env" "REDIS_URL" "Redis URL configuration"
+Test-FileContent "../backend/.env.production" "NODE_ENV=production" "Production environment setting"
 
 Write-Host ""
 Write-Host "=== Checking SSL Certificate Scripts ===" -ForegroundColor Cyan
 
 # Check SSL setup scripts
-Test-FileExists "docker/ssl-setup.ps1" "PowerShell SSL setup script"
-Test-FileExists "docker/ssl-setup.sh" "Bash SSL setup script"
+Test-FileExists "./ssl-setup.ps1" "PowerShell SSL setup script"
+Test-FileExists "./ssl-setup.sh" "Bash SSL setup script"
 
 # Check SSL script functionality
-Test-FileContent "docker/ssl-setup.ps1" "New-Item -ItemType Directory" "SSL directory creation"
-Test-FileContent "docker/ssl-setup.ps1" "openssl req -x509" "Self-signed certificate generation"
-Test-FileContent "docker/ssl-setup.sh" "mkdir -p" "SSL directory creation (bash)"
-Test-FileContent "docker/ssl-setup.sh" "openssl req -x509" "Self-signed certificate generation (bash)"
+Test-FileContent "./ssl-setup.ps1" "New-Item -ItemType Directory" "SSL directory creation"
+Test-FileContent "./ssl-setup.ps1" "openssl req -x509" "Self-signed certificate generation"
+Test-FileContent "./ssl-setup.sh" "mkdir -p" "SSL directory creation (bash)"
+Test-FileContent "./ssl-setup.sh" "openssl req -x509" "Self-signed certificate generation (bash)"
 
 Write-Host ""
 Write-Host "=== Checking Nginx Configuration ===" -ForegroundColor Cyan
 
 # Check nginx configuration files
-Test-FileExists "docker/nginx.conf" "Development Nginx configuration"
-Test-FileExists "docker/nginx-production.conf" "Production Nginx configuration"
-Test-FileExists "docker/server-common.conf" "Common server configuration"
+Test-FileExists "./nginx.conf" "Development Nginx configuration"
+Test-FileExists "./nginx-production.conf" "Production Nginx configuration"
+Test-FileExists "./server-common.conf" "Common server configuration"
 
 Write-Host ""
 Write-Host "=== Checking Package Configurations ===" -ForegroundColor Cyan
 
 # Check package.json files
-Test-FileExists "frontend/package.json" "Frontend package.json"
-Test-FileExists "backend/package.json" "Backend package.json"
+Test-FileExists "../frontend/package.json" "Frontend package.json"
+Test-FileExists "../backend/package.json" "Backend package.json"
 
 # Check for required scripts
-Test-FileContent "frontend/package.json" '"build":' "Frontend build script"
-Test-FileContent "frontend/package.json" '"dev":' "Frontend dev script"
-Test-FileContent "backend/package.json" '"build":' "Backend build script"
-Test-FileContent "backend/package.json" '"dev":' "Backend dev script"
-Test-FileContent "backend/package.json" '"start":' "Backend start script"
+Test-FileContent "../frontend/package.json" '"build":' "Frontend build script"
+Test-FileContent "../frontend/package.json" '"dev":' "Frontend dev script"
+Test-FileContent "../backend/package.json" '"build":' "Backend build script"
+Test-FileContent "../backend/package.json" '"dev":' "Backend dev script"
+Test-FileContent "../backend/package.json" '"start":' "Backend start script"
 
 Write-Host ""
 Write-Host "=== Checking Health Check Files ===" -ForegroundColor Cyan
 
 # Check health check files
-Test-FileExists "backend/healthcheck.js" "Backend health check script"
+Test-FileExists "../backend/healthcheck.js" "Backend health check script"
 
 Write-Host ""
 Write-Host "=== Docker Installation Check ===" -ForegroundColor Cyan

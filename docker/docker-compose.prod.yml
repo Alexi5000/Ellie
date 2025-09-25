@@ -3,7 +3,7 @@ version: '3.8'
 services:
   frontend:
     build:
-      context: ./frontend
+      context: ../frontend
       dockerfile: Dockerfile
       target: production
     environment:
@@ -22,7 +22,7 @@ services:
 
   backend:
     build:
-      context: ./backend
+      context: ../backend
       dockerfile: Dockerfile
       target: production
     environment:
@@ -31,7 +31,7 @@ services:
       - CORS_ORIGIN=https://your-domain.com
       - REDIS_URL=redis://redis:6379
     env_file:
-      - ./backend/.env.production
+      - ../backend/.env.production
     restart: unless-stopped
     networks:
       - ellie-network
@@ -63,8 +63,8 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./docker/nginx-production.conf:/etc/nginx/nginx.conf:ro
-      - ./docker/server-common.conf:/etc/nginx/conf.d/server-common.conf:ro
+      - ./nginx-production.conf:/etc/nginx/nginx.conf:ro
+      - ./server-common.conf:/etc/nginx/conf.d/server-common.conf:ro
       # SSL certificates (uncomment and configure for production)
       # - ./ssl/certs:/etc/ssl/certs:ro
       # - ./ssl/private:/etc/ssl/private:ro
@@ -91,7 +91,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'

@@ -11,11 +11,13 @@
     "test:backend": "cd backend && npm test",
     "test:frontend": "cd frontend && npm test",
     "test:all": "npm run test:backend && npm run test:frontend && npm run test:integration",
-    "docker:up": "docker-compose up --build",
-    "docker:down": "docker-compose down",
-    "docker:prod": "docker-compose -f docker-compose.prod.yml up --build",
-    "ssl:setup": "bash docker/ssl-setup.sh",
-    "ssl:setup-windows": "powershell -ExecutionPolicy Bypass -File docker/ssl-setup.ps1"
+    "docker:up": "cd docker && docker-compose up --build",
+    "docker:down": "cd docker && docker-compose down",
+    "docker:prod": "cd docker && docker-compose -f docker-compose.prod.yml up --build",
+    "docker:verify": "cd docker && powershell -ExecutionPolicy Bypass -File verify-docker-config.ps1",
+    "docker:test": "cd docker && powershell -ExecutionPolicy Bypass -File docker-deployment-test.ps1",
+    "ssl:setup": "cd docker && bash ssl-setup.sh",
+    "ssl:setup-windows": "cd docker && powershell -ExecutionPolicy Bypass -File ssl-setup.ps1"
   },
   "devDependencies": {
     "jest": "^29.7.0",

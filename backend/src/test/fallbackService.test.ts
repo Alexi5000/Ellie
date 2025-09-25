@@ -3,6 +3,10 @@
  * Requirements: 5.4, 5.5
  */
 
+// Unmock the fallbackService and loggerService for this test file
+jest.unmock('../services/fallbackService');
+jest.unmock('../services/loggerService');
+
 import { FallbackService } from '../services/fallbackService';
 
 describe('FallbackService', () => {
@@ -17,7 +21,7 @@ describe('FallbackService', () => {
 
   afterEach(async () => {
     // Reset the singleton instance for clean tests
-    (FallbackService as any).instance = undefined;
+    FallbackService.resetInstance();
     
     // Wait for any pending async operations
     await new Promise(resolve => setImmediate(resolve));
