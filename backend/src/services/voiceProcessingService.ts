@@ -8,6 +8,10 @@ import { AudioInput, AudioResponse, ErrorResponse, ERROR_CODES } from '../types'
 import { createErrorResponse } from '../utils/errorHandler';
 import { cacheService } from './cacheService';
 import { languageDetectionService } from './languageDetectionService';
+import { serviceDiscovery } from './serviceDiscovery';
+import { loadBalancer } from './loadBalancer';
+import { circuitBreakerManager } from './circuitBreaker';
+import { logger } from './loggerService';
 
 export class VoiceProcessingService {
   private openai: OpenAI;

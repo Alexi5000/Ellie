@@ -22,6 +22,12 @@ const cdnService_1 = require("./services/cdnService");
 const analyticsService_1 = require("./services/analyticsService");
 const apmService_1 = require("./services/apmService");
 const advancedLoggerService_1 = require("./services/advancedLoggerService");
+const serviceManager_1 = require("./services/serviceManager");
+const serviceDiscovery_1 = require("./services/serviceDiscovery");
+const healthCheckService_1 = require("./services/healthCheckService");
+const apiGateway_1 = require("./services/apiGateway");
+const loadBalancer_1 = require("./services/loadBalancer");
+const circuitBreaker_1 = require("./services/circuitBreaker");
 const voice_1 = __importDefault(require("./routes/voice"));
 const legal_1 = __importDefault(require("./routes/legal"));
 dotenv_1.default.config();
@@ -37,6 +43,7 @@ const io = new socket_io_1.Server(server, {
 });
 exports.io = io;
 const PORT = process.env.PORT || 5000;
+const HOST = process.env.HOST || 'localhost';
 app.use((0, helmet_1.default)({
     contentSecurityPolicy: {
         directives: {
@@ -95,7 +102,120 @@ app.use((req, res, next) => {
     });
     next();
 });
+async function initializeServices() {
+    try {
+        const backendServiceDef = {
+            name: 'ellie-backend',
+            version: '1.0.0',
+            host: HOST,
+            port: Number(PORT),
+            protocol: 'http',
+            healthEndpoint: '/health',
+            tags: ['api', 'backend', 'critical'],
+            dependencies: [],
+            routes: [
+                {
+                    path: '/api/voice/*',
+                    method: 'POST',
+                    serviceName: 'ellie-backend',
+                    targetPath: '/api/voice',
+                    timeout: 30000,
+                    rateLimit: { windowMs: 60000, max: 100 }
+                },
+                {
+                    path: '/api/analytics/*',
+                    method: 'GET',
+                    serviceName: 'ellie-backend',
+                    targetPath: '/api/analytics',
+                    timeout: 10000
+                }
+            ],
+            metadata: {
+                environment: process.env.NODE_ENV || 'development',
+                corsOrigin: process.env.FRONTEND_URL || "http://localhost:3000",
+                weight: 1
+            },
+            startupTimeout: 30000,
+            shutdownTimeout: 10000
+        };
+        const externalServices = [
+            {
+                name: 'openai-api',
+                version: '1.0.0',
+                host: 'api.openai.com',
+                port: 443,
+                protocol: 'https',
+                healthEndpoint: '/v1/models',
+                tags: ['ai', 'external', 'openai'],
+                dependencies: [],
+                metadata: { provider: 'openai', type: 'ai-service' }
+            },
+            {
+                name: 'groq-api',
+                version: '1.0.0',
+                host: 'api.groq.com',
+                port: 443,
+                protocol: 'https',
+                healthEndpoint: '/openai/v1/models',
+                tags: ['ai', 'external', 'groq'],
+                dependencies: [],
+                metadata: { provider: 'groq', type: 'ai-service' }
+            }
+        ];
+        serviceManager_1.serviceManager.registerService(backendServiceDef);
+        for (const serviceDef of externalServices) {
+            serviceManager_1.serviceManager.registerService(serviceDef);
+        }
+        loadBalancer_1.loadBalancer.setStrategy(loadBalancer_1.LoadBalancingStrategy.HEALTH_BASED);
+        loggerService_1.logger.info('Service discovery and management initialized', {
+            service: 'main',
+            metadata: {
+                registeredServices: externalServices.length + 1,
+                loadBalancingStrategy: loadBalancer_1.LoadBalancingStrategy.HEALTH_BASED
+            }
+        });
+    }
+    catch (error) {
+        loggerService_1.logger.error('Failed to initialize services', {
+            service: 'main',
+            error: {
+                message: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined
+            }
+        });
+        throw error;
+    }
+}
 const websocketHandler = new websocketHandler_1.WebSocketHandler(io);
+app.use('/gateway', apiGateway_1.apiGateway.createMiddleware());
+app.get('/services', (req, res) => {
+    const services = serviceDiscovery_1.serviceDiscovery.getAllServices();
+    const stats = serviceDiscovery_1.serviceDiscovery.getStats();
+    res.json({
+        services,
+        stats,
+        timestamp: new Date().toISOString()
+    });
+});
+app.get('/services/health', (req, res) => {
+    const systemHealth = healthCheckService_1.healthCheckService.getSystemHealth();
+    res.status(systemHealth.overall === 'healthy' ? 200 : 503).json(systemHealth);
+});
+app.get('/services/stats', (req, res) => {
+    const serviceManagerStats = serviceManager_1.serviceManager.getStats();
+    const loadBalancerStats = loadBalancer_1.loadBalancer.getStats();
+    const healthStats = healthCheckService_1.healthCheckService.getHealthStats();
+    const gatewayStats = apiGateway_1.apiGateway.getStats();
+    const circuitBreakerStats = circuitBreaker_1.circuitBreakerManager.getAllStats();
+    res.json({
+        serviceManager: serviceManagerStats,
+        loadBalancer: loadBalancerStats,
+        healthCheck: healthStats,
+        apiGateway: gatewayStats,
+        circuitBreaker: circuitBreakerStats,
+        timestamp: new Date().toISOString()
+    });
+});
 app.get('/health', async (req, res) => {
     const connectionStats = websocketHandler.getConnectionStats();
     const serviceHealth = fallbackService_1.fallbackService.getServiceHealth();
@@ -105,8 +225,10 @@ app.get('/health', async (req, res) => {
     const analyticsStats = analyticsService_1.analyticsService.getServiceStats();
     const apmStats = apmService_1.apmService.getServiceStats();
     const advancedLoggerStats = advancedLoggerService_1.advancedLoggerService.getServiceStats();
+    const systemHealth = healthCheckService_1.healthCheckService.getSystemHealth();
+    const serviceDiscoveryStats = serviceDiscovery_1.serviceDiscovery.getStats();
     const healthCheck = {
-        status: 'OK',
+        status: systemHealth.overall === 'healthy' ? 'OK' : 'DEGRADED',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         environment: process.env.NODE_ENV || 'development',
@@ -116,10 +238,13 @@ app.get('/health', async (req, res) => {
             openai: process.env.OPENAI_API_KEY ? 'configured' : 'not configured',
             groq: process.env.GROQ_API_KEY ? 'configured' : 'not configured',
             redis: cacheService_1.cacheService.isAvailable() ? 'connected' : 'disconnected',
-            websocket: 'active'
+            websocket: 'active',
+            serviceDiscovery: serviceDiscoveryStats.totalServices > 0 ? 'active' : 'inactive'
         },
         connections: connectionStats,
         serviceHealth,
+        systemHealth: systemHealth.summary,
+        serviceDiscovery: serviceDiscoveryStats,
         rateLimiting: rateLimitStats,
         errors: errorStats,
         cache: cacheStats,
@@ -136,7 +261,8 @@ app.get('/health', async (req, res) => {
         requestId: req.requestId,
         service: 'health-check'
     });
-    res.status(200).json(healthCheck);
+    const statusCode = systemHealth.overall === 'healthy' ? 200 : 503;
+    res.status(statusCode).json(healthCheck);
 });
 app.get('/metrics', (req, res) => {
     const connectionStats = websocketHandler.getConnectionStats();
@@ -488,27 +614,76 @@ app.use('*', (req, res) => {
     const errorResponse = errorHandler_1.ErrorHandler.createErrorResponse(errors_1.ERROR_CODES.INVALID_INPUT, `Endpoint ${req.method} ${req.originalUrl} not found`, undefined, req.requestId);
     res.status(404).json(errorResponse);
 });
-process.on('SIGTERM', async () => {
-    console.log('SIGTERM received, shutting down gracefully');
-    await cacheService_1.cacheService.disconnect();
-    server.close(() => {
-        console.log('Server closed');
-        process.exit(0);
+const gracefulShutdown = async (signal) => {
+    loggerService_1.logger.info(`Received ${signal}, starting graceful shutdown`, {
+        service: 'main'
     });
-});
-process.on('SIGINT', async () => {
-    console.log('SIGINT received, shutting down gracefully');
-    await cacheService_1.cacheService.disconnect();
-    server.close(() => {
-        console.log('Server closed');
-        process.exit(0);
-    });
-});
+    try {
+        await serviceManager_1.serviceManager.stopAllServices();
+        healthCheckService_1.healthCheckService.stop();
+        serviceDiscovery_1.serviceDiscovery.stop();
+        await cacheService_1.cacheService.disconnect();
+        server.close(() => {
+            loggerService_1.logger.info('HTTP server closed', { service: 'main' });
+            process.exit(0);
+        });
+    }
+    catch (error) {
+        loggerService_1.logger.error('Error during graceful shutdown', {
+            service: 'main',
+            error: {
+                message: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : undefined
+            }
+        });
+        process.exit(1);
+    }
+    setTimeout(() => {
+        loggerService_1.logger.error('Forced shutdown after timeout', { service: 'main' });
+        process.exit(1);
+    }, 15000);
+};
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 if (process.env.NODE_ENV !== 'test') {
-    server.listen(PORT, () => {
-        console.log(`[${new Date().toISOString()}] Ellie Voice Receptionist Backend running on port ${PORT}`);
-        console.log(`[${new Date().toISOString()}] Environment: ${process.env.NODE_ENV || 'development'}`);
-        console.log(`[${new Date().toISOString()}] Health check available at: http://localhost:${PORT}/health`);
-    });
+    async function startServer() {
+        try {
+            await initializeServices();
+            server.listen(PORT, () => {
+                loggerService_1.logger.info(`Ellie Voice Receptionist Backend running on port ${PORT}`, {
+                    service: 'main',
+                    metadata: {
+                        port: PORT,
+                        host: HOST,
+                        environment: process.env.NODE_ENV || 'development',
+                        corsOrigin: process.env.FRONTEND_URL || "http://localhost:3000"
+                    }
+                });
+                console.log(`[${new Date().toISOString()}] Ellie Voice Receptionist Backend running on port ${PORT}`);
+                console.log(`[${new Date().toISOString()}] Environment: ${process.env.NODE_ENV || 'development'}`);
+                console.log(`[${new Date().toISOString()}] Health check available at: http://localhost:${PORT}/health`);
+                console.log(`[${new Date().toISOString()}] Service discovery available at: http://localhost:${PORT}/services`);
+                serviceManager_1.serviceManager.startService('ellie-backend').catch(error => {
+                    loggerService_1.logger.error('Failed to start ellie-backend service', {
+                        service: 'main',
+                        error: {
+                            message: error instanceof Error ? error.message : 'Unknown error'
+                        }
+                    });
+                });
+            });
+        }
+        catch (error) {
+            loggerService_1.logger.error('Failed to start server', {
+                service: 'main',
+                error: {
+                    message: error instanceof Error ? error.message : 'Unknown error',
+                    stack: error instanceof Error ? error.stack : undefined
+                }
+            });
+            process.exit(1);
+        }
+    }
+    startServer();
 }
 //# sourceMappingURL=index.js.map

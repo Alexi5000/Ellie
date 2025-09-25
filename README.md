@@ -24,6 +24,8 @@ npm run docker:up
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:5000
 - Nginx Proxy: http://localhost:80
+- Service Dashboard: http://localhost:8080
+- Service Discovery: http://localhost:5000/services
 
 ### Production Deployment
 ```bash
@@ -56,6 +58,9 @@ npm run docker:prod
 
 ### Backend Stack
 - **Node.js/Express** - RESTful API with WebSocket support
+- **Service Discovery** - Automatic service registration and health monitoring
+- **Load Balancing** - Intelligent request distribution with multiple strategies
+- **Circuit Breaker** - Fault tolerance and cascading failure prevention
 - **Dual AI Integration** - OpenAI GPT-4 + Groq with intelligent routing
 - **Redis** - Caching and session management
 - **Legal Compliance** - Built-in disclaimer and fallback systems
@@ -67,8 +72,9 @@ npm run docker:prod
 - **PWA Support** - Progressive Web App capabilities
 
 ### Infrastructure
-- **Docker** - Containerized deployment
+- **Docker** - Containerized deployment with service discovery
 - **Nginx** - Reverse proxy and load balancer
+- **Service Dashboard** - Real-time service monitoring interface
 - **Prometheus** - Monitoring and metrics
 - **SSL/TLS** - Automated certificate management
 
@@ -104,10 +110,13 @@ npm run docker:test     # Test deployment
 
 - **🎤 Voice Processing** - Real-time speech-to-text and text-to-speech
 - **🤖 AI Integration** - Dual provider support with intelligent routing
+- **🔍 Service Discovery** - Automatic service registration and health monitoring
+- **⚖️ Load Balancing** - Multiple strategies including health-based routing
+- **🛡️ Circuit Breaker** - Fault tolerance and cascading failure prevention
 - **⚖️ Legal Compliance** - Built-in legal disclaimer management
 - **🔒 Security** - SSL/TLS support with automated certificate generation
-- **📊 Monitoring** - Comprehensive logging and Prometheus metrics
-- **🐳 Containerized** - Full Docker support for all environments
+- **📊 Monitoring** - Comprehensive logging, metrics, and service dashboard
+- **🐳 Containerized** - Full Docker support with service orchestration
 - **🔄 Real-time** - WebSocket-based communication
 - **📱 Responsive** - Mobile-friendly Progressive Web App
 
@@ -115,6 +124,7 @@ npm run docker:test     # Test deployment
 
 - [📖 Full Documentation](docs/README.md)
 - [🚀 Deployment Guide](docs/deployment.md)
+- [🔍 Service Discovery](docs/service-discovery.md)
 - [🔧 Development Setup](docs/development.md)
 - [🧪 Testing Guide](docs/testing.md)
 - [🏗️ Architecture](docs/architecture.md)
@@ -142,9 +152,16 @@ REACT_APP_SOCKET_URL=http://localhost:5000
 - `GET /api/voice/tts/:text` - Text-to-speech conversion
 - `WebSocket /socket.io` - Real-time voice processing
 
+### Service Discovery & Management
+- `GET /services` - List all registered services
+- `GET /services/health` - System-wide health status
+- `GET /services/stats` - Service discovery statistics
+- `GET /gateway/*` - API Gateway routing
+
 ### Health & Monitoring
 - `GET /health` - Service health check
 - `GET /api/analytics/stats` - System statistics
+- `GET /metrics` - Prometheus metrics
 
 ## 🛡️ Legal Compliance
 
@@ -157,8 +174,10 @@ REACT_APP_SOCKET_URL=http://localhost:5000
 
 **Production Monitoring:**
 - Application: http://your-domain.com
+- Service Dashboard: http://your-domain.com:8080
 - Prometheus: http://your-domain.com:9090
 - Health Check: http://your-domain.com/health
+- Service Discovery: http://your-domain.com/services
 
 ## 🤝 Contributing
 

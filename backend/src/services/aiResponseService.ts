@@ -9,6 +9,10 @@ import { ConversationContext, QueryComplexity, Message, MessageMetadata, ERROR_C
 import { createErrorResponse, ErrorHandler } from '../utils/errorHandler';
 import { LegalComplianceService } from './legalComplianceService';
 import { cacheService } from './cacheService';
+import { serviceDiscovery } from './serviceDiscovery';
+import { loadBalancer } from './loadBalancer';
+import { circuitBreakerManager } from './circuitBreaker';
+import { logger } from './loggerService';
 
 export class AIResponseService {
   private openai: OpenAI;
