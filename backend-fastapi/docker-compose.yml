@@ -1,0 +1,148 @@
+version: '3.8'
+
+services:
+  # FastAPI Backend
+  ellie-backend-fastapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ellie-backend-fastapi
+    ports:
+      - "8000:8000"
+    environment:
+      - NODE_ENV=development
+      - ENVIRONMENT=development
+      - HOST=0.0.0.0
+      - PORT=8000
+      - REDIS_URL=redis://redis:6379/0
+      - FRONTEND_URL=http://localhost:3000
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GROQ_API_KEY=${GROQ_API_KEY}
+      - LOG_LEVEL=INFO
+      - DEBUG=true
+    volumes:
+      - .:/app
+      - /app/__pycache__
+    depends_on:
+      - redis
+    networks:
+      - ellie-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "ellie.service.name=ellie-backend-fastapi"
+      - "ellie.service.version=1.0.0"
+      - "ellie.service.type=api"
+      - "ellie.service.framework=fastapi"
+      - "ellie.service.language=python"
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: ellie-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - ellie-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    labels:
+      - "ellie.service.name=redis"
+      - "ellie.service.version=7"
+      - "ellie.service.type=cache"
+
+  # Service Dashboard
+  service-dashboard:
+    build:
+      context: ../docker/service-dashboard
+      dockerfile: Dockerfile
+    container_name: ellie-service-dashboard
+    ports:
+      - "8080:8080"
+    environment:
+      - BACKEND_URL=http://ellie-backend-fastapi:8000
+      - NODE_ENV=development
+    depends_on:
+      - ellie-backend-fastapi
+    networks:
+      - ellie-network
+    restart: unless-stopped
+    labels:
+      - "ellie.service.name=service-dashboard"
+      - "ellie.service.version=1.0.0"
+      - "ellie.service.type=dashboard"
+
+  # Prometheus (Optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: ellie-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - ellie-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    labels:
+      - "ellie.service.name=prometheus"
+      - "ellie.service.version=latest"
+      - "ellie.service.type=monitoring"
+
+  # Grafana (Optional)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ellie-grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - ellie-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+    labels:
+      - "ellie.service.name=grafana"
+      - "ellie.service.version=latest"
+      - "ellie.service.type=visualization"
+
+volumes:
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+
+networks:
+  ellie-network:
+    driver: bridge
+    name: ellie-network

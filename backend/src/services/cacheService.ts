@@ -47,13 +47,16 @@ export class CacheService {
   };
 
   constructor() {
-    this.initializeConnection();
+    // Don't auto-initialize in test environment to allow proper mocking
+    if (process.env.NODE_ENV !== 'test') {
+      this.initializeConnection();
+    }
   }
 
   /**
    * Initialize Redis connection with error handling
    */
-  private async initializeConnection(): Promise<void> {
+  public async initializeConnection(): Promise<void> {
     try {
       const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
       

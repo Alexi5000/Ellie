@@ -23,7 +23,9 @@ class CacheService {
             TTS_AUDIO: 7200,
             USER_SESSION: 1800,
         };
-        this.initializeConnection();
+        if (process.env.NODE_ENV !== 'test') {
+            this.initializeConnection();
+        }
     }
     async initializeConnection() {
         try {

@@ -3,9 +3,10 @@
  * Requirements: 15.1 - Advanced caching strategies testing
  */
 
-import { CacheService, cacheService } from '../services/cacheService';
+// Unmock CacheService to test the actual implementation
+jest.unmock('../services/cacheService');
 
-// Mock Redis client
+// Mock Redis module BEFORE importing CacheService
 const mockRedisClient = {
   connect: jest.fn(),
   disconnect: jest.fn(),
@@ -20,10 +21,12 @@ const mockRedisClient = {
   on: jest.fn()
 };
 
-// Mock Redis module
 jest.mock('redis', () => ({
   createClient: jest.fn(() => mockRedisClient)
 }));
+
+// Now import CacheService after mocking Redis
+import { CacheService, cacheService } from '../services/cacheService';
 
 describe('CacheService', () => {
   let testCacheService: CacheService;
@@ -44,9 +47,9 @@ describe('CacheService', () => {
       return mockRedisClient;
     });
     
-    // Simulate connected state
-    (testCacheService as any).isConnected = true;
+    // Directly set the client and connection state for testing
     (testCacheService as any).client = mockRedisClient;
+    (testCacheService as any).isConnected = true;
   });
 
   afterEach(async () => {
@@ -54,9 +57,9 @@ describe('CacheService', () => {
     
     // Clean up cache service instance
     if (testCacheService) {
-      // Simulate disconnection to prevent hanging connections
-      (testCacheService as any).isConnected = false;
+      // Reset connection state
       (testCacheService as any).client = null;
+      (testCacheService as any).isConnected = false;
     }
     
     // Wait for any pending async operations

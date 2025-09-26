@@ -20,7 +20,7 @@ export declare class CacheService {
     private readonly USER_SESSION_PREFIX;
     private readonly DEFAULT_TTL;
     constructor();
-    private initializeConnection;
+    initializeConnection(): Promise<void>;
     isAvailable(): boolean;
     cacheAIResponse(userInput: string, context: any, response: string, options?: CacheOptions): Promise<boolean>;
     getCachedAIResponse(userInput: string, context: any): Promise<string | null>;
