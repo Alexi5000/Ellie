@@ -202,9 +202,10 @@ export class CDNService {
       // Generate ETag for static assets
       if (assetType !== 'html' && this.optimization.caching) {
         const originalSend = res.send;
+        const serviceInstance = this;
         res.send = function(body: any) {
           if (body && typeof body === 'string') {
-            const etag = cdnService.generateETag(body);
+            const etag = serviceInstance.generateETag(body);
             res.setHeader('ETag', etag);
           }
           return originalSend.call(this, body);

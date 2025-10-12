@@ -127,6 +127,18 @@ For legal matters requiring professional judgment, please consult with one of ou
         response = await this.processWithOpenAI(userInput, context);
       }
 
+      // Validate response quality
+      const qualityValidation = await this.validateResponseQuality(response, userInput);
+      if (!qualityValidation.isValid) {
+        logger.warn('Response quality issues detected', {
+          service: 'ai-response',
+          metadata: {
+            issues: qualityValidation.issues,
+            improvements: qualityValidation.suggestedImprovements
+          }
+        });
+      }
+
       // Enhanced legal compliance validation
       const complianceResult = await this.legalComplianceService.analyzeLegalCompliance(
         response,
@@ -135,7 +147,14 @@ For legal matters requiring professional judgment, please consult with one of ou
       );
 
       if (!complianceResult.isCompliant) {
-        console.warn('Legal compliance issues detected:', complianceResult.complianceIssues);
+        logger.warn('Legal compliance issues detected', {
+          service: 'ai-response',
+          metadata: {
+            issues: complianceResult.complianceIssues,
+            sessionId: context.sessionId
+          }
+        });
+        
         response = complianceResult.suggestedResponse || this.handleFallbackResponses(new Error('Legal compliance violation'));
       }
 
@@ -147,6 +166,14 @@ For legal matters requiring professional judgment, please consult with one of ou
         // Store referral recommendation in metadata
         metadata.requiresProfessionalReferral = true;
         metadata.referralReason = complianceResult.referralReason;
+
+        logger.info('Professional referral recommended', {
+          service: 'ai-response',
+          metadata: {
+            sessionId: context.sessionId,
+            reason: complianceResult.referralReason
+          }
+        });
       }
 
       metadata.processingTime = Date.now() - startTime;
@@ -256,32 +283,73 @@ For legal matters requiring professional judgment, please consult with one of ou
     userInput: string,
     context: ConversationContext
   ): Promise<string> {
+    const startTime = Date.now();
+    
     try {
-      const systemPrompt = this.buildSystemPrompt(context);
-      const conversationHistory = this.buildConversationHistory(context);
+      // Use circuit breaker for external API calls
+      const response = await circuitBreakerManager.execute(
+        'groq_api',
+        async () => {
+          const systemPrompt = this.buildSystemPrompt(context);
+          const conversationHistory = this.buildConversationHistory(context);
 
-      const completion = await this.groq.chat.completions.create({
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...conversationHistory,
-          { role: 'user', content: userInput }
-        ],
-        model: 'llama3-8b-8192', // Fast Groq model
-        temperature: 0.7,
-        max_tokens: 500,
-        top_p: 0.9,
-        stream: false
+          logger.debug('Calling Groq API', {
+            service: 'ai-response',
+            metadata: {
+              model: 'llama3-8b-8192',
+              inputLength: userInput.length,
+              historyLength: conversationHistory.length
+            }
+          });
+
+          const completion = await this.groq.chat.completions.create({
+            messages: [
+              { role: 'system', content: systemPrompt },
+              ...conversationHistory,
+              { role: 'user', content: userInput }
+            ],
+            model: 'llama3-8b-8192', // Fast Groq model
+            temperature: 0.7,
+            max_tokens: 500,
+            top_p: 0.9,
+            stream: false
+          });
+
+          const responseContent = completion.choices[0]?.message?.content;
+          if (!responseContent) {
+            throw new Error('No response generated from Groq API');
+          }
+
+          return responseContent.trim();
+        }
+      );
+
+      const processingTime = Date.now() - startTime;
+      logger.info('Groq API response generated successfully', {
+        service: 'ai-response',
+        metadata: {
+          processingTime,
+          responseLength: response.length,
+          model: 'llama3-8b-8192'
+        }
       });
 
-      const response = completion.choices[0]?.message?.content;
-      if (!response) {
-        throw new Error('No response generated from Groq API');
-      }
-
-      return response.trim();
+      return response;
 
     } catch (error) {
-      console.error('Groq API error:', error);
+      const processingTime = Date.now() - startTime;
+      logger.error('Groq API error', {
+        service: 'ai-response',
+        error: {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined
+        },
+        metadata: {
+          processingTime,
+          inputLength: userInput.length
+        }
+      });
+
       throw ErrorHandler.handleApiError(error);
     }
   }
@@ -296,33 +364,74 @@ For legal matters requiring professional judgment, please consult with one of ou
     userInput: string,
     context: ConversationContext
   ): Promise<string> {
+    const startTime = Date.now();
+    
     try {
-      const systemPrompt = this.buildSystemPrompt(context);
-      const conversationHistory = this.buildConversationHistory(context);
+      // Use circuit breaker for external API calls
+      const response = await circuitBreakerManager.execute(
+        'openai_api',
+        async () => {
+          const systemPrompt = this.buildSystemPrompt(context);
+          const conversationHistory = this.buildConversationHistory(context);
 
-      const completion = await this.openai.chat.completions.create({
-        messages: [
-          { role: 'system', content: systemPrompt },
-          ...conversationHistory,
-          { role: 'user', content: userInput }
-        ],
-        model: 'gpt-3.5-turbo', // Balanced cost and performance
-        temperature: 0.6,
-        max_tokens: 600,
-        top_p: 0.9,
-        frequency_penalty: 0.1,
-        presence_penalty: 0.1
+          logger.debug('Calling OpenAI API', {
+            service: 'ai-response',
+            metadata: {
+              model: 'gpt-3.5-turbo',
+              inputLength: userInput.length,
+              historyLength: conversationHistory.length
+            }
+          });
+
+          const completion = await this.openai.chat.completions.create({
+            messages: [
+              { role: 'system', content: systemPrompt },
+              ...conversationHistory,
+              { role: 'user', content: userInput }
+            ],
+            model: 'gpt-3.5-turbo', // Balanced cost and performance
+            temperature: 0.6,
+            max_tokens: 600,
+            top_p: 0.9,
+            frequency_penalty: 0.1,
+            presence_penalty: 0.1
+          });
+
+          const responseContent = completion.choices[0]?.message?.content;
+          if (!responseContent) {
+            throw new Error('No response generated from OpenAI API');
+          }
+
+          return responseContent.trim();
+        }
+      );
+
+      const processingTime = Date.now() - startTime;
+      logger.info('OpenAI API response generated successfully', {
+        service: 'ai-response',
+        metadata: {
+          processingTime,
+          responseLength: response.length,
+          model: 'gpt-3.5-turbo'
+        }
       });
 
-      const response = completion.choices[0]?.message?.content;
-      if (!response) {
-        throw new Error('No response generated from OpenAI API');
-      }
-
-      return response.trim();
+      return response;
 
     } catch (error) {
-      console.error('OpenAI API error:', error);
+      const processingTime = Date.now() - startTime;
+      logger.error('OpenAI API error', {
+        service: 'ai-response',
+        error: {
+          message: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined
+        },
+        metadata: {
+          processingTime,
+          inputLength: userInput.length
+        }
+      });
+
       throw ErrorHandler.handleApiError(error);
     }
   }
@@ -381,26 +490,43 @@ For legal matters requiring professional judgment, please consult with one of ou
    * @returns System prompt string
    */
   private buildSystemPrompt(context: ConversationContext): string {
+    const userLanguage = context.userPreferences?.language || 'en';
+    const currentTime = new Date().toLocaleString();
+    
+    // Build dynamic context based on conversation history
+    const recentTopics = this.extractRecentTopics(context.conversationHistory);
+    const topicsContext = recentTopics.length > 0 
+      ? `\nRecent conversation topics: ${recentTopics.join(', ')}`
+      : '';
+
     return `You are Ellie, a professional AI assistant for a law firm. Your role is to:
 
 1. Provide helpful general information about legal topics
-2. Direct visitors to appropriate legal services
+2. Direct visitors to appropriate legal services  
 3. Answer questions about the law firm's services and expertise
 4. Maintain a professional, friendly, and approachable tone
+5. Respond in ${userLanguage === 'en' ? 'English' : this.getLanguageName(userLanguage)}
 
-IMPORTANT GUIDELINES:
-- Never provide specific legal advice or legal opinions
-- Always clarify that you provide general information only
+CRITICAL GUIDELINES:
+- NEVER provide specific legal advice or legal opinions
+- ALWAYS clarify that you provide general information only
 - Encourage users to consult with attorneys for specific legal matters
 - Be helpful while staying within appropriate boundaries
 - If asked about complex legal matters, recommend speaking with an attorney
+- Keep responses concise but informative (aim for 2-3 sentences for simple queries)
+- Use a warm, professional tone that builds trust
 
+LEGAL COMPLIANCE:
 ${this.LEGAL_DISCLAIMER}
 
-Current conversation context:
+CURRENT CONTEXT:
 - Session ID: ${context.sessionId}
 - Legal disclaimer acknowledged: ${context.legalDisclaimer}
-- Conversation length: ${context.conversationHistory.length} messages`;
+- Conversation length: ${context.conversationHistory.length} messages
+- Current time: ${currentTime}
+- User language preference: ${userLanguage}${topicsContext}
+
+Remember: Your goal is to be helpful while ensuring users get proper professional legal guidance when needed.`;
   }
 
   /**
@@ -429,6 +555,161 @@ Current conversation context:
     return this.INAPPROPRIATE_CONTENT_KEYWORDS.some(keyword => 
       inputLower.includes(keyword.toLowerCase())
     );
+  }
+
+  /**
+   * Extracts recent topics from conversation history for context
+   * @param history - Conversation history
+   * @returns Array of recent topics
+   */
+  private extractRecentTopics(history: Message[]): string[] {
+    const topics = new Set<string>();
+    const recentMessages = history.slice(-6); // Last 6 messages
+    
+    const legalTopics = [
+      'contract', 'agreement', 'liability', 'damages', 'negligence', 'breach',
+      'intellectual property', 'copyright', 'trademark', 'patent', 'employment',
+      'real estate', 'estate planning', 'will', 'trust', 'probate', 'divorce',
+      'custody', 'criminal', 'civil rights', 'constitutional', 'business law',
+      'personal injury', 'medical malpractice', 'insurance', 'bankruptcy'
+    ];
+
+    recentMessages.forEach(message => {
+      const messageLower = message.content.toLowerCase();
+      legalTopics.forEach(topic => {
+        if (messageLower.includes(topic)) {
+          topics.add(topic);
+        }
+      });
+    });
+
+    return Array.from(topics).slice(0, 3); // Return max 3 topics
+  }
+
+  /**
+   * Gets language name from language code
+   * @param languageCode - ISO language code
+   * @returns Language name
+   */
+  private getLanguageName(languageCode: string): string {
+    const languageNames: Record<string, string> = {
+      'en': 'English',
+      'es': 'Spanish',
+      'fr': 'French',
+      'de': 'German',
+      'it': 'Italian',
+      'pt': 'Portuguese',
+      'zh': 'Chinese',
+      'ja': 'Japanese',
+      'ko': 'Korean',
+      'ar': 'Arabic',
+      'ru': 'Russian'
+    };
+
+    return languageNames[languageCode] || 'English';
+  }
+
+  /**
+   * Gets service statistics for monitoring
+   * @returns Service statistics
+   */
+  public getServiceStats(): {
+    totalRequests: number;
+    groqRequests: number;
+    openaiRequests: number;
+    averageResponseTime: number;
+    errorRate: number;
+  } {
+    // In a production environment, these would be tracked in memory or database
+    // For now, return placeholder values
+    return {
+      totalRequests: 0,
+      groqRequests: 0,
+      openaiRequests: 0,
+      averageResponseTime: 0,
+      errorRate: 0
+    };
+  }
+
+  /**
+   * Validates AI response quality and appropriateness
+   * @param response - AI generated response
+   * @param userInput - Original user input
+   * @returns Validation result
+   */
+  private async validateResponseQuality(response: string, userInput: string): Promise<{
+    isValid: boolean;
+    issues: string[];
+    suggestedImprovements: string[];
+  }> {
+    const issues: string[] = [];
+    const suggestedImprovements: string[] = [];
+
+    // Check response length
+    if (response.length < 10) {
+      issues.push('Response too short');
+      suggestedImprovements.push('Provide more detailed information');
+    }
+
+    if (response.length > 1000) {
+      issues.push('Response too long');
+      suggestedImprovements.push('Make response more concise');
+    }
+
+    // Check for appropriate legal disclaimers
+    const isLegalQuery = this.isLegalQuery(userInput);
+    if (isLegalQuery && !this.hasLegalDisclaimer(response)) {
+      issues.push('Missing legal disclaimer');
+      suggestedImprovements.push('Add appropriate legal disclaimer');
+    }
+
+    // Check for professional tone
+    const unprofessionalWords = ['dude', 'bro', 'awesome', 'cool', 'whatever'];
+    const hasUnprofessionalLanguage = unprofessionalWords.some(word => 
+      response.toLowerCase().includes(word)
+    );
+
+    if (hasUnprofessionalLanguage) {
+      issues.push('Unprofessional language detected');
+      suggestedImprovements.push('Use more professional language');
+    }
+
+    return {
+      isValid: issues.length === 0,
+      issues,
+      suggestedImprovements
+    };
+  }
+
+  /**
+   * Checks if user input is a legal query
+   * @param input - User input
+   * @returns Whether input is legal-related
+   */
+  private isLegalQuery(input: string): boolean {
+    const legalKeywords = [
+      'law', 'legal', 'attorney', 'lawyer', 'court', 'judge', 'contract',
+      'agreement', 'liability', 'damages', 'sue', 'lawsuit', 'rights',
+      'violation', 'breach', 'negligence', 'fraud', 'criminal', 'civil'
+    ];
+
+    const inputLower = input.toLowerCase();
+    return legalKeywords.some(keyword => inputLower.includes(keyword));
+  }
+
+  /**
+   * Checks if response contains legal disclaimer
+   * @param response - Response to check
+   * @returns Whether response has disclaimer
+   */
+  private hasLegalDisclaimer(response: string): boolean {
+    const disclaimerIndicators = [
+      'general information', 'not legal advice', 'consult with an attorney',
+      'professional legal advice', 'qualified attorney', 'legal professional'
+    ];
+
+    const responseLower = response.toLowerCase();
+    return disclaimerIndicators.some(indicator => responseLower.includes(indicator));
   }
 }
 

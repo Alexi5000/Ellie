@@ -3,6 +3,9 @@
  * Requirements: 15.1 - CDN integration testing
  */
 
+// Unmock CDNService to test the actual implementation
+jest.unmock('../services/cdnService');
+
 import { CDNService } from '../services/cdnService';
 
 describe('CDNService', () => {
