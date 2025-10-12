@@ -482,14 +482,26 @@ jest.mock('redis', () => ({
 // Set test timeout
 jest.setTimeout(30000); // Increased timeout for async operations
 
-// Global test cleanup
+// Global test cleanup with improved isolation
 beforeEach(async () => {
   testRunning = true;
   currentTestName = expect.getState().currentTestName || '';
   
   // Clear any existing timers before each test
-  activeTimers.forEach(timer => clearTimeout(timer));
-  activeIntervals.forEach(interval => clearInterval(interval));
+  activeTimers.forEach(timer => {
+    try {
+      clearTimeout(timer);
+    } catch (e) {
+      // Timer may already be cleared
+    }
+  });
+  activeIntervals.forEach(interval => {
+    try {
+      clearInterval(interval);
+    } catch (e) {
+      // Interval may already be cleared
+    }
+  });
   activeTimers.clear();
   activeIntervals.clear();
   
@@ -507,14 +519,40 @@ beforeEach(async () => {
     (global as any).disableRateLimiting();
   }
   
+  // Reset shared mock implementations to default behavior
+  if ((global as any).sharedMockVoiceProcessingService) {
+    const mockService = (global as any).sharedMockVoiceProcessingService;
+    mockService.validateAudioFormat.mockReturnValue(true);
+    mockService.processAudioInput.mockResolvedValue('Mock transcription');
+    mockService.convertTextToSpeech.mockResolvedValue(Buffer.from('mock-audio-data'));
+  }
+  
+  if ((global as any).sharedMockAIResponseService) {
+    const mockService = (global as any).sharedMockAIResponseService;
+    mockService.generateResponse.mockResolvedValue('Mock AI response');
+    mockService.routeToOptimalAPI.mockReturnValue('groq');
+  }
+  
   // Wait for any pending operations to complete
   await new Promise(resolve => setImmediate(resolve));
 });
 
 afterEach(async () => {
-  // Clear all active timers and intervals
-  activeTimers.forEach(timer => clearTimeout(timer));
-  activeIntervals.forEach(interval => clearInterval(interval));
+  // Clear all active timers and intervals with error handling
+  activeTimers.forEach(timer => {
+    try {
+      clearTimeout(timer);
+    } catch (e) {
+      // Timer may already be cleared
+    }
+  });
+  activeIntervals.forEach(interval => {
+    try {
+      clearInterval(interval);
+    } catch (e) {
+      // Interval may already be cleared
+    }
+  });
   activeTimers.clear();
   activeIntervals.clear();
   
@@ -527,8 +565,8 @@ afterEach(async () => {
   // Wait for any pending async operations to complete
   await new Promise(resolve => setImmediate(resolve));
   
-  // Additional cleanup delay to prevent race conditions
-  await new Promise(resolve => setTimeout(resolve, 10));
+  // Additional cleanup delay to prevent race conditions between tests
+  await new Promise(resolve => setTimeout(resolve, 50));
   
   // Mark test as no longer running after cleanup
   testRunning = false;

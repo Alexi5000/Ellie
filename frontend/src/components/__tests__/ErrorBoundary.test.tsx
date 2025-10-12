@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, cleanup } from '@testing-library/react';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { vi } from 'vitest';
 
@@ -14,12 +14,19 @@ const ThrowError: React.FC<{ shouldThrow: boolean }> = ({ shouldThrow }) => {
 describe('ErrorBoundary', () => {
   // Suppress console.error for these tests
   const originalError = console.error;
+  
   beforeAll(() => {
     console.error = vi.fn();
   });
 
   afterAll(() => {
     console.error = originalError;
+  });
+
+  afterEach(() => {
+    // Clean up DOM between tests to prevent pollution
+    cleanup();
+    vi.clearAllMocks();
   });
 
   it('renders children when there is no error', () => {
@@ -48,14 +55,15 @@ describe('ErrorBoundary', () => {
   it('renders custom fallback when provided', () => {
     const customFallback = <div>Custom error message</div>;
 
-    render(
+    const { container } = render(
       <ErrorBoundary fallback={customFallback}>
         <ThrowError shouldThrow={true} />
       </ErrorBoundary>
     );
 
     expect(screen.getByText('Custom error message')).toBeInTheDocument();
-    expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
+    // Use container to check within this specific render
+    expect(container.querySelector('h2')).toBeNull();
   });
 
   it('calls onError callback when error occurs', () => {
@@ -84,19 +92,21 @@ describe('ErrorBoundary', () => {
       return <div>No error</div>;
     };
 
-    const { rerender } = render(
+    const { container } = render(
       <ErrorBoundary>
         <TestComponent />
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
+    // Verify error UI is shown
+    expect(container.querySelector('h2')?.textContent).toBe('Something went wrong');
 
     // Change the component to not throw error before clicking Try Again
     shouldThrow = false;
 
     // Click Try Again to reset error state
-    fireEvent.click(screen.getByRole('button', { name: 'Try Again' }));
+    const tryAgainButton = screen.getByRole('button', { name: 'Try Again' });
+    fireEvent.click(tryAgainButton);
 
     // The error boundary should now render the children again
     await waitFor(() => {
@@ -105,32 +115,36 @@ describe('ErrorBoundary', () => {
   });
 
   it('shows error details in development mode', () => {
-    const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'development';
+    const originalDev = import.meta.env.DEV;
+    // @ts-ignore - Mocking import.meta.env for test
+    import.meta.env.DEV = true;
 
-    render(
+    const { container } = render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
       </ErrorBoundary>
     );
 
-    expect(screen.getByText('Error Details (Development)')).toBeInTheDocument();
+    expect(container.querySelector('summary')?.textContent).toBe('Error Details (Development)');
 
-    process.env.NODE_ENV = originalEnv;
+    // @ts-ignore - Restore original value
+    import.meta.env.DEV = originalDev;
   });
 
   it('hides error details in production mode', () => {
-    const originalEnv = process.env.NODE_ENV;
-    process.env.NODE_ENV = 'production';
+    const originalDev = import.meta.env.DEV;
+    // @ts-ignore - Mocking import.meta.env for test
+    import.meta.env.DEV = false;
 
-    render(
+    const { container } = render(
       <ErrorBoundary>
         <ThrowError shouldThrow={true} />
       </ErrorBoundary>
     );
 
-    expect(screen.queryByText('Error Details (Development)')).not.toBeInTheDocument();
+    expect(container.querySelector('summary')).toBeNull();
 
-    process.env.NODE_ENV = originalEnv;
+    // @ts-ignore - Restore original value
+    import.meta.env.DEV = originalDev;
   });
 });

@@ -1,283 +1,298 @@
-// Test helper utilities for improved test isolation and setup
-
-import { jest } from '@jest/globals';
+/**
+ * Test Helper Utilities
+ * 
+ * Provides utility functions for test isolation, mock management, and common test operations.
+ */
 
 /**
- * Test isolation helper to ensure clean state between tests
+ * Wait for all pending promises and timers to complete
  */
-export class TestIsolationHelper {
-  private static activeTimers = new Set<NodeJS.Timeout>();
-  private static activeIntervals = new Set<NodeJS.Timeout>();
-  private static mockInstances = new Map<string, any>();
+export async function flushPromises(): Promise<void> {
+  await new Promise(resolve => setImmediate(resolve));
+  await new Promise(resolve => setTimeout(resolve, 0));
+}
 
-  /**
-   * Setup test isolation for a test suite
-   */
-  static setupTestSuite() {
-    beforeEach(async () => {
-      await this.cleanupBeforeTest();
-    });
+/**
+ * Wait for a specific amount of time (useful for async operations)
+ */
+export async function wait(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
-    afterEach(async () => {
-      await this.cleanupAfterTest();
-    });
-
-    afterAll(async () => {
-      await this.finalCleanup();
-    });
+/**
+ * Reset all mock services to their default state
+ */
+export function resetAllMockServices(): void {
+  // Reset voice processing service
+  if ((global as any).sharedMockVoiceProcessingService) {
+    const mockService = (global as any).sharedMockVoiceProcessingService;
+    mockService.validateAudioFormat.mockReturnValue(true);
+    mockService.processAudioInput.mockResolvedValue('Mock transcription');
+    mockService.convertTextToSpeech.mockResolvedValue(Buffer.from('mock-audio-data'));
+    mockService.getCacheStats.mockReturnValue({ size: 0, keys: [] });
+    mockService.clearTTSCache.mockClear();
+    mockService.createAudioInput.mockClear();
   }
 
-  /**
-   * Cleanup before each test
-   */
-  static async cleanupBeforeTest() {
-    // Clear all timers
-    this.activeTimers.forEach(timer => clearTimeout(timer));
-    this.activeIntervals.forEach(interval => clearInterval(interval));
-    this.activeTimers.clear();
-    this.activeIntervals.clear();
-
-    // Clear all Jest mocks
-    jest.clearAllMocks();
-    jest.clearAllTimers();
-
-    // Reset rate limiting
-    if ((global as any).resetRateLimitCounts) {
-      (global as any).resetRateLimitCounts();
-    }
-    if ((global as any).disableRateLimiting) {
-      (global as any).disableRateLimiting();
-    }
-
-    // Wait for any pending operations
-    await new Promise(resolve => setImmediate(resolve));
+  // Reset AI response service
+  if ((global as any).sharedMockAIResponseService) {
+    const mockService = (global as any).sharedMockAIResponseService;
+    mockService.generateResponse.mockResolvedValue('Mock AI response');
+    mockService.routeToOptimalAPI.mockReturnValue('groq');
+    mockService.processWithGroq.mockResolvedValue('Mock Groq response');
+    mockService.processWithOpenAI.mockResolvedValue('Mock OpenAI response');
+    mockService.validateLegalCompliance.mockResolvedValue(true);
+    mockService.handleFallbackResponses.mockReturnValue('Fallback response');
   }
 
-  /**
-   * Cleanup after each test
-   */
-  static async cleanupAfterTest() {
-    // Clear all timers
-    this.activeTimers.forEach(timer => clearTimeout(timer));
-    this.activeIntervals.forEach(interval => clearInterval(interval));
-    this.activeTimers.clear();
-    this.activeIntervals.clear();
-
-    // Clear all Jest mocks
-    jest.clearAllMocks();
-    jest.clearAllTimers();
-
-    // Wait for async operations to complete
-    await new Promise(resolve => setImmediate(resolve));
-    await new Promise(resolve => setTimeout(resolve, 10));
+  // Reset rate limiting
+  if ((global as any).disableRateLimiting) {
+    (global as any).disableRateLimiting();
   }
-
-  /**
-   * Final cleanup after all tests
-   */
-  static async finalCleanup() {
-    // Clear all timers
-    this.activeTimers.forEach(timer => clearTimeout(timer));
-    this.activeIntervals.forEach(interval => clearInterval(interval));
-    this.activeTimers.clear();
-    this.activeIntervals.clear();
-
-    // Clear mock instances
-    this.mockInstances.clear();
-
-    // Final wait
-    await new Promise(resolve => setTimeout(resolve, 100));
-  }
-
-  /**
-   * Track a timer for cleanup
-   */
-  static trackTimer(timer: NodeJS.Timeout) {
-    this.activeTimers.add(timer);
-    return timer;
-  }
-
-  /**
-   * Track an interval for cleanup
-   */
-  static trackInterval(interval: NodeJS.Timeout) {
-    this.activeIntervals.add(interval);
-    return interval;
-  }
-
-  /**
-   * Register a mock instance for cleanup
-   */
-  static registerMockInstance(name: string, instance: any) {
-    this.mockInstances.set(name, instance);
-  }
-
-  /**
-   * Get a registered mock instance
-   */
-  static getMockInstance(name: string) {
-    return this.mockInstances.get(name);
+  if ((global as any).resetRateLimitCounts) {
+    (global as any).resetRateLimitCounts();
   }
 }
 
 /**
- * Mock API response helper
+ * Enable rate limiting for tests that need to test rate limit behavior
  */
-export class MockAPIHelper {
-  /**
-   * Create a mock OpenAI response
-   */
-  static createMockOpenAIResponse(content: string = 'Mock OpenAI response') {
-    return {
-      choices: [{
-        message: {
-          content,
-          role: 'assistant'
-        },
-        finish_reason: 'stop',
-        index: 0
-      }],
-      usage: {
-        prompt_tokens: 10,
-        completion_tokens: 20,
-        total_tokens: 30
-      }
-    };
+export function enableRateLimiting(): void {
+  if ((global as any).enableRateLimiting) {
+    (global as any).enableRateLimiting();
   }
+}
 
-  /**
-   * Create a mock Groq response
-   */
-  static createMockGroqResponse(content: string = 'Mock Groq response') {
-    return {
-      choices: [{
-        message: {
-          content,
-          role: 'assistant'
-        },
-        finish_reason: 'stop',
-        index: 0
-      }],
-      usage: {
-        prompt_tokens: 8,
-        completion_tokens: 15,
-        total_tokens: 23
-      }
-    };
+/**
+ * Disable rate limiting (default state for most tests)
+ */
+export function disableRateLimiting(): void {
+  if ((global as any).disableRateLimiting) {
+    (global as any).disableRateLimiting();
   }
+}
 
-  /**
-   * Create a mock TTS response
-   */
-  static createMockTTSResponse(size: number = 1024) {
-    return {
-      arrayBuffer: jest.fn(() => Promise.resolve(new ArrayBuffer(size)))
-    };
+/**
+ * Reset rate limit counters
+ */
+export function resetRateLimitCounts(): void {
+  if ((global as any).resetRateLimitCounts) {
+    (global as any).resetRateLimitCounts();
   }
+}
 
-  /**
-   * Create a mock transcription response
-   */
-  static createMockTranscriptionResponse(text: string = 'Mock transcription') {
-    return {
-      text,
+/**
+ * Create a mock audio buffer for testing
+ */
+export function createMockAudioBuffer(size: number = 1024): Buffer {
+  return Buffer.alloc(size);
+}
+
+/**
+ * Create a mock Express.Multer.File for testing
+ */
+export function createMockMulterFile(options: {
+  fieldname?: string;
+  originalname?: string;
+  encoding?: string;
+  mimetype?: string;
+  size?: number;
+  buffer?: Buffer;
+} = {}): Express.Multer.File {
+  const buffer = options.buffer || createMockAudioBuffer(options.size || 1024);
+  
+  return {
+    fieldname: options.fieldname || 'audio',
+    originalname: options.originalname || 'test-audio.wav',
+    encoding: options.encoding || '7bit',
+    mimetype: options.mimetype || 'audio/wav',
+    size: options.size || buffer.length,
+    buffer,
+    destination: '',
+    filename: '',
+    path: '',
+    stream: null as any,
+  };
+}
+
+/**
+ * Create a mock conversation context for testing
+ */
+export function createMockConversationContext(overrides: any = {}): any {
+  return {
+    sessionId: 'test-session-id',
+    conversationHistory: [],
+    userPreferences: {
+      voiceSpeed: 1.0,
       language: 'en',
-      duration: 2.5,
-      segments: []
-    };
-  }
+      accessibilityMode: false,
+    },
+    legalDisclaimer: true,
+    ...overrides,
+  };
 }
 
 /**
- * Test timeout helper
+ * Create a mock message for conversation history
  */
-export class TestTimeoutHelper {
-  /**
-   * Create a promise that resolves after a delay
-   */
-  static delay(ms: number): Promise<void> {
-    return new Promise(resolve => {
-      const timer = setTimeout(resolve, ms);
-      TestIsolationHelper.trackTimer(timer);
-    });
-  }
+export function createMockMessage(overrides: any = {}): any {
+  return {
+    id: 'test-message-id',
+    timestamp: new Date(),
+    type: 'user',
+    content: 'Test message',
+    metadata: {},
+    ...overrides,
+  };
+}
 
-  /**
-   * Create a promise that rejects after a timeout
-   */
-  static timeout<T>(promise: Promise<T>, ms: number): Promise<T> {
-    return Promise.race([
-      promise,
-      new Promise<never>((_, reject) => {
-        const timer = setTimeout(() => reject(new Error(`Test timeout after ${ms}ms`)), ms);
-        TestIsolationHelper.trackTimer(timer);
-      })
-    ]);
-  }
+/**
+ * Suppress console output during tests (useful for noisy tests)
+ */
+export function suppressConsole(): { restore: () => void } {
+  const originalLog = console.log;
+  const originalError = console.error;
+  const originalWarn = console.warn;
+  const originalInfo = console.info;
 
-  /**
-   * Wait for a condition to be true
-   */
-  static async waitFor(
-    condition: () => boolean | Promise<boolean>,
-    options: { timeout?: number; interval?: number } = {}
-  ): Promise<void> {
-    const { timeout = 5000, interval = 100 } = options;
-    const startTime = Date.now();
+  console.log = jest.fn();
+  console.error = jest.fn();
+  console.warn = jest.fn();
+  console.info = jest.fn();
 
-    while (Date.now() - startTime < timeout) {
-      if (await condition()) {
-        return;
-      }
-      await this.delay(interval);
+  return {
+    restore: () => {
+      console.log = originalLog;
+      console.error = originalError;
+      console.warn = originalWarn;
+      console.info = originalInfo;
+    },
+  };
+}
+
+/**
+ * Wait for a condition to be true (with timeout)
+ */
+export async function waitForCondition(
+  condition: () => boolean | Promise<boolean>,
+  timeout: number = 5000,
+  interval: number = 100
+): Promise<void> {
+  const startTime = Date.now();
+  
+  while (Date.now() - startTime < timeout) {
+    const result = await condition();
+    if (result) {
+      return;
     }
-
-    throw new Error(`Condition not met within ${timeout}ms`);
+    await wait(interval);
   }
+  
+  throw new Error(`Condition not met within ${timeout}ms`);
 }
 
 /**
- * Environment helper for tests
+ * Create a mock request object for Express route testing
  */
-export class TestEnvironmentHelper {
-  private static originalEnv: Record<string, string | undefined> = {};
+export function createMockRequest(overrides: any = {}): any {
+  return {
+    body: {},
+    params: {},
+    query: {},
+    headers: {},
+    ip: '127.0.0.1',
+    method: 'GET',
+    path: '/',
+    ...overrides,
+  };
+}
 
-  /**
-   * Set environment variables for a test
-   */
-  static setEnvVars(vars: Record<string, string>) {
-    Object.keys(vars).forEach(key => {
-      if (!(key in this.originalEnv)) {
-        this.originalEnv[key] = process.env[key];
-      }
-      process.env[key] = vars[key];
-    });
-  }
+/**
+ * Create a mock response object for Express route testing
+ */
+export function createMockResponse(): any {
+  const res: any = {
+    status: jest.fn().mockReturnThis(),
+    json: jest.fn().mockReturnThis(),
+    send: jest.fn().mockReturnThis(),
+    set: jest.fn().mockReturnThis(),
+    setHeader: jest.fn().mockReturnThis(),
+    end: jest.fn().mockReturnThis(),
+  };
+  return res;
+}
 
-  /**
-   * Restore original environment variables
-   */
-  static restoreEnvVars() {
-    Object.keys(this.originalEnv).forEach(key => {
-      if (this.originalEnv[key] === undefined) {
+/**
+ * Create a mock next function for Express middleware testing
+ */
+export function createMockNext(): jest.Mock {
+  return jest.fn();
+}
+
+/**
+ * Clean up all test resources (timers, mocks, etc.)
+ */
+export async function cleanupTestResources(): Promise<void> {
+  // Clear all timers
+  jest.clearAllTimers();
+  
+  // Clear all mocks
+  jest.clearAllMocks();
+  
+  // Reset mock services
+  resetAllMockServices();
+  
+  // Wait for pending operations
+  await flushPromises();
+  
+  // Additional cleanup delay
+  await wait(50);
+}
+
+/**
+ * Setup test environment for a test suite
+ */
+export function setupTestEnvironment(): void {
+  beforeEach(async () => {
+    resetAllMockServices();
+    await flushPromises();
+  });
+
+  afterEach(async () => {
+    await cleanupTestResources();
+  });
+}
+
+/**
+ * Mock environment variable for a test
+ */
+export function mockEnvVar(key: string, value: string): { restore: () => void } {
+  const originalValue = process.env[key];
+  process.env[key] = value;
+
+  return {
+    restore: () => {
+      if (originalValue === undefined) {
         delete process.env[key];
       } else {
-        process.env[key] = this.originalEnv[key];
+        process.env[key] = originalValue;
       }
-    });
-    this.originalEnv = {};
-  }
+    },
+  };
+}
 
-  /**
-   * Setup environment for a test suite
-   */
-  static setupTestEnvironment(vars: Record<string, string>) {
-    beforeAll(() => {
-      this.setEnvVars(vars);
-    });
-
-    afterAll(() => {
-      this.restoreEnvVars();
-    });
+/**
+ * Run a test with a specific environment variable
+ */
+export async function withEnvVar<T>(
+  key: string,
+  value: string,
+  fn: () => T | Promise<T>
+): Promise<T> {
+  const mock = mockEnvVar(key, value);
+  try {
+    return await fn();
+  } finally {
+    mock.restore();
   }
 }

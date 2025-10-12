@@ -90,25 +90,21 @@ jest.mock('../services/aiResponseService', () => {
 import dotenv from 'dotenv';
 import path from 'path';
 
-// Load test environment variables
-const testEnvPath = path.resolve(__dirname, '../../../.env.test');
-dotenv.config({ path: testEnvPath });
-
-// Ensure NODE_ENV is set to test
+// Ensure NODE_ENV is set to test FIRST before loading any environment variables
 process.env.NODE_ENV = 'test';
 
-// Set mock API keys if not provided - ensure they're always set for tests
-process.env.OPENAI_API_KEY = process.env.OPENAI_API_KEY || 'sk-test_openai_api_key_mock_1234567890abcdef';
-process.env.GROQ_API_KEY = process.env.GROQ_API_KEY || 'gsk_test_groq_api_key_mock_1234567890abcdef';
+// Load test environment variables
+const testEnvPath = path.resolve(__dirname, '../../../.env.test');
+const envResult = dotenv.config({ path: testEnvPath });
 
-// Validate API keys are set
-if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'your_openai_api_key_here') {
-  process.env.OPENAI_API_KEY = 'sk-test_openai_api_key_mock_1234567890abcdef';
+// If .env.test doesn't exist or has errors, log a warning but continue with defaults
+if (envResult.error && process.env.JEST_VERBOSE === 'true') {
+  console.warn('Warning: Could not load .env.test file, using default test values');
 }
 
-if (!process.env.GROQ_API_KEY || process.env.GROQ_API_KEY === 'your_groq_api_key_here') {
-  process.env.GROQ_API_KEY = 'gsk_test_groq_api_key_mock_1234567890abcdef';
-}
+// Set mock API keys - ALWAYS use mock keys in test environment for security and consistency
+process.env.OPENAI_API_KEY = 'sk-test_openai_api_key_mock_1234567890abcdef';
+process.env.GROQ_API_KEY = 'gsk_test_groq_api_key_mock_1234567890abcdef';
 
 // Set other required test environment variables
 process.env.PORT = process.env.PORT || '0';

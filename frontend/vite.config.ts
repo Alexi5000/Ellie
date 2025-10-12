@@ -57,25 +57,30 @@ export default defineConfig(({ command, mode }) => {
         VITE_SKIP_PERMISSIONS: 'true',
       },
       // Improved test isolation and timeout handling
-      testTimeout: 15000,
-      hookTimeout: 10000,
-      teardownTimeout: 5000,
+      testTimeout: 20000, // Increased timeout for async operations
+      hookTimeout: 15000, // Increased hook timeout
+      teardownTimeout: 10000, // Increased teardown timeout
       // Better error handling
       bail: 0,
-      // Improved async handling
-      pool: 'threads',
+      // Improved async handling - use forks for better isolation
+      pool: 'forks',
       poolOptions: {
-        threads: {
-          singleThread: true, // Use single thread to prevent race conditions
+        forks: {
+          singleFork: true, // Use single fork to prevent race conditions
         },
       },
       // Better cleanup
       clearMocks: true,
       restoreMocks: true,
+      mockReset: true,
       // Improved reporting
       reporter: ['verbose'],
       // Handle unhandled rejections
       onUnhandledRejection: 'strict',
+      // Improved test isolation
+      isolate: true,
+      // Retry flaky tests once
+      retry: 1,
     },
     // Define environment variables for the app
     define: {

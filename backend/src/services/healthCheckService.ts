@@ -101,18 +101,19 @@ export class HealthCheckService extends EventEmitter {
       );
 
       const responseTime = Date.now() - startTime;
+      const healthData = result as any; // Type assertion for circuit breaker result
       const healthResult: HealthCheckResult = {
         service: service.name,
-        status: this.determineHealthStatus(result),
+        status: this.determineHealthStatus(healthData as any),
         timestamp: new Date(),
         responseTime,
         details: {
-          version: result.version,
-          uptime: result.uptime,
-          memory: result.memory,
-          cpu: result.cpu,
-          dependencies: result.dependencies,
-          customMetrics: result.customMetrics
+          version: (healthData as any).version,
+          uptime: (healthData as any).uptime,
+          memory: (healthData as any).memory,
+          cpu: (healthData as any).cpu,
+          dependencies: (healthData as any).dependencies,
+          customMetrics: (healthData as any).customMetrics
         }
       };
 

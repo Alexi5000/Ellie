@@ -116,13 +116,14 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     );
   };
 
-  const renderMessage = (message: Message) => {
+  const renderMessage = (message: Message, index: number) => {
     const isUser = message.type === 'user';
     const isPlaying = playingAudioId === message.id;
 
     return (
       <div
         key={message.id}
+        data-testid={`message-${index}`}
         className={`flex items-start space-x-3 mb-4 ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`}
       >
         {getMessageIcon(message.type)}
@@ -211,6 +212,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
       {/* Messages container */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+        {/* Message count for testing */}
+        <div data-testid="message-count" className="sr-only">{messages.length}</div>
+        
         {messages.length === 0 ? (
           <div className="text-center py-8">
             <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -224,7 +228,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             </p>
           </div>
         ) : (
-          messages.map(renderMessage)
+          messages.map((message, index) => renderMessage(message, index))
         )}
         
         {/* Typing indicator - shows regardless of message count */}
@@ -244,7 +248,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             voiceState === VoiceState.SPEAKING ? 'bg-green-500 animate-pulse' :
             'bg-red-500'
           }`} />
-          <span className="text-xs text-gray-600 capitalize">
+          <span data-testid="voice-state" className="text-xs text-gray-600 capitalize">
             {voiceState === VoiceState.PROCESSING ? 'Processing...' : 
              voiceState === VoiceState.SPEAKING ? 'Speaking...' :
              voiceState === VoiceState.LISTENING ? 'Listening...' :

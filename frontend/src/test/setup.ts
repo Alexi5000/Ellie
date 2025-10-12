@@ -25,20 +25,23 @@ const mockMediaRecorder = vi.fn().mockImplementation(() => {
     start: vi.fn().mockImplementation(() => {
       // Simulate async start behavior
       setTimeout(() => {
-        if (recorder.onstart) recorder.onstart(new Event('start'));
+        const handler = recorder.onstart as ((event: Event) => void) | null;
+        if (handler) handler(new Event('start'));
       }, 10);
     }),
     stop: vi.fn().mockImplementation(() => {
       // Simulate async stop behavior with data
       setTimeout(() => {
-        if (recorder.ondataavailable) {
+        const dataHandler = recorder.ondataavailable as ((event: any) => void) | null;
+        if (dataHandler) {
           const mockBlob = new Blob(['mock audio data'], { type: 'audio/webm' });
-          recorder.ondataavailable({ data: mockBlob });
+          dataHandler({ data: mockBlob });
         }
-        if (recorder.onstop) recorder.onstop(new Event('stop'));
+        const stopHandler = recorder.onstop as ((event: Event) => void) | null;
+        if (stopHandler) stopHandler(new Event('stop'));
       }, 10);
     }),
-    addEventListener: vi.fn().mockImplementation((event, handler) => {
+    addEventListener: vi.fn().mockImplementation((event: string, handler: any) => {
       if (event === 'start') recorder.onstart = handler;
       if (event === 'stop') recorder.onstop = handler;
       if (event === 'dataavailable') recorder.ondataavailable = handler;
@@ -46,9 +49,9 @@ const mockMediaRecorder = vi.fn().mockImplementation(() => {
     removeEventListener: vi.fn(),
     state: 'inactive',
     mimeType: 'audio/webm',
-    onstart: null,
-    onstop: null,
-    ondataavailable: null,
+    onstart: null as ((event: Event) => void) | null,
+    onstop: null as ((event: Event) => void) | null,
+    ondataavailable: null as ((event: any) => void) | null,
   };
   return recorder;
 });
@@ -138,13 +141,24 @@ Object.defineProperty(import.meta, 'env', {
 global.fetch = vi.fn();
 
 // Mock WebSocket for Socket.io
-global.WebSocket = vi.fn().mockImplementation(() => ({
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  send: vi.fn(),
-  close: vi.fn(),
-  readyState: 1, // OPEN
-}));
+class MockWebSocket {
+  static CONNECTING = 0;
+  static OPEN = 1;
+  static CLOSING = 2;
+  static CLOSED = 3;
+  
+  addEventListener = vi.fn();
+  removeEventListener = vi.fn();
+  send = vi.fn();
+  close = vi.fn();
+  readyState = 1; // OPEN
+  
+  constructor(_url: string | URL, _protocols?: string | string[]) {
+    // Mock constructor - parameters prefixed with _ to indicate intentionally unused
+  }
+}
+
+(global as any).WebSocket = MockWebSocket;
 
 // Mock Socket.io client
 vi.mock('socket.io-client', () => ({
@@ -232,13 +246,48 @@ if (process.env.VITEST_VERBOSE === 'true') {
     (global.fetch as any).mockClear();
   }
   
-  // Reset WebSocket mock
-  if (global.WebSocket && vi.isMockFunction(global.WebSocket)) {
-    (global.WebSocket as any).mockClear();
-  }
-  
   // Reset Audio mock
   if (global.Audio && vi.isMockFunction(global.Audio)) {
     (global.Audio as any).mockClear();
   }
 };
+
+// Setup beforeEach and afterEach hooks for better test isolation
+beforeEach(() => {
+  // Clear all mocks before each test
+  vi.clearAllMocks();
+  
+  // Reset fetch mock to default behavior
+  if (global.fetch && vi.isMockFunction(global.fetch)) {
+    (global.fetch as any).mockReset();
+    (global.fetch as any).mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({}),
+      text: async () => '',
+      blob: async () => new Blob(),
+    });
+  }
+  
+  // Reset Audio mock to default behavior
+  if (global.Audio && vi.isMockFunction(global.Audio)) {
+    (global.Audio as any).mockClear();
+  }
+  
+  // Reset MediaRecorder mock
+  if (mockMediaRecorder) {
+    mockMediaRecorder.mockClear();
+  }
+});
+
+afterEach(async () => {
+  // Clean up after each test
+  vi.clearAllMocks();
+  vi.clearAllTimers();
+  
+  // Wait for any pending promises to resolve
+  await new Promise(resolve => setTimeout(resolve, 0));
+  
+  // Additional cleanup delay to prevent race conditions
+  await new Promise(resolve => setTimeout(resolve, 10));
+});

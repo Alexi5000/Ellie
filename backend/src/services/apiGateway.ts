@@ -94,10 +94,10 @@ export class APIGateway {
       try {
         // Apply rate limiting if configured
         if (routeConfig.rateLimit) {
-          const rateLimiter = rateLimitService.createApiRateLimiter(
-            routeConfig.rateLimit.windowMs,
-            routeConfig.rateLimit.max
-          );
+          const rateLimiter = rateLimitService.createLimiter({
+            windowMs: routeConfig.rateLimit.windowMs,
+            maxRequests: routeConfig.rateLimit.max
+          });
           
           await new Promise<void>((resolve, reject) => {
             rateLimiter(req, res, (err) => {

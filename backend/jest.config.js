@@ -14,12 +14,10 @@ module.exports = {
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov', 'html'],
   setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
-  moduleNameMapping: {
+  setupFiles: ['<rootDir>/src/test/env-setup.ts'],
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  // Environment configuration
-  testEnvironment: 'node',
-  setupFiles: ['<rootDir>/src/test/env-setup.ts'],
   // Improved async handling and cleanup
   testTimeout: 30000, // Increased timeout for async operations
   forceExit: true,
@@ -34,7 +32,6 @@ module.exports = {
   silent: false,
   // Improved test isolation
   resetModules: true,
-  isolateModules: false,
   // Handle unhandled promise rejections
   testFailureExitCode: 1,
 };

@@ -24,12 +24,18 @@ const ThrowError: React.FC<{ shouldThrow: boolean }> = ({ shouldThrow }) => {
 describe('VoiceErrorBoundary', () => {
   // Suppress console.error for these tests
   const originalError = console.error;
+  
   beforeAll(() => {
     console.error = vi.fn();
   });
 
   afterAll(() => {
     console.error = originalError;
+  });
+
+  afterEach(() => {
+    // Clean up DOM between tests to prevent pollution
+    vi.clearAllMocks();
   });
 
   it('renders children when there is no error', () => {
