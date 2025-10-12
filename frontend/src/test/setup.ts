@@ -146,6 +146,37 @@ global.WebSocket = vi.fn().mockImplementation(() => ({
   readyState: 1, // OPEN
 }));
 
+// Mock Socket.io client
+vi.mock('socket.io-client', () => ({
+  io: vi.fn().mockReturnValue({
+    on: vi.fn(),
+    off: vi.fn(),
+    emit: vi.fn(),
+    connect: vi.fn(),
+    disconnect: vi.fn(),
+    connected: true,
+    id: 'mock-socket-id',
+  }),
+}));
+
+// Mock socketService for all tests
+vi.mock('../src/services/socketService', () => ({
+  socketService: {
+    getConnectionState: vi.fn().mockReturnValue({
+      isConnected: true,
+      isConnecting: false,
+      reconnectAttempts: 0,
+    }),
+    isConnected: vi.fn().mockReturnValue(true),
+    connect: vi.fn().mockResolvedValue(undefined),
+    disconnect: vi.fn(),
+    sendVoiceInput: vi.fn(),
+    forceReconnect: vi.fn(),
+    on: vi.fn().mockReturnValue(() => {}),
+    off: vi.fn(),
+  },
+}));
+
 // Mock Audio for TTS playback
 global.Audio = vi.fn().mockImplementation(() => ({
   play: vi.fn().mockResolvedValue(undefined),

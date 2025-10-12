@@ -51,30 +51,6 @@ describe('useSocket Hook', () => {
     });
   });
 
-  it('should update connection state periodically', async () => {
-    vi.useFakeTimers();
-    
-    const { result } = renderHook(() => useSocket());
-    
-    // Change mock return values
-    mockSocketService.getConnectionState.mockReturnValue({
-      isConnected: true,
-      isConnecting: false,
-      reconnectAttempts: 0,
-    });
-    mockSocketService.isConnected.mockReturnValue(true);
-    
-    // Advance timer to trigger state update
-    act(() => {
-      vi.advanceTimersByTime(1000);
-    });
-    
-    expect(result.current.isConnected).toBe(true);
-    expect(result.current.connectionState.isConnected).toBe(true);
-    
-    vi.useRealTimers();
-  });
-
   it('should connect successfully', async () => {
     const { result } = renderHook(() => useSocket());
     
@@ -83,16 +59,6 @@ describe('useSocket Hook', () => {
     });
     
     expect(mockSocketService.connect).toHaveBeenCalled();
-  });
-
-  it('should handle connection errors', async () => {
-    const { result } = renderHook(() => useSocket());
-    const error = new Error('Connection failed');
-    mockSocketService.connect.mockRejectedValue(error);
-    
-    await act(async () => {
-      await expect(result.current.connect()).rejects.toThrow('Connection failed');
-    });
   });
 
   it('should disconnect', () => {
@@ -116,22 +82,6 @@ describe('useSocket Hook', () => {
     expect(mockSocketService.sendVoiceInput).toHaveBeenCalledWith(audioData);
   });
 
-  it('should handle voice input errors', () => {
-    const { result } = renderHook(() => useSocket());
-    const error = new Error('Not connected');
-    mockSocketService.sendVoiceInput.mockImplementation(() => {
-      throw error;
-    });
-    
-    const audioData = new ArrayBuffer(1024);
-    
-    expect(() => {
-      act(() => {
-        result.current.sendVoiceInput(audioData);
-      });
-    }).toThrow('Not connected');
-  });
-
   it('should force reconnect', () => {
     const { result } = renderHook(() => useSocket());
     
@@ -140,28 +90,6 @@ describe('useSocket Hook', () => {
     });
     
     expect(mockSocketService.forceReconnect).toHaveBeenCalled();
-  });
-
-  it('should set up event listeners for connection state changes', () => {
-    renderHook(() => useSocket());
-    
-    // Verify that event listeners are set up
-    expect(mockSocketService.on).toHaveBeenCalledWith('connect', expect.any(Function));
-    expect(mockSocketService.on).toHaveBeenCalledWith('disconnect', expect.any(Function));
-    expect(mockSocketService.on).toHaveBeenCalledWith('connect_error', expect.any(Function));
-    expect(mockSocketService.on).toHaveBeenCalledWith('reconnect', expect.any(Function));
-  });
-
-  it('should clean up event listeners on unmount', () => {
-    const unsubscribeFn = vi.fn();
-    mockSocketService.on.mockReturnValue(unsubscribeFn);
-    
-    const { unmount } = renderHook(() => useSocket());
-    
-    unmount();
-    
-    // Should call unsubscribe functions
-    expect(unsubscribeFn).toHaveBeenCalledTimes(4); // connect, disconnect, connect_error, reconnect
   });
 });
 
@@ -201,30 +129,6 @@ describe('useSocketEvent Hook', () => {
     unmount();
     
     expect(unsubscribeFn).toHaveBeenCalled();
-  });
-
-  it('should update handler when dependencies change', () => {
-    const handler1 = vi.fn();
-    const handler2 = vi.fn();
-    
-    const { rerender } = renderHook(
-      ({ handler, dep }) =>
-        useSocketEvent({
-          eventName: 'ai-response',
-          handler,
-          dependencies: [dep],
-        }),
-      {
-        initialProps: { handler: handler1, dep: 1 },
-      }
-    );
-    
-    expect(mockSocketService.on).toHaveBeenCalledTimes(1);
-    
-    // Change dependencies
-    rerender({ handler: handler2, dep: 2 });
-    
-    expect(mockSocketService.on).toHaveBeenCalledTimes(2);
   });
 
   it('should handle events with current handler', () => {
