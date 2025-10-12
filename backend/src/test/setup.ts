@@ -156,7 +156,7 @@ const mockAIResponseService = (global as any).sharedMockAIResponseService;
 
 // Mock logger service
 jest.mock('../services/loggerService', () => {
-  const mockLoggerService = {
+  const mockLoggerInstance = {
     info: jest.fn(),
     error: jest.fn(),
     warn: jest.fn(),
@@ -169,22 +169,40 @@ jest.mock('../services/loggerService', () => {
     getErrorStats: jest.fn().mockReturnValue({}),
     getRecentLogs: jest.fn().mockReturnValue([]),
     getRequestLogs: jest.fn().mockReturnValue([]),
-    clearLogs: jest.fn(),
-    getInstance: jest.fn()
+    clearLogs: jest.fn()
   };
 
-  // Make getInstance return the mock instance
-  mockLoggerService.getInstance.mockReturnValue(mockLoggerService);
+  // Create a mock class with getInstance as a static method
+  class MockLoggerService {
+    static getInstance() {
+      return mockLoggerInstance;
+    }
+    
+    // Instance methods (in case someone tries to instantiate directly)
+    info = mockLoggerInstance.info;
+    error = mockLoggerInstance.error;
+    warn = mockLoggerInstance.warn;
+    debug = mockLoggerInstance.debug;
+    logRequest = mockLoggerInstance.logRequest;
+    logVoiceProcessing = mockLoggerInstance.logVoiceProcessing;
+    logWebSocketEvent = mockLoggerInstance.logWebSocketEvent;
+    logExternalApiCall = mockLoggerInstance.logExternalApiCall;
+    logRateLimit = mockLoggerInstance.logRateLimit;
+    getErrorStats = mockLoggerInstance.getErrorStats;
+    getRecentLogs = mockLoggerInstance.getRecentLogs;
+    getRequestLogs = mockLoggerInstance.getRequestLogs;
+    clearLogs = mockLoggerInstance.clearLogs;
+  }
 
   return {
-    LoggerService: jest.fn().mockImplementation(() => mockLoggerService),
+    LoggerService: MockLoggerService,
     LogLevel: {
       ERROR: 'error',
       WARN: 'warn',
       INFO: 'info',
       DEBUG: 'debug'
     },
-    logger: mockLoggerService
+    logger: mockLoggerInstance
   };
 });
 
