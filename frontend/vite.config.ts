@@ -44,6 +44,30 @@ export default defineConfig(({ command, mode }) => {
     build: {
       outDir: 'dist',
       sourcemap: true,
+      // Performance optimizations for Lighthouse
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true, // Remove console.logs in production
+          drop_debugger: true,
+        },
+      },
+      // Code splitting for better caching and loading
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            // Separate vendor chunks for better caching
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            'animation': ['framer-motion'],
+            'syntax': ['react-syntax-highlighter'],
+            'i18n': ['i18next', 'react-i18next', 'i18next-browser-languagedetector'],
+          },
+        },
+      },
+      // Chunk size warnings
+      chunkSizeWarningLimit: 1000,
+      // Asset inlining threshold
+      assetsInlineLimit: 4096, // 4kb
     },
     test: {
       globals: true,

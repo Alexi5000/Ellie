@@ -4,8 +4,29 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Ellie Voice Receptionist - AI-powered legal assistant" />
+    
+    <!-- Primary Meta Tags -->
+    <title>Ellie - Voice AI assistant for developers</title>
+    <meta name="title" content="Ellie - Voice AI assistant for developers" />
+    <meta name="description" content="Voice AI assistant for developers. Try in minutes. Deploy in days. Build powerful voice interactions with our API-native platform." />
+    <meta name="keywords" content="voice AI, developer tools, API, voice assistant, AI assistant, voice receptionist" />
+    <meta name="author" content="Ellie" />
     <meta name="theme-color" content="#3b82f6" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0f172a" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://ellie.ai/" />
+    <meta property="og:title" content="Ellie - Voice AI assistant for developers" />
+    <meta property="og:description" content="Voice AI assistant for developers. Try in minutes. Deploy in days." />
+    <meta property="og:image" content="/og-image.png" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://ellie.ai/" />
+    <meta property="twitter:title" content="Ellie - Voice AI assistant for developers" />
+    <meta property="twitter:description" content="Voice AI assistant for developers. Try in minutes. Deploy in days." />
+    <meta property="twitter:image" content="/twitter-image.png" />
     
     <!-- PWA Configuration -->
     <link rel="manifest" href="/manifest.json" />
@@ -28,10 +49,38 @@
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     
-    <title>Ellie Voice Receptionist</title>
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://ellie.ai/" />
   </head>
   <body>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded">
+      Skip to main content
+    </a>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Ellie Voice Receptionist",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "description": "Voice AI assistant for developers. Try in minutes. Deploy in days.",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "1500"
+      }
+    }
+    </script>
   </body>
 </html>

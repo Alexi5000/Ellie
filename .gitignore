@@ -17,3 +17,8 @@
 .vscode/
 .idea/
 *.DS_Store
+# Li
+ghthouse audit reports
+frontend/lighthouse-reports/*.html
+frontend/lighthouse-reports/*.json
+!frontend/lighthouse-reports/README.md
