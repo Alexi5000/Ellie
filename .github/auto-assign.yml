@@ -1,0 +1,22 @@
+# Auto-assign reviewers configuration
+
+# Reviewers to assign (GitHub usernames)
+reviewers:
+  - reviewer1
+  - reviewer2
+  - reviewer3
+
+# Number of reviewers to assign
+numberOfReviewers: 2
+
+# Skip keywords - PRs with these in title won't auto-assign
+skipKeywords:
+  - wip
+  - WIP
+  - draft
+
+# Add assignees (PR author will be assigned by default)
+addAssignees: true
+
+# Add reviewers as assignees
+addReviewers: false

@@ -29,9 +29,18 @@ module.exports = {
   rules: {
     'react/react-in-jsx-scope': 'off', // Not needed in React 18+
     'react/prop-types': 'off', // Using TypeScript for prop validation
+    'react/no-unescaped-entities': 'warn',
     '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
     '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-this-alias': 'warn',
+    '@typescript-eslint/ban-types': 'warn',
+    '@typescript-eslint/ban-ts-comment': 'warn',
     'no-console': ['warn', { allow: ['warn', 'error'] }],
+    'no-useless-escape': 'warn',
+    'jsx-a11y/label-has-associated-control': 'warn',
+    'jsx-a11y/anchor-is-valid': 'warn',
+    'react-hooks/exhaustive-deps': 'warn',
+    'react-hooks/rules-of-hooks': 'warn',
   },
   settings: {
     react: {

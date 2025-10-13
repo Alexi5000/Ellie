@@ -1,0 +1,149 @@
+name: PR Checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  pr-title:
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check PR title
+      uses: amannn/action-semantic-pull-request@v5
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        types: |
+          feat
+          fix
+          docs
+          style
+          refactor
+          perf
+          test
+          build
+          ci
+          chore
+          revert
+        requireScope: false
+
+  pr-size:
+    name: Check PR Size
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check PR size
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const pr = context.payload.pull_request;
+          const additions = pr.additions;
+          const deletions = pr.deletions;
+          const changes = additions + deletions;
+          
+          let label = '';
+          if (changes < 100) label = 'size/XS';
+          else if (changes < 300) label = 'size/S';
+          else if (changes < 500) label = 'size/M';
+          else if (changes < 1000) label = 'size/L';
+          else label = 'size/XL';
+          
+          await github.rest.issues.addLabels({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: pr.number,
+            labels: [label]
+          });
+          
+          if (changes > 1000) {
+            core.warning('This PR is very large. Consider breaking it into smaller PRs.');
+          }
+
+  pr-labels:
+    name: Check PR Labels
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check labels
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const pr = context.payload.pull_request;
+          const labels = pr.labels.map(l => l.name);
+          
+          const requiredLabels = ['type:', 'priority:'];
+          const hasRequired = requiredLabels.some(prefix => 
+            labels.some(label => label.startsWith(prefix))
+          );
+          
+          if (!hasRequired) {
+            core.setFailed('PR must have at least one type: and one priority: label');
+          }
+
+  pr-description:
+    name: Check PR Description
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check description
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const pr = context.payload.pull_request;
+          const body = pr.body || '';
+          
+          if (body.length < 50) {
+            core.setFailed('PR description is too short. Please provide more details.');
+          }
+          
+          const hasChecklist = body.includes('- [ ]') || body.includes('- [x]');
+          if (!hasChecklist) {
+            core.warning('Consider adding a checklist to your PR description.');
+          }
+
+  auto-assign:
+    name: Auto Assign Reviewers
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Assign reviewers
+      uses: kentaro-m/auto-assign-action@v1.2.5
+      with:
+        configuration-path: '.github/auto-assign.yml'
+
+  comment-pr:
+    name: Comment on PR
+    runs-on: ubuntu-latest
+    if: github.event.action == 'opened'
+    
+    steps:
+    - name: Comment
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const comment = `
+          ## 👋 Thanks for your contribution!
+          
+          Your PR will be reviewed soon. In the meantime:
+          
+          - ✅ Make sure all CI checks pass
+          - ✅ Ensure your code is properly tested
+          - ✅ Update documentation if needed
+          - ✅ Keep your PR up to date with the base branch
+          
+          ### Useful Commands
+          - \`npm run lint:fix\` - Fix linting issues
+          - \`npm run format\` - Format code
+          - \`npm test\` - Run tests
+          
+          Need help? Check out our [Contributing Guide](../CONTRIBUTING.md).
+          `;
+          
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.payload.pull_request.number,
+            body: comment
+          });
