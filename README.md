@@ -148,6 +148,7 @@ npm run docker:test     # Test deployment
 - **[📖 Documentation Hub](docs/README.md)** - Complete documentation index
 - **[🔧 Backend Guide](backend/README.md)** - Backend API documentation
 - **[⚛️ Frontend Guide](frontend/README.md)** - Frontend application documentation
+- **[🎨 Marketing Site](docs/marketing-site/README.md)** - Marketing site documentation
 
 ### Guides & References
 - **[🚀 Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment

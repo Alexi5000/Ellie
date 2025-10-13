@@ -14,6 +14,13 @@ Welcome to the comprehensive documentation for the Ellie Voice Receptionist proj
 - [Architecture](architecture.md) - System architecture and design decisions
 - [Service Discovery](service-discovery.md) - Microservices architecture guide
 
+### Marketing Site
+- [Marketing Site Documentation](marketing-site/README.md) - Complete marketing site documentation
+- [Component API](marketing-site/COMPONENT_API.md) - Component reference and API
+- [Theme System](marketing-site/THEME_SYSTEM.md) - Design system and theming
+- [Accessibility Features](marketing-site/ACCESSIBILITY_FEATURES.md) - Accessibility compliance
+- [Deployment Guide](marketing-site/DEPLOYMENT_GUIDE.md) - Marketing site deployment
+
 ### Testing
 - [Quick Test Guide](testing/QUICK_TEST_GUIDE.md) - Fast reference for running tests
 - [Test Environment Improvements](testing/TEST_ENVIRONMENT_IMPROVEMENTS.md) - Test configuration details

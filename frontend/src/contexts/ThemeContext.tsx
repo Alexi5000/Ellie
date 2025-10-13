@@ -21,10 +21,10 @@ interface ThemeProviderProps {
  * Detects the system color scheme preference
  */
 const getSystemTheme = (): Theme => {
-  if (typeof window === 'undefined') return 'light';
+  if (typeof window === 'undefined' || !window.matchMedia) return 'light';
   
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-  return mediaQuery.matches ? 'dark' : 'light';
+  return mediaQuery?.matches ? 'dark' : 'light';
 };
 
 /**
@@ -81,7 +81,10 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
 
   // Listen for system theme changes
   useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    if (!mediaQuery) return;
     
     const handleChange = (e: MediaQueryListEvent) => {
       const newSystemTheme = e.matches ? 'dark' : 'light';
