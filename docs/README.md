@@ -25,10 +25,15 @@ Welcome to the comprehensive documentation for the Ellie Voice Receptionist proj
 - [FastAPI Migration Summary](migration/FASTAPI_MIGRATION_SUMMARY.md) - FastAPI migration reference
 - [FastAPI Backend Reference](migration/backend-fastapi-reference/) - Archived FastAPI implementation
 
+### Project Structure
+- [Complete Structure Audit](COMPLETE_PROJECT_STRUCTURE_AUDIT.md) - Full A-Z audit
+- [Backend Consolidation](BACKEND_CONSOLIDATION_SUMMARY.md) - Backend cleanup
+- [Root Directory Cleanup](ROOT_DIRECTORY_CLEANUP.md) - Root organization
+
 ### Additional Resources
-- [Troubleshooting](troubleshooting.md) - Common issues and solutions
-- [API Reference](api-reference.md) - Complete API documentation
-- [Contributing](contributing.md) - Contribution guidelines
+- [Service Discovery](service-discovery.md) - Microservices architecture
+- [SSL Setup Guide](SSL_SETUP_GUIDE.md) - SSL certificate setup
+- [Deployment Guide](DEPLOYMENT.md) - Production deployment
 
 ## 🎯 Quick Links
 
