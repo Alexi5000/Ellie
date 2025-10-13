@@ -47,10 +47,13 @@ npm run docker:prod
 /
 ├── backend/           # Node.js/Express API server (TypeScript)
 ├── frontend/          # React/TypeScript client application
-├── docker/            # Docker configurations & orchestration
+├── docker/            # Docker configs, SSL, monitoring
 ├── docs/              # Comprehensive documentation
 ├── scripts/           # Build and deployment scripts
 ├── tests/             # Integration tests
+├── .github/           # GitHub Actions workflows
+├── .kiro/             # Kiro IDE configuration
+└── .vscode/           # VS Code workspace settings
 ├── scripts/          # Build and deployment scripts
 ├── tests/            # Integration tests
 ├── docs/             # Documentation
