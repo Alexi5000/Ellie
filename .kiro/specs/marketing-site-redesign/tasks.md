@@ -170,7 +170,6 @@
 
 - [x] 16. Update App.tsx and routing
 
-
   - Update App.tsx to wrap with ThemeProvider
   - Update landing page route to use MarketingPage
   - Ensure existing routes (dashboard, health) still work
@@ -178,10 +177,7 @@
   - Create integration tests for routing
   - _Requirements: 13.1, 13.3, 13.4_
 
-- [-] 17. Implement performance optimizations
-
-
-
+- [x] 17. Implement performance optimizations
 
   - Add code splitting for marketing components using React.lazy
   - Implement lazy loading for Framer Motion
@@ -192,7 +188,8 @@
   - Create performance tests to verify optimizations
   - _Requirements: 12.3, 12.4, 12.5, 12.6, 12.7_
 
-- [ ] 18. Implement accessibility features
+- [x] 18. Implement accessibility features
+
 
   - Ensure all interactive elements are keyboard accessible
   - Add ARIA labels for icon buttons
@@ -205,7 +202,10 @@
   - Create accessibility tests
   - _Requirements: 12.8, 12.9, 12.10, 11.4, 11.5, 11.6_
 
-- [ ] 19. Create custom hooks
+- [-] 19. Create custom hooks
+
+
+
 
   - Create useIntersectionObserver hook for scroll-triggered animations
   - Create useClipboard hook for copy-to-clipboard functionality
