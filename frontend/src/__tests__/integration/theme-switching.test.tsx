@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '../../contexts/ThemeContext';
-import MarketingPage from '../../pages/MarketingPage';
+import { MarketingPage } from '../../pages/MarketingPage';
 
 describe('Theme Switching Integration Tests', () => {
   beforeEach(() => {
@@ -28,8 +28,6 @@ describe('Theme Switching Integration Tests', () => {
   });
 
   it('should toggle theme across all marketing components', async () => {
-    const user = userEvent.setup();
-    
     render(
       <BrowserRouter>
         <ThemeProvider>
@@ -44,7 +42,7 @@ describe('Theme Switching Integration Tests', () => {
 
     // Find and click theme toggle button
     const themeToggle = screen.getByRole('button', { name: /toggle theme|switch to (dark|light) mode/i });
-    await user.click(themeToggle);
+    await userEvent.click(themeToggle);
 
     // Wait for theme to change
     await waitFor(() => {
@@ -105,8 +103,6 @@ describe('Theme Switching Integration Tests', () => {
   });
 
   it('should apply theme transitions smoothly', async () => {
-    const user = userEvent.setup();
-    
     render(
       <BrowserRouter>
         <ThemeProvider>
@@ -118,20 +114,18 @@ describe('Theme Switching Integration Tests', () => {
     const themeToggle = screen.getByRole('button', { name: /toggle theme|switch to (dark|light) mode/i });
     
     // Toggle theme multiple times
-    await user.click(themeToggle);
+    await userEvent.click(themeToggle);
     await waitFor(() => {
       expect(document.documentElement.classList.contains('dark')).toBe(true);
     });
 
-    await user.click(themeToggle);
+    await userEvent.click(themeToggle);
     await waitFor(() => {
       expect(document.documentElement.classList.contains('dark')).toBe(false);
     });
   });
 
   it('should maintain theme state when navigating between sections', async () => {
-    const user = userEvent.setup();
-    
     render(
       <BrowserRouter>
         <ThemeProvider>
@@ -142,14 +136,14 @@ describe('Theme Switching Integration Tests', () => {
 
     // Toggle to dark theme
     const themeToggle = screen.getByRole('button', { name: /toggle theme|switch to (dark|light) mode/i });
-    await user.click(themeToggle);
+    await userEvent.click(themeToggle);
 
     await waitFor(() => {
       expect(document.documentElement.classList.contains('dark')).toBe(true);
     });
 
     // Scroll to different sections (simulating navigation)
-    const featuresSection = screen.getByText(/multilingual/i).closest('section');
+    const featuresSection = screen.queryByText(/multilingual/i)?.closest('section');
     if (featuresSection) {
       featuresSection.scrollIntoView();
     }

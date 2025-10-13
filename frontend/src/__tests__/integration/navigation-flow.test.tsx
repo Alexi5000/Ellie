@@ -3,7 +3,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '../../contexts/ThemeContext';
-import MarketingPage from '../../pages/MarketingPage';
+import { MarketingPage } from '../../pages/MarketingPage';
 
 describe('Navigation Flow Integration Tests', () => {
   beforeEach(() => {
@@ -11,7 +11,6 @@ describe('Navigation Flow Integration Tests', () => {
   });
 
   it('should navigate through header links', async () => {
-    const user = userEvent.setup();
     
     render(
       <BrowserRouter>
@@ -31,8 +30,6 @@ describe('Navigation Flow Integration Tests', () => {
   });
 
   it('should handle mobile menu toggle', async () => {
-    const user = userEvent.setup();
-    
     // Mock mobile viewport
     global.innerWidth = 375;
     global.dispatchEvent(new Event('resize'));
@@ -50,7 +47,7 @@ describe('Navigation Flow Integration Tests', () => {
     
     if (menuButton) {
       // Open mobile menu
-      await user.click(menuButton);
+      await userEvent.click(menuButton);
 
       // Menu should be visible
       const mobileNav = await screen.findByRole('navigation', { hidden: false });
@@ -58,13 +55,11 @@ describe('Navigation Flow Integration Tests', () => {
 
       // Close mobile menu
       const closeButton = screen.getByRole('button', { name: /close|menu/i });
-      await user.click(closeButton);
+      await userEvent.click(closeButton);
     }
   });
 
   it('should maintain focus order through interactive elements', async () => {
-    const user = userEvent.setup();
-    
     render(
       <BrowserRouter>
         <ThemeProvider>
@@ -74,14 +69,14 @@ describe('Navigation Flow Integration Tests', () => {
     );
 
     // Tab through interactive elements
-    await user.tab();
+    await userEvent.tab();
     
     // First focusable element should be in header
     const firstFocused = document.activeElement;
     expect(firstFocused).toBeInTheDocument();
     
     // Continue tabbing
-    await user.tab();
+    await userEvent.tab();
     const secondFocused = document.activeElement;
     expect(secondFocused).toBeInTheDocument();
     expect(secondFocused).not.toBe(firstFocused);
@@ -106,8 +101,6 @@ describe('Navigation Flow Integration Tests', () => {
   });
 
   it('should handle CTA button clicks', async () => {
-    const user = userEvent.setup();
-    
     render(
       <BrowserRouter>
         <ThemeProvider>
@@ -125,7 +118,7 @@ describe('Navigation Flow Integration Tests', () => {
 
     // Click first CTA
     if (ctaElements[0]) {
-      await user.click(ctaElements[0]);
+      await userEvent.click(ctaElements[0]);
       // Verify interaction (would navigate in real app)
       expect(ctaElements[0]).toBeInTheDocument();
     }
@@ -176,8 +169,6 @@ describe('Navigation Flow Integration Tests', () => {
   });
 
   it('should handle keyboard navigation through tabs', async () => {
-    const user = userEvent.setup();
-    
     render(
       <BrowserRouter>
         <ThemeProvider>
@@ -195,7 +186,7 @@ describe('Navigation Flow Integration Tests', () => {
       expect(document.activeElement).toBe(tabs[0]);
 
       // Use arrow keys to navigate
-      await user.keyboard('{ArrowRight}');
+      await userEvent.keyboard('{ArrowRight}');
       
       // Should move to next tab or stay on current
       expect(document.activeElement).toBeInTheDocument();

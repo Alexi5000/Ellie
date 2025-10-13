@@ -3,7 +3,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider } from '../../contexts/ThemeContext';
-import MarketingPage from '../../pages/MarketingPage';
+import { MarketingPage } from '../../pages/MarketingPage';
 
 describe('Interactive Elements Integration Tests', () => {
   beforeEach(() => {
