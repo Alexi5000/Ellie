@@ -7,28 +7,31 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { ErrorProvider } from './contexts/ErrorContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { SocketProvider } from './contexts/SocketContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import './i18n'; // Import i18n configuration
 import './index.css';
 
 const App: React.FC = () => {
   return (
-    <ErrorProvider>
-      <SocketProvider>
-        <LanguageProvider>
-          <ErrorBoundary>
-            <Router>
-              <div className="min-h-screen bg-gray-50">
-                <Routes>
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/health" element={<HealthCheck />} />
-                  <Route path="/dashboard" element={<BusinessDashboard />} />
-                </Routes>
-              </div>
-            </Router>
-          </ErrorBoundary>
-        </LanguageProvider>
-      </SocketProvider>
-    </ErrorProvider>
+    <ThemeProvider>
+      <ErrorProvider>
+        <SocketProvider>
+          <LanguageProvider>
+            <ErrorBoundary>
+              <Router>
+                <div className="min-h-screen bg-background-primary">
+                  <Routes>
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/health" element={<HealthCheck />} />
+                    <Route path="/dashboard" element={<BusinessDashboard />} />
+                  </Routes>
+                </div>
+              </Router>
+            </ErrorBoundary>
+          </LanguageProvider>
+        </SocketProvider>
+      </ErrorProvider>
+    </ThemeProvider>
   );
 };
 

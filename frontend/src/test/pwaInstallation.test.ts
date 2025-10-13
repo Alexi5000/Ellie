@@ -40,7 +40,7 @@ describe('PWA Installation Capabilities', () => {
         eventListeners.set(event, []);
       }
       eventListeners.get(event)!.push(handler);
-    });
+    }) as any;
 
     // Mock window.removeEventListener
     window.removeEventListener = vi.fn((event: string, handler: EventListener) => {
@@ -51,7 +51,7 @@ describe('PWA Installation Capabilities', () => {
           handlers.splice(index, 1);
         }
       }
-    });
+    }) as any;
 
     // Create mock beforeinstallprompt event
     mockBeforeInstallPromptEvent = {
@@ -81,11 +81,11 @@ describe('PWA Installation Capabilities', () => {
     });
 
     // Mock ServiceWorkerRegistration.prototype for getPWACapabilities
-    if (typeof window.ServiceWorkerRegistration === 'undefined') {
+    if (typeof (window as any).ServiceWorkerRegistration === 'undefined') {
       (window as any).ServiceWorkerRegistration = function() {};
-      window.ServiceWorkerRegistration.prototype = { sync: true } as any;
-    } else if (!window.ServiceWorkerRegistration.prototype) {
-      window.ServiceWorkerRegistration.prototype = { sync: true } as any;
+      (window as any).ServiceWorkerRegistration.prototype = { sync: true };
+    } else if (!(window as any).ServiceWorkerRegistration.prototype) {
+      (window as any).ServiceWorkerRegistration.prototype = { sync: true };
     }
 
     // Mock navigator.serviceWorker - only if not already defined

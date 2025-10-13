@@ -6,3 +6,6 @@ export type { MobileVoiceInteractionState, MobileVoiceInteractionActions } from 
 
 export { usePWA } from './usePWA';
 export type { PWAState, PWAActions } from './usePWA';
+
+export { useTheme } from './useTheme';
+export { useReducedMotion } from './useReducedMotion';

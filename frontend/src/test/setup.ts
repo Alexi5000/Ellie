@@ -85,6 +85,25 @@ Object.defineProperty(navigator, 'mediaDevices', {
   },
 });
 
+// Mock window.matchMedia for theme and media query tests
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  configurable: true,
+  value: vi.fn().mockImplementation((query: string) => {
+    const mediaQueryList = {
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(), // Deprecated
+      removeListener: vi.fn(), // Deprecated
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    };
+    return mediaQueryList;
+  }),
+});
+
 // Mock Service Worker
 Object.defineProperty(navigator, 'serviceWorker', {
   writable: true,
