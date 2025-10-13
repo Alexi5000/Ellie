@@ -165,7 +165,7 @@ Common issues and solutions
 
 **[Navigation Footer]**
 
-**Maintained by**: Team Name  
+**Maintained by**: Alex Cinovoj, TechTide AI  
 **Version**: X.X.X  
 **License**: License Type  
 **Last Updated**: Date
@@ -186,7 +186,7 @@ Common issues and solutions
 
 **[⬆️ Back to Top](#title)** | **[📖 Main README](../README.md)** | **[Other README](../path/README.md)**
 
-**Maintained by**: Ellie Voice Receptionist Team  
+**Maintained by**: Alex Cinovoj, TechTide AI  
 **Version**: 1.0.0  
 **License**: MIT  
 **Last Updated**: December 2025
@@ -367,7 +367,7 @@ Use descriptive link text:
 
 **[⬆️ Back to Top](#ellie-voice-receptionist---backend)** | **[📖 Main README](../README.md)** | **[⚛️ Frontend](../frontend/README.md)**
 
-**Maintained by**: Ellie Voice Receptionist Team  
+**Maintained by**: Alex Cinovoj, TechTide AI  
 **Version**: 1.0.0  
 **License**: MIT  
 **Last Updated**: December 2025
@@ -404,6 +404,6 @@ Use this checklist when creating or updating READMEs:
 
 ---
 
-**Maintained by**: Ellie Voice Receptionist Team  
+**Maintained by**: Alex Cinovoj, TechTide AI  
 **Version**: 1.0.0  
 **Last Updated**: December 2025

@@ -377,4 +377,4 @@ Check your GitHub Actions tab to see it in action.
 **Created:** December 13, 2025  
 **Commit:** 3e55ebc2  
 **Status:** ✅ LIVE  
-**Maintained By:** Ellie Voice Receptionist Team
+**Maintained By:** Alex Cinovoj, TechTide AI

@@ -468,9 +468,9 @@ npm run build
 
 ### Getting Help
 - 📖 **Documentation**: [../docs/](../docs/)
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-org/ellie/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-org/ellie/discussions)
-- 📧 **Email**: support@ellie.ai
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/Alexi5000/Ellie/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/Alexi5000/Ellie/discussions)
+- 📧 **Email**: alex@techtide.ai
 
 ### Quick Links
 - **[Main README](../README.md)** - Project overview
@@ -482,7 +482,7 @@ npm run build
 
 **[⬆️ Back to Top](#ellie-voice-receptionist---frontend)** | **[📖 Main README](../README.md)** | **[🔧 Backend](../backend/README.md)**
 
-**Maintained by**: Ellie Voice Receptionist Team  
+**Maintained by**: Alex Cinovoj, TechTide AI  
 **Version**: 1.0.0  
 **License**: MIT  
 **Last Updated**: December 2025

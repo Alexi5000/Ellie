@@ -241,5 +241,5 @@ See [README Standards](README_STANDARDS.md) for:
 ---
 
 **Last Updated**: October 2025  
-**Maintained By**: Ellie Voice Receptionist Team  
+**Maintained By**: Alex Cinovoj, TechTide AI  
 **Version**: 1.0.0

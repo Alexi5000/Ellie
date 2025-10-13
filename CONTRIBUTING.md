@@ -33,8 +33,8 @@ Thank you for your interest in contributing to Ellie Voice Receptionist! This do
 
 1. **Fork and Clone**
    ```bash
-   git clone https://github.com/your-username/ellie-voice-receptionist.git
-   cd ellie-voice-receptionist
+   git clone https://github.com/Alexi5000/Ellie.git
+   cd Ellie
    ```
 
 2. **Install Dependencies**

@@ -7,7 +7,7 @@ name = "ellie-voice-receptionist-fastapi"
 version = "1.0.0"
 description = "FastAPI Backend for Ellie Voice Receptionist AI Assistant"
 authors = [
-    {name = "Ellie Voice Receptionist Team", email = "team@ellie.ai"},
+    {name = "Alex Cinovoj, TechTide AI", email = "alex@techtide.ai"},
 ]
 dependencies = [
     "fastapi>=0.104.1",

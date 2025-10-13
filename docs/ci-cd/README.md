@@ -182,4 +182,4 @@ npm run test:frontend
 ---
 
 **Last Updated**: October 2025  
-**Maintained By**: Ellie Voice Receptionist Team
+**Maintained By**: Alex Cinovoj, TechTide AI

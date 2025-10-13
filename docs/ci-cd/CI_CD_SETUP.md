@@ -356,4 +356,4 @@ For help with CI/CD setup:
 ---
 
 **Last Updated:** December 2025  
-**Maintained By:** Ellie Voice Receptionist Team
+**Maintained By:** Alex Cinovoj, TechTide AI

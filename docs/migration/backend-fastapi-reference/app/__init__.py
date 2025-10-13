@@ -4,4 +4,4 @@ Enterprise-grade AI voice assistant with microservices architecture
 """
 
 __version__ = "1.0.0"
-__author__ = "Ellie Voice Receptionist Team"
+__author__ = "Alex Cinovoj, TechTide AI"
