@@ -10,7 +10,7 @@ echo "🚀 Starting Ellie Voice Receptionist Production Deployment"
 # Configuration
 DOMAIN=${DOMAIN:-"your-domain.com"}
 EMAIL=${EMAIL:-"admin@your-domain.com"}
-COMPOSE_FILE="docker-compose.prod.yml"
+COMPOSE_FILE="docker/docker-compose.prod.yml"
 
 # Colors for output
 RED='\033[0;31m'
@@ -58,24 +58,24 @@ setup_ssl() {
     log_info "Setting up SSL certificates..."
     
     # Create SSL directory structure
-    mkdir -p ssl/certs ssl/private
+    mkdir -p docker/ssl/certs docker/ssl/private
     
-    if [ ! -f "ssl/certs/${DOMAIN}.crt" ] || [ ! -f "ssl/private/${DOMAIN}.key" ]; then
+    if [ ! -f "docker/ssl/certs/${DOMAIN}.crt" ] || [ ! -f "docker/ssl/private/${DOMAIN}.key" ]; then
         log_warn "SSL certificates not found for domain: $DOMAIN"
         log_info "You can:"
         log_info "1. Use Let's Encrypt: certbot certonly --standalone -d $DOMAIN"
         log_info "2. Use self-signed certificates for testing:"
         log_info "   openssl req -x509 -nodes -days 365 -newkey rsa:2048 \\"
-        log_info "     -keyout ssl/private/${DOMAIN}.key \\"
-        log_info "     -out ssl/certs/${DOMAIN}.crt \\"
+        log_info "     -keyout docker/ssl/private/${DOMAIN}.key \\"
+        log_info "     -out docker/ssl/certs/${DOMAIN}.crt \\"
         log_info "     -subj \"/C=US/ST=State/L=City/O=Organization/CN=${DOMAIN}\""
         
         read -p "Generate self-signed certificate for testing? (y/N): " -n 1 -r
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]; then
             openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-                -keyout "ssl/private/${DOMAIN}.key" \
-                -out "ssl/certs/${DOMAIN}.crt" \
+                -keyout "docker/ssl/private/${DOMAIN}.key" \
+                -out "docker/ssl/certs/${DOMAIN}.crt" \
                 -subj "/C=US/ST=State/L=City/O=Ellie/CN=${DOMAIN}"
             log_info "Self-signed certificate generated"
         else
@@ -85,8 +85,8 @@ setup_ssl() {
     fi
     
     # Set proper permissions
-    chmod 600 ssl/private/*
-    chmod 644 ssl/certs/*
+    chmod 600 docker/ssl/private/*
+    chmod 644 docker/ssl/certs/*
     
     log_info "SSL certificates configured"
 }
@@ -168,7 +168,7 @@ show_status() {
     echo "  Metrics: http://localhost/metrics"
     echo "  Application: http://localhost"
     
-    if [ -f "ssl/certs/${DOMAIN}.crt" ]; then
+    if [ -f "docker/ssl/certs/${DOMAIN}.crt" ]; then
         echo "  HTTPS: https://$DOMAIN"
     fi
     

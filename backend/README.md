@@ -1,6 +1,31 @@
 # Ellie Voice Receptionist - Backend
 
-Node.js/Express backend API for the Ellie Voice Receptionist AI Assistant.
+> Node.js/Express backend API for the Ellie Voice Receptionist AI Assistant.
+
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
+[![Express](https://img.shields.io/badge/Express-4.18-lightgrey)](https://expressjs.com/)
+
+**[⬆️ Back to Main README](../README.md)** | **[📖 Documentation Hub](../docs/README.md)** | **[⚛️ Frontend README](../frontend/README.md)**
+
+## 📖 Table of Contents
+
+- [Architecture](#-architecture)
+- [Project Structure](#-project-structure)
+- [Quick Start](#-quick-start)
+- [Configuration](#-configuration)
+- [API Endpoints](#-api-endpoints)
+- [Testing](#-testing)
+- [Development](#-development)
+- [Key Services](#-key-services)
+- [Monitoring](#-monitoring)
+- [Security](#-security)
+- [Docker](#-docker)
+- [Performance](#-performance)
+- [Contributing](#-contributing)
+- [Documentation](#-documentation)
+- [Troubleshooting](#-troubleshooting)
+- [Support](#-support)
 
 ## 🏗️ Architecture
 
@@ -316,22 +341,34 @@ The Docker container includes a health check script (`healthcheck.js`) that veri
 
 ## 🤝 Contributing
 
+Please see the main [Contributing Guide](../CONTRIBUTING.md) for:
+- Development workflow
+- Coding standards
+- Testing requirements
+- Pull request process
+
+### Backend-Specific Guidelines
 1. Follow the existing code structure
-2. Add tests for new features
-3. Update documentation
-4. Run tests before committing
-5. Follow TypeScript best practices
+2. Add tests for new features (aim for 80%+ coverage)
+3. Update JSDoc comments for public APIs
+4. Run tests and linting before committing
+5. Follow TypeScript strict mode
 
 ## 📄 Documentation
 
-- **API Documentation**: See endpoint comments in route files
-- **Service Documentation**: See JSDoc comments in service files
-- **Test Documentation**: See `docs/testing/`
-- **Development Guide**: See `docs/development/`
+### Backend Documentation
+- **[API Endpoints](#-api-endpoints)** - This document
+- **[Service Documentation](#-key-services)** - This document
+- **[Test Guide](../docs/testing/BACKEND_TEST_ENVIRONMENT.md)** - Backend testing
 
-## 🔄 Migration Notes
+### Related Documentation
+- **[Main README](../README.md)** - Project overview
+- **[Frontend README](../frontend/README.md)** - Frontend documentation
+- **[Documentation Hub](../docs/README.md)** - All documentation
+- **[Development Tasks](../docs/development/DEVELOPMENT_TASKS.md)** - Current roadmap
 
-This is the primary active backend. A FastAPI (Python) migration experiment is archived in `docs/migration/backend-fastapi-reference/` for reference.
+### Migration Notes
+This is the primary active backend. A FastAPI (Python) migration experiment is archived in `../docs/migration/backend-fastapi-reference/` for reference.
 
 ## 🆘 Troubleshooting
 
@@ -367,12 +404,23 @@ redis-server
 
 ## 📞 Support
 
-- **Documentation**: Check `docs/` folder
-- **Issues**: Create GitHub issue
-- **Tests**: See `docs/testing/BACKEND_TEST_ENVIRONMENT.md`
+### Getting Help
+- 📖 **Documentation**: [../docs/](../docs/)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-org/ellie/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-org/ellie/discussions)
+- 📧 **Email**: support@ellie.ai
+
+### Quick Links
+- **[Main README](../README.md)** - Project overview
+- **[Frontend README](../frontend/README.md)** - Frontend documentation
+- **[Test Environment](../docs/testing/BACKEND_TEST_ENVIRONMENT.md)** - Testing setup
+- **[Contributing Guide](../CONTRIBUTING.md)** - How to contribute
 
 ---
 
+**[⬆️ Back to Top](#ellie-voice-receptionist---backend)** | **[📖 Main README](../README.md)** | **[⚛️ Frontend](../frontend/README.md)**
+
+**Maintained by**: Ellie Voice Receptionist Team  
 **Version**: 1.0.0  
 **License**: MIT  
-**Maintained By**: Ellie Voice Receptionist Team
+**Last Updated**: December 2025

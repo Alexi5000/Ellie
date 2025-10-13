@@ -12,7 +12,7 @@ describe('Production Deployment Tests', () => {
     
     // Verify production configuration files exist
     const requiredFiles = [
-      'docker-compose.prod.yml',
+      'docker/docker-compose.prod.yml',
       'docker/nginx-production.conf',
       'docker/server-common.conf',
       'backend/.env.production'
@@ -27,7 +27,7 @@ describe('Production Deployment Tests', () => {
 
   describe('Configuration Validation', () => {
     test('Production docker-compose should have proper configuration', () => {
-      const prodCompose = fs.readFileSync('docker-compose.prod.yml', 'utf8');
+      const prodCompose = fs.readFileSync('docker/docker-compose.prod.yml', 'utf8');
       
       // Check for production-specific configurations
       expect(prodCompose).toContain('target: production');
@@ -95,13 +95,13 @@ describe('Production Deployment Tests', () => {
           stdio: 'pipe'
         });
         
-        expect(fs.existsSync('ssl')).toBe(true);
-        expect(fs.existsSync('ssl/certs')).toBe(true);
-        expect(fs.existsSync('ssl/private')).toBe(true);
+        expect(fs.existsSync('docker/ssl')).toBe(true);
+        expect(fs.existsSync('docker/ssl/certs')).toBe(true);
+        expect(fs.existsSync('docker/ssl/private')).toBe(true);
         
         // Clean up test SSL files
-        if (fs.existsSync('ssl')) {
-          fs.rmSync('ssl', { recursive: true, force: true });
+        if (fs.existsSync('docker/ssl')) {
+          fs.rmSync('docker/ssl', { recursive: true, force: true });
         }
       } catch (error) {
         console.warn('SSL setup test skipped - OpenSSL may not be available:', error.message);
@@ -111,7 +111,7 @@ describe('Production Deployment Tests', () => {
 
   describe('Health Check Configuration', () => {
     test('Docker health checks should be properly configured', () => {
-      const prodCompose = fs.readFileSync('docker-compose.prod.yml', 'utf8');
+      const prodCompose = fs.readFileSync('docker/docker-compose.prod.yml', 'utf8');
       
       // Check for health check configurations
       expect(prodCompose).toContain('healthcheck:');
@@ -122,7 +122,7 @@ describe('Production Deployment Tests', () => {
     });
 
     test('Service dependencies should be properly configured', () => {
-      const prodCompose = fs.readFileSync('docker-compose.prod.yml', 'utf8');
+      const prodCompose = fs.readFileSync('docker/docker-compose.prod.yml', 'utf8');
       
       // Check for service dependencies with health conditions
       expect(prodCompose).toContain('depends_on:');
@@ -132,15 +132,15 @@ describe('Production Deployment Tests', () => {
 
   describe('Monitoring Configuration', () => {
     test('Prometheus configuration should exist', () => {
-      expect(fs.existsSync('monitoring/prometheus.yml')).toBe(true);
+      expect(fs.existsSync('docker/prometheus.yml')).toBe(true);
       
-      const prometheusConfig = fs.readFileSync('monitoring/prometheus.yml', 'utf8');
+      const prometheusConfig = fs.readFileSync('docker/prometheus.yml', 'utf8');
       expect(prometheusConfig).toContain('job_name:');
       expect(prometheusConfig).toContain('targets:');
     });
 
     test('Monitoring service should be configured in production compose', () => {
-      const prodCompose = fs.readFileSync('docker-compose.prod.yml', 'utf8');
+      const prodCompose = fs.readFileSync('docker/docker-compose.prod.yml', 'utf8');
       expect(prodCompose).toContain('monitoring:');
       expect(prodCompose).toContain('prom/prometheus');
     });
@@ -172,12 +172,12 @@ describe('Production Deployment Tests', () => {
   describe('Production Readiness', () => {
     test('All required production files should exist', () => {
       const requiredFiles = [
-        'docker-compose.prod.yml',
+        'docker/docker-compose.prod.yml',
         'docker/nginx-production.conf',
         'docker/server-common.conf',
         'docker/ssl-setup.sh',
         'docker/ssl-setup.ps1',
-        'monitoring/prometheus.yml'
+        'docker/prometheus.yml'
       ];
 
       requiredFiles.forEach(file => {

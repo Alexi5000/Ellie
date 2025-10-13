@@ -1,6 +1,22 @@
 # Ellie Voice Receptionist
 
-A sophisticated voice-enabled AI legal assistant built with modern web technologies and containerized deployment.
+> A sophisticated voice-enabled AI legal assistant built with modern web technologies and containerized deployment.
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
+
+## 📖 Table of Contents
+
+- [Quick Start](#-quick-start)
+- [Project Structure](#-project-structure)
+- [Architecture](#-architecture)
+- [Development](#-development)
+- [Testing](#-testing)
+- [Deployment](#-deployment)
+- [Documentation](#-documentation)
+- [Contributing](#-contributing)
+- [License](#-license)
 
 ## 🚀 Quick Start
 
@@ -128,12 +144,17 @@ npm run docker:test     # Test deployment
 
 ## 📚 Documentation
 
-- [📖 Documentation Index](docs/README.md) - Complete documentation overview
-- [🚀 Deployment Guide](docs/deployment.md) - Production deployment
-- [🔧 Development Setup](docs/development.md) - Local development
-- [🧪 Testing Guide](docs/testing/QUICK_TEST_GUIDE.md) - Quick test reference
-- [🏗️ Architecture](docs/architecture.md) - System architecture
-- [📋 Development Tasks](docs/development/DEVELOPMENT_TASKS.md) - Current roadmap
+### Core Documentation
+- **[📖 Documentation Hub](docs/README.md)** - Complete documentation index
+- **[🔧 Backend Guide](backend/README.md)** - Backend API documentation
+- **[⚛️ Frontend Guide](frontend/README.md)** - Frontend application documentation
+
+### Guides & References
+- **[🚀 Deployment Guide](docs/DEPLOYMENT.md)** - Production deployment
+- **[🧪 Testing Guide](docs/testing/QUICK_TEST_GUIDE.md)** - Quick test reference
+- **[🏗️ Architecture](docs/service-discovery.md)** - System architecture
+- **[📋 Development Tasks](docs/development/DEVELOPMENT_TASKS.md)** - Current roadmap
+- **[🤝 Contributing Guide](CONTRIBUTING.md)** - How to contribute
 
 ## 🔐 Environment Configuration
 
@@ -187,19 +208,32 @@ REACT_APP_SOCKET_URL=http://localhost:5000
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new functionality
-4. Ensure all tests pass
-5. Submit a pull request
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on:
+- Code of conduct
+- Development workflow
+- Coding standards
+- Pull request process
 
 ## 📄 License
 
-MIT License - see LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🆘 Support
+## 🆘 Support & Resources
 
-1. Check [documentation](docs/)
-2. Review [troubleshooting guide](docs/troubleshooting.md)
-3. Open a GitHub issue
-4. Contact the development team
+### Getting Help
+- 📖 **Documentation**: [docs/](docs/)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-org/ellie/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-org/ellie/discussions)
+- 📧 **Email**: support@ellie.ai
+
+### Related Documentation
+- [Backend README](backend/README.md) - Backend-specific documentation
+- [Frontend README](frontend/README.md) - Frontend-specific documentation
+- [Docker Setup](docker/) - Container orchestration
+- [Testing Guide](docs/testing/QUICK_TEST_GUIDE.md) - Testing documentation
+
+---
+
+**Maintained by**: Ellie Voice Receptionist Team  
+**Version**: 1.0.0  
+**Last Updated**: December 2025

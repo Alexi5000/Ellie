@@ -258,9 +258,9 @@ describe('Docker Integration Tests', () => {
 
     test('Production configuration validation', () => {
       // Verify production docker-compose exists and has proper settings
-      expect(fs.existsSync('docker-compose.prod.yml')).toBe(true);
+      expect(fs.existsSync('docker/docker-compose.prod.yml')).toBe(true);
       
-      const prodCompose = fs.readFileSync('docker-compose.prod.yml', 'utf8');
+      const prodCompose = fs.readFileSync('docker/docker-compose.prod.yml', 'utf8');
       expect(prodCompose).toContain('target: production');
       expect(prodCompose).toContain('restart: unless-stopped');
       expect(prodCompose).toContain('healthcheck:');
@@ -271,7 +271,7 @@ describe('Docker Integration Tests', () => {
       expect(fs.existsSync('backend/.env.production')).toBe(true);
       
       // Verify docker-compose has proper environment configuration
-      const devCompose = fs.readFileSync('docker-compose.yml', 'utf8');
+      const devCompose = fs.readFileSync('docker/docker-compose.yml', 'utf8');
       expect(devCompose).toContain('REACT_APP_API_URL');
       expect(devCompose).toContain('NODE_ENV');
       expect(devCompose).toContain('CORS_ORIGIN');
@@ -279,17 +279,17 @@ describe('Docker Integration Tests', () => {
 
     test('Volume mounts and data persistence', () => {
       // Check that docker-compose has proper volume configurations
-      const devCompose = fs.readFileSync('docker-compose.yml', 'utf8');
+      const devCompose = fs.readFileSync('docker/docker-compose.yml', 'utf8');
       expect(devCompose).toContain('volumes:');
       expect(devCompose).toContain('/app/node_modules');
       
       // Check nginx configuration volume mount
-      expect(devCompose).toContain('./docker/nginx.conf:/etc/nginx/nginx.conf:ro');
+      expect(devCompose).toContain('nginx.conf:/etc/nginx/nginx.conf:ro');
     });
 
     test('Service orchestration and dependencies', () => {
       // Verify service dependencies are properly configured
-      const devCompose = fs.readFileSync('docker-compose.yml', 'utf8');
+      const devCompose = fs.readFileSync('docker/docker-compose.yml', 'utf8');
       expect(devCompose).toContain('depends_on:');
       expect(devCompose).toContain('networks:');
       expect(devCompose).toContain('ellie-network');
@@ -297,9 +297,9 @@ describe('Docker Integration Tests', () => {
 
     test('Monitoring and observability setup', () => {
       // Check if monitoring configuration exists
-      expect(fs.existsSync('monitoring/prometheus.yml')).toBe(true);
+      expect(fs.existsSync('docker/prometheus.yml')).toBe(true);
       
-      const prometheusConfig = fs.readFileSync('monitoring/prometheus.yml', 'utf8');
+      const prometheusConfig = fs.readFileSync('docker/prometheus.yml', 'utf8');
       expect(prometheusConfig).toContain('job_name');
       expect(prometheusConfig).toContain('targets');
     });

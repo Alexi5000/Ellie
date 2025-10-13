@@ -1,6 +1,34 @@
 # Ellie Voice Receptionist - Frontend
 
-React/TypeScript frontend application for the Ellie Voice Receptionist AI Assistant.
+> React/TypeScript frontend application for the Ellie Voice Receptionist AI Assistant.
+
+[![React](https://img.shields.io/badge/React-18-blue)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
+[![Vite](https://img.shields.io/badge/Vite-5.0-purple)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.3-cyan)](https://tailwindcss.com/)
+
+**[⬆️ Back to Main README](../README.md)** | **[📖 Documentation Hub](../docs/README.md)** | **[🔧 Backend README](../backend/README.md)**
+
+## 📖 Table of Contents
+
+- [Architecture](#-architecture)
+- [Project Structure](#-project-structure)
+- [Quick Start](#-quick-start)
+- [Configuration](#-configuration)
+- [Key Components](#-key-components)
+- [Testing](#-testing)
+- [Development](#-development)
+- [Styling](#-styling)
+- [Internationalization](#-internationalization)
+- [Progressive Web App](#-progressive-web-app)
+- [Accessibility](#-accessibility)
+- [Security](#-security)
+- [Docker](#-docker)
+- [Performance](#-performance)
+- [Contributing](#-contributing)
+- [Documentation](#-documentation)
+- [Troubleshooting](#-troubleshooting)
+- [Support](#-support)
 
 ## 🏗️ Architecture
 
@@ -381,18 +409,32 @@ Target scores:
 
 ## 🤝 Contributing
 
-1. Follow React best practices
-2. Use TypeScript for type safety
-3. Add tests for new features
-4. Update documentation
-5. Follow accessibility guidelines
+Please see the main [Contributing Guide](../CONTRIBUTING.md) for:
+- Development workflow
+- Coding standards
+- Testing requirements
+- Pull request process
+
+### Frontend-Specific Guidelines
+1. Follow React best practices and hooks patterns
+2. Use TypeScript for type safety (strict mode)
+3. Add tests for new components (aim for 80%+ coverage)
+4. Update JSDoc comments for complex components
+5. Follow accessibility guidelines (WCAG 2.1 AA)
+6. Test on multiple browsers and devices
 
 ## 📄 Documentation
 
-- **Component Documentation**: JSDoc comments in components
-- **Test Documentation**: See `docs/testing/FRONTEND_TEST_ENVIRONMENT.md`
-- **PWA Documentation**: See `docs/testing/PWA_TESTING_SUMMARY.md`
-- **Development Guide**: See `docs/development/`
+### Frontend Documentation
+- **[Component Documentation](#-key-components)** - This document
+- **[Test Guide](../docs/testing/FRONTEND_TEST_ENVIRONMENT.md)** - Frontend testing
+- **[PWA Guide](../docs/testing/PWA_TESTING_SUMMARY.md)** - Progressive Web App
+
+### Related Documentation
+- **[Main README](../README.md)** - Project overview
+- **[Backend README](../backend/README.md)** - Backend documentation
+- **[Documentation Hub](../docs/README.md)** - All documentation
+- **[Development Tasks](../docs/development/DEVELOPMENT_TASKS.md)** - Current roadmap
 
 ## 🆘 Troubleshooting
 
@@ -424,12 +466,23 @@ npm run build
 
 ## 📞 Support
 
-- **Documentation**: Check `docs/` folder
-- **Issues**: Create GitHub issue
-- **Tests**: See `docs/testing/FRONTEND_TEST_ENVIRONMENT.md`
+### Getting Help
+- 📖 **Documentation**: [../docs/](../docs/)
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-org/ellie/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-org/ellie/discussions)
+- 📧 **Email**: support@ellie.ai
+
+### Quick Links
+- **[Main README](../README.md)** - Project overview
+- **[Backend README](../backend/README.md)** - Backend documentation
+- **[Test Environment](../docs/testing/FRONTEND_TEST_ENVIRONMENT.md)** - Testing setup
+- **[Contributing Guide](../CONTRIBUTING.md)** - How to contribute
 
 ---
 
+**[⬆️ Back to Top](#ellie-voice-receptionist---frontend)** | **[📖 Main README](../README.md)** | **[🔧 Backend](../backend/README.md)**
+
+**Maintained by**: Ellie Voice Receptionist Team  
 **Version**: 1.0.0  
 **License**: MIT  
-**Maintained By**: Ellie Voice Receptionist Team
+**Last Updated**: December 2025
