@@ -3,6 +3,14 @@ import { Header } from '../components/marketing/Header';
 import { Hero } from '../components/marketing/Hero';
 import { CodeTabs } from '../components/marketing/CodeTabs';
 import { startCallSnippets } from '../components/marketing/CodeTabs/codeSnippets';
+import { featuresData } from '../components/marketing/Features/FeaturesData';
+import { reliabilityMetrics } from '../components/marketing/Reliability/ReliabilityData';
+import {
+  sampleLogos,
+  kpiStats,
+  solutionsData,
+  explainerSteps,
+} from '../data/marketingData';
 
 // Lazy load below-the-fold components for better performance
 const LogosStrip = lazy(() => import('../components/marketing/LogosStrip').then(m => ({ default: m.LogosStrip })));
@@ -69,7 +77,7 @@ export const MarketingPage: React.FC = () => {
               <h2 className="text-2xl font-bold text-text-primary text-center mb-12">
                 Trusted by developers worldwide
               </h2>
-              <LogosStrip />
+              <LogosStrip logos={sampleLogos} />
             </div>
           </section>
         </Suspense>
@@ -78,7 +86,7 @@ export const MarketingPage: React.FC = () => {
           {/* KPI Statistics Section */}
           <section id="stats" className="py-16 px-4 sm:px-6 lg:px-8 bg-background-secondary">
             <div className="max-w-7xl mx-auto">
-              <KPIBand />
+              <KPIBand stats={kpiStats} />
             </div>
           </section>
         </Suspense>
@@ -87,15 +95,7 @@ export const MarketingPage: React.FC = () => {
           {/* Solutions Section */}
           <section id="solutions" className="py-20 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
-              <div className="text-center mb-12">
-                <h2 className="text-3xl sm:text-4xl font-bold text-text-primary mb-4">
-                  Solutions for every use case
-                </h2>
-                <p className="text-lg text-text-secondary">
-                  Whether you're handling inbound calls or making outbound connections
-                </p>
-              </div>
-              <Solutions />
+              <Solutions solutions={solutionsData} />
             </div>
           </section>
         </Suspense>
@@ -104,7 +104,7 @@ export const MarketingPage: React.FC = () => {
           {/* Explainer Section */}
           <section id="how-it-works" className="py-20 px-4 sm:px-6 lg:px-8 bg-background-secondary">
             <div className="max-w-7xl mx-auto">
-              <Explainer />
+              <Explainer headline="Try in minutes. Deploy in days." steps={explainerSteps} />
             </div>
           </section>
         </Suspense>
@@ -121,7 +121,7 @@ export const MarketingPage: React.FC = () => {
                   Powerful features that scale with your needs
                 </p>
               </div>
-              <Features />
+              <Features features={featuresData} />
             </div>
           </section>
         </Suspense>
@@ -138,7 +138,7 @@ export const MarketingPage: React.FC = () => {
                   Enterprise-grade infrastructure you can trust
                 </p>
               </div>
-              <Reliability />
+              <Reliability metrics={reliabilityMetrics} />
             </div>
           </section>
         </Suspense>

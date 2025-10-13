@@ -61,6 +61,7 @@ export const FeatureCard: React.FC<FeatureCardProps> = ({
       style={{
         animationDelay: `${delay}ms`,
         opacity: isVisible || prefersReducedMotion ? 1 : 0,
+        contain: 'layout style paint',
       }}
     >
       {/* Glow effect on hover */}

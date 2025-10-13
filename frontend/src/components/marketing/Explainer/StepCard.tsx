@@ -63,6 +63,7 @@ export const StepCard: React.FC<StepCardProps> = ({
       style={{
         animationDelay: isVisible ? animationDelay : '0ms',
         animationFillMode: 'both',
+        contain: 'layout style paint',
       }}
     >
       {/* Icon */}

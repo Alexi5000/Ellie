@@ -87,7 +87,10 @@ export const KPIStat: React.FC<KPIStatProps> = ({
   const formattedValue = formatNumber(displayValue, format, prefix, suffix);
 
   return (
-    <div className="flex flex-col items-center text-center">
+    <div 
+      className="flex flex-col items-center text-center"
+      style={{ contain: 'layout style paint' }}
+    >
       <div
         className="text-4xl sm:text-5xl md:text-6xl font-bold text-text-primary mb-2"
         aria-live="polite"
