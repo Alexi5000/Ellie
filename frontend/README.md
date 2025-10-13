@@ -470,7 +470,7 @@ npm run build
 - 📖 **Documentation**: [../docs/](../docs/)
 - 🐛 **Bug Reports**: [GitHub Issues](https://github.com/Alexi5000/Ellie/issues)
 - 💬 **Discussions**: [GitHub Discussions](https://github.com/Alexi5000/Ellie/discussions)
-- 📧 **Email**: alex@techtide.ai
+- 📧 **Email**: alex@techtideai.io
 
 ### Quick Links
 - **[Main README](../README.md)** - Project overview
