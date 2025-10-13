@@ -51,7 +51,6 @@
 
 - [x] 6. Build AnimatedOrb component with Framer Motion
 
-
   - Create AnimatedOrb component using Framer Motion
   - Implement mic-reactive visual feedback with spring animations
   - Add fallback for prefers-reduced-motion (static or minimal animation)
@@ -59,10 +58,7 @@
   - Create unit tests for AnimatedOrb
   - _Requirements: 3.7, 3.8, 3.9_
 
-- [-] 7. Create CodeTabs component with syntax highlighting
-
-
-
+- [x] 7. Create CodeTabs component with syntax highlighting
 
   - Build CodeTabs component with tab interface
   - Create tabs for TypeScript, Python, cURL, and React

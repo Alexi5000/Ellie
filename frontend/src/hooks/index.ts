@@ -9,3 +9,5 @@ export type { PWAState, PWAActions } from './usePWA';
 
 export { useTheme } from './useTheme';
 export { useReducedMotion } from './useReducedMotion';
+export { useClipboard } from './useClipboard';
+export type { UseClipboardReturn } from './useClipboard';

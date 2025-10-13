@@ -45,9 +45,12 @@ npm run docker:prod
 
 ```
 /
-├── backend/           # Node.js/Express API server
-├── frontend/          # React/TypeScript client
-├── docker/           # Docker configurations & scripts
+├── backend/           # Node.js/Express API server (TypeScript)
+├── frontend/          # React/TypeScript client application
+├── docker/            # Docker configurations & orchestration
+├── docs/              # Comprehensive documentation
+├── scripts/           # Build and deployment scripts
+├── tests/             # Integration tests
 ├── scripts/          # Build and deployment scripts
 ├── tests/            # Integration tests
 ├── docs/             # Documentation
@@ -122,12 +125,12 @@ npm run docker:test     # Test deployment
 
 ## 📚 Documentation
 
-- [📖 Full Documentation](docs/README.md)
-- [🚀 Deployment Guide](docs/deployment.md)
-- [🔍 Service Discovery](docs/service-discovery.md)
-- [🔧 Development Setup](docs/development.md)
-- [🧪 Testing Guide](docs/testing.md)
-- [🏗️ Architecture](docs/architecture.md)
+- [📖 Documentation Index](docs/README.md) - Complete documentation overview
+- [🚀 Deployment Guide](docs/deployment.md) - Production deployment
+- [🔧 Development Setup](docs/development.md) - Local development
+- [🧪 Testing Guide](docs/testing/QUICK_TEST_GUIDE.md) - Quick test reference
+- [🏗️ Architecture](docs/architecture.md) - System architecture
+- [📋 Development Tasks](docs/development/DEVELOPMENT_TASKS.md) - Current roadmap
 
 ## 🔐 Environment Configuration
 
