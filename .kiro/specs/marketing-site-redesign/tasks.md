@@ -111,7 +111,6 @@
 
 - [x] 11. Create Explainer component with step cards
 
-
   - Build Explainer component with headline "Try in minutes. Deploy in days."
   - Create StepCard component for individual steps
   - Add three cards: "Choose your workflow", "Plug it in", "Done"
@@ -122,10 +121,7 @@
   - Create unit tests for Explainer and StepCard
   - _Requirements: 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9_
 
-- [-] 12. Build Features component with grid layout
-
-
-
+- [x] 12. Build Features component with grid layout
 
   - Create Features component with responsive grid
   - Build FeatureCard component for individual features
@@ -137,7 +133,8 @@
   - Create unit tests for Features and FeatureCard
   - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 9.9, 9.10_
 
-- [ ] 13. Create Reliability component with proof-point cards
+- [x] 13. Create Reliability component with proof-point cards
+
 
   - Build Reliability component with horizontal card layout
   - Create MetricCard component for individual metrics
@@ -148,7 +145,10 @@
   - Create unit tests for Reliability and MetricCard
   - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8_
 
-- [ ] 14. Build Footer component with multi-column layout
+- [-] 14. Build Footer component with multi-column layout
+
+
+
 
   - Create Footer component with semantic HTML (<footer>, <nav>)
   - Build FooterColumn component for individual columns
