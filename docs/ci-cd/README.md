@@ -7,13 +7,8 @@ Complete documentation for the Ellie Voice Receptionist CI/CD pipeline powered b
 ### Core Documentation
 - **[CI/CD Pipeline](CI_CD_PIPELINE.md)** - Complete pipeline documentation
 - **[CI/CD Setup](CI_CD_SETUP.md)** - Setup and configuration guide
-- **[Quick Reference](QUICK_REFERENCE.md)** - Quick command reference
-
-### Status & Reports
 - **[CI/CD Status](CI_CD_STATUS.md)** - Current pipeline status
-- **[Test Report](CI_CD_TEST_REPORT.md)** - Detailed test results
-- **[Test Summary](CI_CD_TEST_SUMMARY.md)** - Quick test overview
-- **[Implementation Summary](CI_CD_IMPLEMENTATION_SUMMARY.md)** - Implementation details
+- **[Quick Reference](QUICK_REFERENCE.md)** - Quick command reference
 
 ## 🚀 Quick Start
 

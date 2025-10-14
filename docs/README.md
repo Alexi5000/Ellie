@@ -8,35 +8,30 @@ Welcome to the comprehensive documentation for the Ellie Voice Receptionist proj
 docs/
 ├── README.md                    # This file - documentation hub
 ├── ci-cd/                       # CI/CD pipeline documentation
+│   ├── README.md               # CI/CD hub
 │   ├── CI_CD_PIPELINE.md       # Complete pipeline documentation
 │   ├── CI_CD_SETUP.md          # Setup and configuration guide
 │   ├── CI_CD_STATUS.md         # Current pipeline status
-│   ├── CI_CD_TEST_REPORT.md    # Test results and analysis
-│   ├── CI_CD_TEST_SUMMARY.md   # Quick test summary
-│   ├── CI_CD_IMPLEMENTATION_SUMMARY.md  # Implementation details
 │   └── QUICK_REFERENCE.md      # Quick command reference
 ├── deployment/                  # Deployment documentation
 │   ├── DEPLOYMENT.md           # Production deployment guide
-│   ├── SSL_SETUP_GUIDE.md      # SSL certificate setup
-│   ├── SSL_VERIFICATION_REPORT.md  # SSL verification results
-│   └── DEPLOYMENT_VERIFICATION_REPORT.md  # Deployment verification
+│   └── SSL_SETUP_GUIDE.md      # SSL certificate setup
 ├── testing/                     # Testing documentation
 │   ├── QUICK_TEST_GUIDE.md     # Quick testing reference
 │   ├── TEST_ENVIRONMENT.md     # Test environment setup
 │   ├── BACKEND_TEST_ENVIRONMENT.md  # Backend testing
 │   ├── FRONTEND_TEST_ENVIRONMENT.md  # Frontend testing
-│   ├── INTEGRATION_TEST_REPORT.md  # Integration test results
-│   └── TEST_ENVIRONMENT_IMPROVEMENTS.md  # Test improvements
+│   ├── TEST_ENVIRONMENT_IMPROVEMENTS.md  # Test improvements
+│   └── MONITORING_TESTS_README.md  # Monitoring tests
 ├── development/                 # Development documentation
-│   ├── DEVELOPMENT_TASKS.md    # Current tasks and roadmap
-│   ├── MONITORING_IMPLEMENTATION_SUMMARY.md  # Monitoring setup
-│   └── LOGGERSERVICE_FIX_SUMMARY.md  # Logger service fixes
+│   └── DEVELOPMENT_TASKS.md    # Current tasks and roadmap
 ├── marketing-site/              # Marketing site documentation
 │   ├── README.md               # Marketing site overview
 │   ├── COMPONENT_API.md        # Component reference
 │   ├── THEME_SYSTEM.md         # Design system
 │   ├── ACCESSIBILITY_FEATURES.md  # Accessibility compliance
-│   └── DEPLOYMENT_GUIDE.md     # Marketing site deployment
+│   ├── DEPLOYMENT_GUIDE.md     # Marketing site deployment
+│   └── MARKETING_SITE_DOCUMENTATION.md  # Complete marketing docs
 ├── migration/                   # Migration documentation
 │   └── FASTAPI_MIGRATION_SUMMARY.md  # FastAPI migration reference
 ├── service-discovery.md         # Service discovery architecture
@@ -61,20 +56,16 @@ docs/
 - **Setup guide**: [CI/CD Setup](ci-cd/CI_CD_SETUP.md)
 - **Current status**: [CI/CD Status](ci-cd/CI_CD_STATUS.md)
 - **Quick commands**: [Quick Reference](ci-cd/QUICK_REFERENCE.md)
-- **Test results**: [Test Report](ci-cd/CI_CD_TEST_REPORT.md)
 
 ### 🧪 Testing
 - **Quick reference**: [Quick Test Guide](testing/QUICK_TEST_GUIDE.md)
 - **Test environment**: [Test Environment](testing/TEST_ENVIRONMENT.md)
 - **Backend tests**: [Backend Test Environment](testing/BACKEND_TEST_ENVIRONMENT.md)
 - **Frontend tests**: [Frontend Test Environment](testing/FRONTEND_TEST_ENVIRONMENT.md)
-- **Integration tests**: [Integration Test Report](testing/INTEGRATION_TEST_REPORT.md)
 
 ### 🚀 Deployment
 - **Production deployment**: [Deployment Guide](deployment/DEPLOYMENT.md)
 - **SSL setup**: [SSL Setup Guide](deployment/SSL_SETUP_GUIDE.md)
-- **SSL verification**: [SSL Verification Report](deployment/SSL_VERIFICATION_REPORT.md)
-- **Deployment verification**: [Deployment Verification](deployment/DEPLOYMENT_VERIFICATION_REPORT.md)
 
 ### 🎨 Marketing Site
 - **Overview**: [Marketing Site README](marketing-site/README.md)
@@ -112,20 +103,12 @@ docs/
    - [SSL Setup](deployment/SSL_SETUP_GUIDE.md) - SSL configuration
    - [Service Discovery](service-discovery.md) - Service architecture
 
-3. **Monitoring**
-   - [Monitoring Implementation](development/MONITORING_IMPLEMENTATION_SUMMARY.md)
-   - [Service Discovery](service-discovery.md) - Health monitoring
-
 ### For QA
 1. **Testing**
    - [Quick Test Guide](testing/QUICK_TEST_GUIDE.md) - Quick reference
    - [Test Environment](testing/TEST_ENVIRONMENT.md) - Environment setup
-   - [Integration Tests](testing/INTEGRATION_TEST_REPORT.md) - Test results
-
-2. **Test environments**
    - [Backend Testing](testing/BACKEND_TEST_ENVIRONMENT.md)
    - [Frontend Testing](testing/FRONTEND_TEST_ENVIRONMENT.md)
-   - [Test Improvements](testing/TEST_ENVIRONMENT_IMPROVEMENTS.md)
 
 ### For Product/Design
 1. **Marketing site**
@@ -151,7 +134,6 @@ docs/
 **Testing**
 - [Quick Test Guide](testing/QUICK_TEST_GUIDE.md) - Fast reference
 - [Test Environment](testing/TEST_ENVIRONMENT.md) - Setup guide
-- [Integration Tests](testing/INTEGRATION_TEST_REPORT.md) - Test results
 
 **CI/CD**
 - [CI/CD Pipeline](ci-cd/CI_CD_PIPELINE.md) - Complete documentation
@@ -161,7 +143,6 @@ docs/
 **Deployment**
 - [Deployment Guide](deployment/DEPLOYMENT.md) - Production deployment
 - [SSL Setup](deployment/SSL_SETUP_GUIDE.md) - SSL configuration
-- [Verification](deployment/DEPLOYMENT_VERIFICATION_REPORT.md) - Verification
 
 ## 📊 Documentation Status
 
@@ -174,7 +155,6 @@ docs/
 | Development Guides | ✅ Current | October 2025 |
 | Marketing Site Docs | ✅ Current | October 2025 |
 | Architecture Docs | ✅ Current | October 2025 |
-| API Reference | 🚧 In Progress | - |
 
 ## 📝 Documentation Standards
 
@@ -188,8 +168,7 @@ docs/
 ### Document Types
 - **Guides** - Step-by-step instructions (e.g., DEPLOYMENT.md)
 - **References** - Technical specifications (e.g., COMPONENT_API.md)
-- **Reports** - Status and results (e.g., CI_CD_TEST_REPORT.md)
-- **Summaries** - Quick overviews (e.g., CI_CD_TEST_SUMMARY.md)
+- **Standards** - Documentation conventions (e.g., README_STANDARDS.md)
 
 ### Maintenance
 See [README Standards](README_STANDARDS.md) for:
