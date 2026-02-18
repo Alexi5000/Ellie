@@ -1,23 +1,57 @@
-# Ellie Voice Receptionist
+<div align="center">
 
-> A sophisticated voice-enabled AI legal assistant built with modern web technologies, comprehensive CI/CD pipeline, and containerized deployment.
+<img src="assets/icon.png" alt="Ellie Logo" width="120" />
+
+# Ellie
+
+### The AI Voice Receptionist for Law Firms
+
+**Ellie answers calls, qualifies leads, schedules consultations, and handles client intake — so your attorneys can focus on practicing law.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen)](https://nodejs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
-[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF)](https://github.com/features/actions)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18-61dafb?logo=react)](https://react.dev/)
+[![Node.js](https://img.shields.io/badge/Node.js-18+-339933?logo=nodedotjs)](https://nodejs.org/)
+[![OpenAI](https://img.shields.io/badge/OpenAI-Voice%20AI-412991?logo=openai)](https://openai.com)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ed?logo=docker)](https://docker.com)
 
-## 📖 Table of Contents
+[Features](#features) · [Quick Start](#-quick-start) · [Architecture](#-architecture) · [Deployment](#-deployment) · [Docs](#-documentation)
 
-- [Quick Start](#-quick-start)
-- [Project Structure](#-project-structure)
-- [Architecture](#-architecture)
-- [Development](#-development)
-- [Testing](#-testing)
-- [CI/CD Pipeline](#-cicd-pipeline)
-- [Deployment](#-deployment)
-- [Documentation](#-documentation)
-- [Contributing](#-contributing)
+---
+
+<img src="assets/cover.png" alt="Ellie - AI Voice Receptionist" width="100%" />
+
+</div>
+
+---
+
+## The Problem
+
+Law firms lose thousands of dollars every month from missed calls, slow response times, and inefficient client intake. Hiring a full-time receptionist costs $35K–$50K/year, and after-hours calls go straight to voicemail. Potential clients don't leave voicemails — they call the next firm.
+
+## The Solution
+
+Ellie is an **AI-powered voice receptionist** built specifically for legal firms. She answers every call 24/7, qualifies leads with intelligent conversation, schedules consultations, handles client intake forms, and routes urgent matters to the right attorney. Full voice AI with natural conversation, multi-language support, and a beautiful dashboard for your team.
+
+> *A potential client calls at 9 PM about a car accident. Ellie answers, gathers case details, qualifies the lead, schedules a morning consultation, and sends the attorney a briefing — all before the client hangs up.*
+
+---
+
+## Features
+
+- **Voice AI Receptionist** — Natural conversation powered by OpenAI and Groq
+- **24/7 Availability** — Never miss a call, even after hours
+- **Lead Qualification** — Intelligent screening based on practice area and case type
+- **Client Intake** — Automated intake forms completed during the call
+- **Appointment Scheduling** — Book consultations directly into your calendar
+- **Call Transcripts** — Full conversation logs with AI-generated summaries
+- **Multi-Language** — i18n support for diverse client bases
+- **Team Dashboard** — Real-time call monitoring, analytics, and client management
+- **Service Discovery** — Microservice architecture with health monitoring
+- **Docker Deployment** — Production-ready with Nginx, SSL, and Docker Compose
+- **CI/CD Pipeline** — Automated testing and deployment via GitHub Actions
+
+---
 
 ## 🚀 Quick Start
 
