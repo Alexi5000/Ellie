@@ -1,20 +1,79 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { publicProcedure, router } from "./_core/trpc";
 import { invokeLLM } from "./_core/llm";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { storagePut } from "./storage";
 import {
-  createVideo, getVideoById, getUserVideos, updateVideoStatus,
+  createVideo, getVideoById, updateVideoStatus,
   createAnalysisResults, getVideoAnalysisResults,
-  createConversation, getVideoConversation,
-  addMessage, getConversationMessages,
 } from "./db";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { nanoid } from "nanoid";
 
+/* ════════════════════════════════════════════════════════════════
+   SECURITY CONSTANTS
+   ════════════════════════════════════════════════════════════════ */
+const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
+const MAX_AUDIO_SIZE = 16 * 1024 * 1024;  // 16MB
+const MAX_MESSAGE_LENGTH = 2000;
+const MAX_FILENAME_LENGTH = 255;
+const ALLOWED_VIDEO_MIMES = ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo", "video/avi"];
+const ALLOWED_AUDIO_MIMES = ["audio/webm", "audio/mp3", "audio/wav", "audio/ogg", "audio/m4a", "audio/mpeg"];
+
+/* ════════════════════════════════════════════════════════════════
+   RATE LIMITING (in-memory, per-IP)
+   ════════════════════════════════════════════════════════════════ */
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+
+function checkRateLimit(ip: string, maxRequests: number, windowMs: number): void {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + windowMs });
+    return;
+  }
+
+  if (entry.count >= maxRequests) {
+    throw new TRPCError({
+      code: "TOO_MANY_REQUESTS",
+      message: "Too many requests. Please wait a moment and try again.",
+    });
+  }
+
+  entry.count++;
+}
+
+// Cleanup stale entries every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  const keysToDelete: string[] = [];
+  rateLimitMap.forEach((entry, key) => {
+    if (now > entry.resetAt) keysToDelete.push(key);
+  });
+  keysToDelete.forEach(key => rateLimitMap.delete(key));
+}, 5 * 60 * 1000);
+
+/* ════════════════════════════════════════════════════════════════
+   INPUT SANITIZATION
+   ════════════════════════════════════════════════════════════════ */
+function sanitizeFilename(name: string): string {
+  return name
+    .replace(/[^\w\s.\-()]/g, "")
+    .replace(/\s+/g, "_")
+    .slice(0, MAX_FILENAME_LENGTH);
+}
+
+function sanitizeMessage(msg: string): string {
+  return msg.trim().slice(0, MAX_MESSAGE_LENGTH);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ROUTER — ALL PUBLIC, NO AUTH REQUIRED
+   ════════════════════════════════════════════════════════════════ */
 export const appRouter = router({
   system: systemRouter,
   auth: router({
@@ -27,67 +86,92 @@ export const appRouter = router({
   }),
 
   /* ════════════════════════════════════════════════════════════════
-     VIDEO MANAGEMENT
+     VIDEO MANAGEMENT — Public, anonymous uploads
      ════════════════════════════════════════════════════════════════ */
   video: router({
-    /** Upload a video — receives base64 data, stores to S3, creates DB record */
-    upload: protectedProcedure
+    upload: publicProcedure
       .input(z.object({
-        filename: z.string(),
-        mimeType: z.string(),
-        data: z.string(), // base64
-        fileSize: z.number(),
+        filename: z.string().min(1).max(MAX_FILENAME_LENGTH),
+        mimeType: z.string().min(1).max(100),
+        data: z.string().min(1), // base64
+        fileSize: z.number().int().positive().max(MAX_VIDEO_SIZE),
       }))
       .mutation(async ({ input, ctx }) => {
+        // Rate limit: 10 uploads per 10 minutes per IP
+        const ip = ctx.req.ip || ctx.req.socket.remoteAddress || "unknown";
+        checkRateLimit(`upload:${ip}`, 10, 10 * 60 * 1000);
+
+        // Validate MIME type
+        if (!ALLOWED_VIDEO_MIMES.includes(input.mimeType)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Unsupported video format. Please use MP4, WebM, MOV, or AVI.",
+          });
+        }
+
+        // Validate base64 data size matches declared fileSize (within tolerance)
         const buffer = Buffer.from(input.data, "base64");
-        const fileKey = `videos/${ctx.user.id}/${nanoid()}-${input.filename}`;
+        if (buffer.length > MAX_VIDEO_SIZE) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Video file is too large. Maximum size is 100MB.",
+          });
+        }
+
+        const safeFilename = sanitizeFilename(input.filename);
+        const sessionId = nanoid(12);
+        const fileKey = `videos/anon-${sessionId}/${nanoid()}-${safeFilename}`;
 
         // Upload to S3
         const { url } = await storagePut(fileKey, buffer, input.mimeType);
 
-        // Create DB record
+        // Create DB record — anonymous (userId = 0)
         const videoId = await createVideo({
-          userId: ctx.user.id,
-          title: input.filename.replace(/\.[^.]+$/, ""),
-          originalFilename: input.filename,
+          userId: 0,
+          title: safeFilename.replace(/\.[^.]+$/, ""),
+          originalFilename: safeFilename,
           storageKey: fileKey,
           storageUrl: url,
           mimeType: input.mimeType,
-          fileSize: input.fileSize,
+          fileSize: buffer.length,
           status: "processing",
         });
 
         return { videoId, url };
       }),
 
-    /** Get a specific video */
-    get: protectedProcedure
-      .input(z.object({ id: z.number() }))
+    get: publicProcedure
+      .input(z.object({ id: z.number().int().positive() }))
       .query(async ({ input }) => {
         const video = await getVideoById(input.id);
         if (!video) throw new TRPCError({ code: "NOT_FOUND", message: "Video not found" });
-        return video;
+        // Strip internal fields
+        return {
+          id: video.id,
+          title: video.title,
+          storageUrl: video.storageUrl,
+          mimeType: video.mimeType,
+          duration: video.duration,
+          status: video.status,
+        };
       }),
-
-    /** List user's videos */
-    list: protectedProcedure.query(async ({ ctx }) => {
-      return getUserVideos(ctx.user.id);
-    }),
   }),
 
   /* ════════════════════════════════════════════════════════════════
-     AI ANALYSIS
+     AI ANALYSIS — Public, rate-limited
      ════════════════════════════════════════════════════════════════ */
   analysis: router({
-    /** Analyze a video using multimodal LLM */
-    analyze: protectedProcedure
-      .input(z.object({ videoId: z.number() }))
-      .mutation(async ({ input }) => {
+    analyze: publicProcedure
+      .input(z.object({ videoId: z.number().int().positive() }))
+      .mutation(async ({ input, ctx }) => {
+        // Rate limit: 5 analyses per 10 minutes per IP
+        const ip = ctx.req.ip || ctx.req.socket.remoteAddress || "unknown";
+        checkRateLimit(`analyze:${ip}`, 5, 10 * 60 * 1000);
+
         const video = await getVideoById(input.videoId);
         if (!video) throw new TRPCError({ code: "NOT_FOUND", message: "Video not found" });
 
         try {
-          // Call LLM with video file for multimodal analysis
           const response = await invokeLLM({
             messages: [
               {
@@ -149,14 +233,13 @@ Be thorough, specific, and precise with timestamps.`,
 
           const content = response.choices[0]?.message?.content;
           if (!content || typeof content !== "string") {
-            throw new Error("Empty LLM response");
+            throw new Error("Empty response from analysis service");
           }
 
           const parsed = JSON.parse(content);
           const analysisData = parsed.results || [];
           const duration = parsed.duration || 0;
 
-          // Save results to DB
           if (analysisData.length > 0) {
             await createAnalysisResults(
               analysisData.map((r: { type: string; timestamp: number; content: string; confidence: number }) => ({
@@ -169,67 +252,48 @@ Be thorough, specific, and precise with timestamps.`,
             );
           }
 
-          // Update video status
           await updateVideoStatus(input.videoId, "ready", duration);
 
           return { results: analysisData, duration };
-        } catch (error) {
-          console.error("[Analysis] Failed:", error);
+        } catch (_) {
           await updateVideoStatus(input.videoId, "error");
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
-            message: error instanceof Error ? error.message : "Analysis failed",
+            message: "Video analysis failed. Please try again.",
           });
         }
       }),
 
-    /** Get analysis results for a video */
-    results: protectedProcedure
-      .input(z.object({ videoId: z.number() }))
+    results: publicProcedure
+      .input(z.object({ videoId: z.number().int().positive() }))
       .query(async ({ input }) => {
         return getVideoAnalysisResults(input.videoId);
       }),
   }),
 
   /* ════════════════════════════════════════════════════════════════
-     CHAT / CONVERSATION
+     CHAT — Public, anonymous, rate-limited, no DB persistence
+     All chat context is sent from the client (browser-only memory)
      ════════════════════════════════════════════════════════════════ */
   chat: router({
-    /** Send a message and get AI response about the video */
-    send: protectedProcedure
+    send: publicProcedure
       .input(z.object({
-        videoId: z.number(),
-        message: z.string(),
-        messageType: z.enum(["text", "voice"]).default("text"),
+        videoId: z.number().int().positive(),
+        message: z.string().min(1).max(MAX_MESSAGE_LENGTH),
+        chatHistory: z.array(z.object({
+          role: z.enum(["user", "assistant"]),
+          content: z.string().max(MAX_MESSAGE_LENGTH * 2),
+        })).max(40).default([]),
       }))
       .mutation(async ({ input, ctx }) => {
+        // Rate limit: 30 messages per 5 minutes per IP
+        const ip = ctx.req.ip || ctx.req.socket.remoteAddress || "unknown";
+        checkRateLimit(`chat:${ip}`, 30, 5 * 60 * 1000);
+
         const video = await getVideoById(input.videoId);
         if (!video) throw new TRPCError({ code: "NOT_FOUND", message: "Video not found" });
 
-        // Get or create conversation
-        let conversation = await getVideoConversation(input.videoId, ctx.user.id);
-        let conversationId: number;
-
-        if (!conversation) {
-          conversationId = await createConversation({
-            videoId: input.videoId,
-            userId: ctx.user.id,
-            title: video.title,
-          });
-        } else {
-          conversationId = conversation.id;
-        }
-
-        // Save user message
-        await addMessage({
-          conversationId,
-          role: "user",
-          content: input.message,
-          messageType: input.messageType,
-        });
-
-        // Get conversation history for context
-        const history = await getConversationMessages(conversationId);
+        const sanitizedMessage = sanitizeMessage(input.message);
 
         // Get analysis results for context
         const analysisData = await getVideoAnalysisResults(input.videoId);
@@ -237,7 +301,7 @@ Be thorough, specific, and precise with timestamps.`,
           `[${r.type}@${r.timestamp}s] ${r.content}`
         ).join("\n");
 
-        // Build messages for LLM
+        // Build messages for LLM — chat history comes from browser (ephemeral)
         const llmMessages = [
           {
             role: "system" as const,
@@ -254,67 +318,78 @@ Guidelines:
 - If uncertain, say so honestly
 - Remember previous messages in the conversation`,
           },
-          ...history.slice(-20).map(m => ({
+          ...input.chatHistory.slice(-20).map(m => ({
             role: m.role as "user" | "assistant",
             content: m.content,
           })),
+          {
+            role: "user" as const,
+            content: sanitizedMessage,
+          },
         ];
 
-        // Get AI response
-        const response = await invokeLLM({ messages: llmMessages });
-        const aiContent = typeof response.choices[0]?.message?.content === "string"
-          ? response.choices[0].message.content
-          : "I'm sorry, I couldn't process that request. Could you try rephrasing?";
+        try {
+          const response = await invokeLLM({ messages: llmMessages });
+          const aiContent = typeof response.choices[0]?.message?.content === "string"
+            ? response.choices[0].message.content
+            : "I'm sorry, I couldn't process that request. Could you try rephrasing?";
 
-        // Save AI response
-        await addMessage({
-          conversationId,
-          role: "assistant",
-          content: aiContent,
-          messageType: "text",
-        });
-
-        return {
-          id: Date.now().toString(),
-          role: "assistant" as const,
-          content: aiContent,
-          timestamp: new Date(),
-        };
-      }),
-
-    /** Get conversation history for a video */
-    history: protectedProcedure
-      .input(z.object({ videoId: z.number() }))
-      .query(async ({ input, ctx }) => {
-        const conversation = await getVideoConversation(input.videoId, ctx.user.id);
-        if (!conversation) return [];
-        return getConversationMessages(conversation.id);
+          return {
+            id: nanoid(),
+            role: "assistant" as const,
+            content: aiContent,
+            timestamp: new Date(),
+          };
+        } catch (_) {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to generate response. Please try again.",
+          });
+        }
       }),
   }),
 
   /* ════════════════════════════════════════════════════════════════
-     VOICE TRANSCRIPTION
+     VOICE TRANSCRIPTION — Public, rate-limited
      ════════════════════════════════════════════════════════════════ */
   voice: router({
-    /** Upload audio and transcribe it */
-    transcribe: protectedProcedure
+    transcribe: publicProcedure
       .input(z.object({
-        audioData: z.string(), // base64
+        audioData: z.string().min(1),
         mimeType: z.string().default("audio/webm"),
       }))
       .mutation(async ({ input, ctx }) => {
-        // Upload audio to S3 first
+        // Rate limit: 20 transcriptions per 5 minutes per IP
+        const ip = ctx.req.ip || ctx.req.socket.remoteAddress || "unknown";
+        checkRateLimit(`voice:${ip}`, 20, 5 * 60 * 1000);
+
+        // Validate MIME type
+        if (!ALLOWED_AUDIO_MIMES.includes(input.mimeType)) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Unsupported audio format.",
+          });
+        }
+
         const buffer = Buffer.from(input.audioData, "base64");
-        const fileKey = `audio/${ctx.user.id}/${nanoid()}.webm`;
+
+        // Validate size
+        if (buffer.length > MAX_AUDIO_SIZE) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Audio file is too large. Maximum size is 16MB.",
+          });
+        }
+
+        const fileKey = `audio/anon-${nanoid(8)}/${nanoid()}.webm`;
         const { url } = await storagePut(fileKey, buffer, input.mimeType);
 
-        // Transcribe
         const result = await transcribeAudio({ audioUrl: url, language: "en" });
 
         if ("error" in result) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: result.error,
+            message: "Transcription failed. Please try again.",
           });
         }
 

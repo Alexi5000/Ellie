@@ -2,12 +2,10 @@
  * DESIGN: Neural Noir — Cinematic Intelligence
  * The main analysis workspace: video upload, playback, AI chat, and analysis panels
  * Split-panel asymmetric layout with frosted glass panels
- * FULLY CONNECTED to tRPC backend — real AI analysis, real chat, real voice
+ * FULLY PUBLIC — no auth required, all data ephemeral in browser
  */
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useLocation } from "wouter";
-import { useAuth } from "@/_core/hooks/useAuth";
-import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -117,7 +115,7 @@ function UploadZone({ onUpload, isUploading }: { onUpload: (file: File) => void;
               <img src={VIDEO_UPLOAD_IMG} alt="" className="w-32 h-32 mx-auto opacity-60 rounded-xl" />
             </div>
             <h3 className="font-display text-xl font-semibold text-foreground mb-2">Drop your video here</h3>
-            <p className="text-sm text-muted-foreground mb-6">or click to browse — MP4, MOV, AVI, WebM supported</p>
+            <p className="text-sm text-muted-foreground mb-6">or click to browse — MP4, MOV, AVI, WebM supported (max 100MB)</p>
             <Button variant="outline" className="border-amber/30 text-amber hover:bg-amber/10">
               <Upload className="w-4 h-4 mr-2" />
               Choose File
@@ -271,7 +269,7 @@ function AnalysisPanel({ results, isAnalyzing }: { results: AnalysisResultItem[]
   );
 }
 
-/* ── Chat Interface ── */
+/* ── Chat Interface — browser-only memory, no server persistence ── */
 function ChatInterface({ videoId, messages, setMessages }: {
   videoId: number;
   messages: ChatMessage[];
@@ -302,29 +300,36 @@ function ChatInterface({ videoId, messages, setMessages }: {
       timestamp: new Date(),
       type,
     };
-    setMessages(prev => [...prev, userMsg]);
-    setIsThinking(true);
+    setMessages(prev => {
+      const updated = [...prev, userMsg];
 
-    try {
-      const response = await chatMutation.mutateAsync({
+      // Send to backend with chat history from browser state (ephemeral)
+      const chatHistory = updated
+        .filter(m => m.role === "user" || m.role === "assistant")
+        .slice(-20)
+        .map(m => ({ role: m.role, content: m.content }));
+
+      setIsThinking(true);
+      chatMutation.mutateAsync({
         videoId,
         message: content.trim(),
-        messageType: type,
+        chatHistory,
+      }).then(response => {
+        const aiMsg: ChatMessage = {
+          id: response.id,
+          role: "assistant",
+          content: response.content,
+          timestamp: new Date(response.timestamp),
+        };
+        setMessages(p => [...p, aiMsg]);
+      }).catch(() => {
+        toast.error("Failed to get response. Please try again.");
+      }).finally(() => {
+        setIsThinking(false);
       });
 
-      const aiMsg: ChatMessage = {
-        id: response.id,
-        role: "assistant",
-        content: response.content,
-        timestamp: new Date(response.timestamp),
-      };
-      setMessages(prev => [...prev, aiMsg]);
-    } catch (error) {
-      toast.error("Failed to get response. Please try again.");
-      console.error("[Chat] Error:", error);
-    } finally {
-      setIsThinking(false);
-    }
+      return updated;
+    });
   }, [videoId, chatMutation, setMessages]);
 
   const handleSend = () => {
@@ -447,7 +452,7 @@ function ChatInterface({ videoId, messages, setMessages }: {
             <VoiceWaveform active={isRecording} />
             <button
               onClick={isRecording ? stopRecording : startRecording}
-              className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-300 ${
+              className={`p-3 rounded-full transition-all ${
                 isRecording ? 'bg-red-500/20 text-red-400 pulse-ring' : 'bg-amber/10 text-amber hover:bg-amber/20'
               }`}
             >
@@ -478,11 +483,10 @@ function ChatInterface({ videoId, messages, setMessages }: {
 }
 
 /* ════════════════════════════════════════════════════════════════
-   MAIN WORKSPACE
+   MAIN WORKSPACE — Fully public, no auth, ephemeral browser state
    ════════════════════════════════════════════════════════════════ */
 export default function AnalysisWorkspace() {
   const [, navigate] = useLocation();
-  const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [videoId, setVideoId] = useState<number | null>(null);
@@ -496,21 +500,30 @@ export default function AnalysisWorkspace() {
   const uploadMutation = trpc.video.upload.useMutation();
   const analyzeMutation = trpc.analysis.analyze.useMutation();
 
-  // Redirect to login if not authenticated
+  // Cleanup object URL on unmount
   useEffect(() => {
-    if (!authLoading && !isAuthenticated) {
-      window.location.href = getLoginUrl();
-    }
-  }, [authLoading, isAuthenticated]);
+    return () => {
+      if (videoUrl) URL.revokeObjectURL(videoUrl);
+    };
+  }, [videoUrl]);
 
   const handleUpload = useCallback(async (file: File) => {
+    // Client-side validation
+    if (file.size > 100 * 1024 * 1024) {
+      toast.error("Video is too large. Maximum size is 100MB.");
+      return;
+    }
+    if (!file.type.startsWith("video/")) {
+      toast.error("Please upload a video file.");
+      return;
+    }
+
     setVideoFile(file);
     const localUrl = URL.createObjectURL(file);
     setVideoUrl(localUrl);
     setIsUploading(true);
 
     try {
-      // Convert file to base64
       const reader = new FileReader();
       const base64Promise = new Promise<string>((resolve) => {
         reader.onloadend = () => {
@@ -521,9 +534,8 @@ export default function AnalysisWorkspace() {
       reader.readAsDataURL(file);
       const base64Data = await base64Promise;
 
-      toast.info("Uploading video to cloud...");
+      toast.info("Uploading video...");
 
-      // Upload to server
       const uploadResult = await uploadMutation.mutateAsync({
         filename: file.name,
         mimeType: file.type,
@@ -534,7 +546,6 @@ export default function AnalysisWorkspace() {
       setVideoId(uploadResult.videoId);
       toast.success("Upload complete! Starting AI analysis...");
 
-      // Start analysis
       setIsUploading(false);
       setIsAnalyzing(true);
       const startTime = Date.now();
@@ -551,21 +562,12 @@ export default function AnalysisWorkspace() {
 
       setIsAnalyzing(false);
       toast.success("Analysis complete!", { description: `${analysisResult.results?.length || 0} insights extracted` });
-    } catch (error) {
-      console.error("[Upload] Error:", error);
+    } catch {
       setIsUploading(false);
       setIsAnalyzing(false);
       toast.error("Upload or analysis failed. Please try again.");
     }
   }, [uploadMutation, analyzeMutation]);
-
-  if (authLoading) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-background">
-        <Loader2 className="w-8 h-8 text-amber animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="h-screen flex flex-col bg-background overflow-hidden">
@@ -598,11 +600,6 @@ export default function AnalysisWorkspace() {
             <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-secondary/50">
               <Zap className="w-3 h-3 text-amber" />
               <span className="text-[10px] font-mono text-muted-foreground">{(responseTime / 1000).toFixed(1)}s</span>
-            </div>
-          )}
-          {user && (
-            <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-secondary/50">
-              <span className="text-[10px] font-mono text-muted-foreground">{user.name || user.email || 'User'}</span>
             </div>
           )}
         </div>

@@ -8,37 +8,31 @@ interface Props {
 
 interface State {
   hasError: boolean;
-  error: Error | null;
 }
 
 class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error };
+  static getDerivedStateFromError(): State {
+    return { hasError: true };
   }
 
   render() {
     if (this.state.hasError) {
       return (
         <div className="flex items-center justify-center min-h-screen p-8 bg-background">
-          <div className="flex flex-col items-center w-full max-w-2xl p-8">
+          <div className="flex flex-col items-center w-full max-w-md p-8 text-center">
             <AlertTriangle
               size={48}
               className="text-destructive mb-6 flex-shrink-0"
             />
-
-            <h2 className="text-xl mb-4">An unexpected error occurred.</h2>
-
-            <div className="p-4 w-full rounded bg-muted overflow-auto mb-6">
-              <pre className="text-sm text-muted-foreground whitespace-break-spaces">
-                {this.state.error?.stack}
-              </pre>
-            </div>
-
+            <h2 className="text-xl mb-2 text-foreground">Something went wrong</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              An unexpected error occurred. Please reload the page to try again.
+            </p>
             <button
               onClick={() => window.location.reload()}
               className={cn(
