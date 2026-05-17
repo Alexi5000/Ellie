@@ -8,6 +8,7 @@
     "lint": "cd .. && npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 check",
     "type-check": "cd .. && npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 check",
     "test": "cd .. && npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 test",
-    "build": "cd .. && npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 build"
+    "build": "cd .. && npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 build",
+    "format:check": "npx --yes prettier@3.6.2 --check package.json"
   }
 }
