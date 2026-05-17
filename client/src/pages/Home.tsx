@@ -140,6 +140,7 @@ export default function Home() {
               <a href="#capabilities" className="text-sm text-muted-foreground hover:text-amber transition-colors">Capabilities</a>
               <a href="#how-it-works" className="text-sm text-muted-foreground hover:text-amber transition-colors">How It Works</a>
               <a href="#features" className="text-sm text-muted-foreground hover:text-amber transition-colors">Features</a>
+              <button onClick={() => navigate("/about")} className="text-sm text-muted-foreground hover:text-amber transition-colors">About</button>
             </div>
             <Button
               onClick={() => navigate("/analyze")}
@@ -490,9 +491,9 @@ export default function Home() {
               <img src={AVATAR_IMG} alt="Ellie AI" className="w-6 h-6 rounded" />
               <span className="text-sm text-muted-foreground">Ellie AI — Video Analysis Agent</span>
             </div>
-            <div className="text-xs text-muted-foreground">
-              Built with Gemini, Whisper, and streaming architecture
-            </div>
+            <button onClick={() => navigate("/about")} className="text-xs text-muted-foreground hover:text-amber transition-colors">
+              Built with Gemini, Whisper, tRPC, Drizzle, and production readiness checks
+            </button>
           </div>
         </div>
       </footer>

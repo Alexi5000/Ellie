@@ -1,224 +1,100 @@
-# Ellie Voice Receptionist - Documentation Hub
+# Ellie AI Documentation Hub
 
-Welcome to the comprehensive documentation for the Ellie Voice Receptionist project. This hub provides organized access to all project documentation.
+This documentation hub organizes the current Ellie AI engineering, setup, release, testing, deployment, and reference material. Ellie’s active application is a full-stack TypeScript project with a React/Vite frontend and an Express/tRPC backend.
 
-## 📚 Documentation Structure
+## Start Here
 
-```
-docs/
-├── README.md                    # This file - documentation hub
-├── ci-cd/                       # CI/CD pipeline documentation
-│   ├── README.md               # CI/CD hub
-│   ├── CI_CD_PIPELINE.md       # Complete pipeline documentation
-│   ├── CI_CD_SETUP.md          # Setup and configuration guide
-│   ├── CI_CD_STATUS.md         # Current pipeline status
-│   └── QUICK_REFERENCE.md      # Quick command reference
-├── deployment/                  # Deployment documentation
-│   ├── DEPLOYMENT.md           # Production deployment guide
-│   └── SSL_SETUP_GUIDE.md      # SSL certificate setup
-├── testing/                     # Testing documentation
-│   ├── QUICK_TEST_GUIDE.md     # Quick testing reference
-│   ├── TEST_ENVIRONMENT.md     # Test environment setup
-│   ├── BACKEND_TEST_ENVIRONMENT.md  # Backend testing
-│   ├── FRONTEND_TEST_ENVIRONMENT.md  # Frontend testing
-│   ├── TEST_ENVIRONMENT_IMPROVEMENTS.md  # Test improvements
-│   └── MONITORING_TESTS_README.md  # Monitoring tests
-├── development/                 # Development documentation
-│   └── DEVELOPMENT_TASKS.md    # Current tasks and roadmap
-├── marketing-site/              # Marketing site documentation
-│   ├── README.md               # Marketing site overview
-│   ├── COMPONENT_API.md        # Component reference
-│   ├── THEME_SYSTEM.md         # Design system
-│   ├── ACCESSIBILITY_FEATURES.md  # Accessibility compliance
-│   ├── DEPLOYMENT_GUIDE.md     # Marketing site deployment
-│   └── MARKETING_SITE_DOCUMENTATION.md  # Complete marketing docs
-├── migration/                   # Migration documentation
-│   └── FASTAPI_MIGRATION_SUMMARY.md  # FastAPI migration reference
-├── service-discovery.md         # Service discovery architecture
-└── README_STANDARDS.md          # Documentation standards
-```
+| Document | Audience | Purpose |
+|---|---|---|
+| [`../README.md`](../README.md) | Everyone | Product overview, architecture, scripts, backend status, and release posture. |
+| [`../SETUP.md`](../SETUP.md) | Developers and operators | Local setup, production build, Docker workflow, environment variables, and health checks. |
+| [`PRODUCTION_READINESS.md`](PRODUCTION_READINESS.md) | Maintainers and release owners | Backend readiness status, operational endpoints, release gates, and risk register. |
+| [`../RELEASES.md`](../RELEASES.md) | Maintainers and reviewers | Version history and planned backend milestones. |
+| [`../CONTRIBUTING.md`](../CONTRIBUTING.md) | Contributors | Branching, validation, documentation, backend, and review expectations. |
 
-## 🎯 Quick Navigation
+## Current Repository Map
 
-### 🚀 Getting Started
-- **New to the project?** Start with the [Main README](../README.md)
-- **Setting up development?** See [Backend README](../backend/README.md) and [Frontend README](../frontend/README.md)
-- **Running tests?** Check [Quick Test Guide](testing/QUICK_TEST_GUIDE.md)
+| Area | Path | Status |
+|---|---|---|
+| Frontend application | `client/` | Active React/Vite application. |
+| Backend runtime | `server/` | Active Express/tRPC backend. |
+| Database schema | `drizzle/` | Active Drizzle schema and migration configuration. |
+| Shared contracts | `shared/` | Active shared TypeScript definitions. |
+| Automation scripts | `scripts/` | Active validation and repository scripts. |
+| Product assets | `assets/` | Active README and product imagery. |
+| GitHub automation | `.github/` | Existing workflow and review configuration; verify workflow permissions before pushing changes. |
+| Historical/reference docs | `docs/migration/` | Reference material unless a migration is explicitly approved. |
 
-### 🔧 Development
-- **Current tasks**: [Development Tasks](development/DEVELOPMENT_TASKS.md)
-- **System architecture**: [Service Discovery](service-discovery.md)
-- **Backend development**: [Backend README](../backend/README.md)
-- **Frontend development**: [Frontend README](../frontend/README.md)
+## Operational Documentation
 
-### 🚀 CI/CD Pipeline
-- **Pipeline overview**: [CI/CD Pipeline](ci-cd/CI_CD_PIPELINE.md)
-- **Setup guide**: [CI/CD Setup](ci-cd/CI_CD_SETUP.md)
-- **Current status**: [CI/CD Status](ci-cd/CI_CD_STATUS.md)
-- **Quick commands**: [Quick Reference](ci-cd/QUICK_REFERENCE.md)
+| Document | Notes |
+|---|---|
+| [`PRODUCTION_READINESS.md`](PRODUCTION_READINESS.md) | Source of truth for current release gates and backend risk posture. |
+| [`deployment/DEPLOYMENT.md`](deployment/DEPLOYMENT.md) | Existing deployment notes. Review against `SETUP.md` before using for production. |
+| [`deployment/SSL_SETUP_GUIDE.md`](deployment/SSL_SETUP_GUIDE.md) | Existing SSL reference. Validate with the chosen hosting provider. |
+| [`service-discovery.md`](service-discovery.md) | Existing architecture reference. Treat as supporting documentation, not a replacement for the current README. |
 
-### 🧪 Testing
-- **Quick reference**: [Quick Test Guide](testing/QUICK_TEST_GUIDE.md)
-- **Test environment**: [Test Environment](testing/TEST_ENVIRONMENT.md)
-- **Backend tests**: [Backend Test Environment](testing/BACKEND_TEST_ENVIRONMENT.md)
-- **Frontend tests**: [Frontend Test Environment](testing/FRONTEND_TEST_ENVIRONMENT.md)
+## Testing and Quality Documentation
 
-### 🚀 Deployment
-- **Production deployment**: [Deployment Guide](deployment/DEPLOYMENT.md)
-- **SSL setup**: [SSL Setup Guide](deployment/SSL_SETUP_GUIDE.md)
+| Document | Notes |
+|---|---|
+| [`testing/QUICK_TEST_GUIDE.md`](testing/QUICK_TEST_GUIDE.md) | Existing testing quick reference. Align commands with root `pnpm` scripts when updating. |
+| [`testing/TEST_ENVIRONMENT.md`](testing/TEST_ENVIRONMENT.md) | Existing environment testing reference. |
+| [`testing/BACKEND_TEST_ENVIRONMENT.md`](testing/BACKEND_TEST_ENVIRONMENT.md) | Existing backend testing material; update as provider adapters and integration tests are added. |
+| [`testing/FRONTEND_TEST_ENVIRONMENT.md`](testing/FRONTEND_TEST_ENVIRONMENT.md) | Existing frontend testing material. |
+| [`testing/MONITORING_TESTS_README.md`](testing/MONITORING_TESTS_README.md) | Existing monitoring test material. |
 
-### 🎨 Marketing Site
-- **Overview**: [Marketing Site README](marketing-site/README.md)
-- **Components**: [Component API](marketing-site/COMPONENT_API.md)
-- **Design system**: [Theme System](marketing-site/THEME_SYSTEM.md)
-- **Accessibility**: [Accessibility Features](marketing-site/ACCESSIBILITY_FEATURES.md)
-- **Deployment**: [Deployment Guide](marketing-site/DEPLOYMENT_GUIDE.md)
+## CI and Workflow Documentation
 
-## 📖 Documentation by Role
+| Document | Notes |
+|---|---|
+| [`ci-cd/CI_CD_PIPELINE.md`](ci-cd/CI_CD_PIPELINE.md) | Existing CI/CD overview. Confirm it matches current root scripts before treating it as authoritative. |
+| [`ci-cd/CI_CD_SETUP.md`](ci-cd/CI_CD_SETUP.md) | Existing setup guide for GitHub automation. |
+| [`ci-cd/CI_CD_STATUS.md`](ci-cd/CI_CD_STATUS.md) | Existing status notes. Update after workflow changes. |
+| [`ci-cd/QUICK_REFERENCE.md`](ci-cd/QUICK_REFERENCE.md) | Existing command reference. Prefer current `package.json` scripts when conflicts appear. |
 
-### For Developers
-1. **First time setup**
-   - [Main README](../README.md) - Project overview
-   - [Backend README](../backend/README.md) - Backend setup
-   - [Frontend README](../frontend/README.md) - Frontend setup
+## Product and UI Documentation
 
-2. **Daily development**
-   - [Development Tasks](development/DEVELOPMENT_TASKS.md) - Current work
-   - [Quick Test Guide](testing/QUICK_TEST_GUIDE.md) - Running tests
-   - [Quick Reference](ci-cd/QUICK_REFERENCE.md) - Common commands
+| Document | Notes |
+|---|---|
+| [`marketing-site/README.md`](marketing-site/README.md) | Existing marketing-site reference. |
+| [`marketing-site/COMPONENT_API.md`](marketing-site/COMPONENT_API.md) | Existing component reference. |
+| [`marketing-site/THEME_SYSTEM.md`](marketing-site/THEME_SYSTEM.md) | Existing theme and design-system notes. |
+| [`marketing-site/ACCESSIBILITY_FEATURES.md`](marketing-site/ACCESSIBILITY_FEATURES.md) | Existing accessibility notes. |
+| [`marketing-site/DEPLOYMENT_GUIDE.md`](marketing-site/DEPLOYMENT_GUIDE.md) | Existing deployment notes for the marketing surface. |
 
-3. **Architecture & design**
-   - [Service Discovery](service-discovery.md) - System architecture
-   - [Component API](marketing-site/COMPONENT_API.md) - Component reference
-   - [Theme System](marketing-site/THEME_SYSTEM.md) - Design system
+## Migration and Reference Material
 
-### For DevOps
-1. **CI/CD pipeline**
-   - [CI/CD Pipeline](ci-cd/CI_CD_PIPELINE.md) - Complete pipeline docs
-   - [CI/CD Setup](ci-cd/CI_CD_SETUP.md) - Configuration guide
-   - [CI/CD Status](ci-cd/CI_CD_STATUS.md) - Current status
+The `docs/migration/backend-fastapi-reference/` folder is reference material from prior backend exploration. Ellie’s active backend is currently TypeScript, Express, tRPC, Drizzle, and MySQL-compatible persistence. A future FastAPI or Python service should be handled through an explicit architecture decision record and migration plan rather than quietly mixing runtime models.
 
-2. **Deployment**
-   - [Deployment Guide](deployment/DEPLOYMENT.md) - Production deployment
-   - [SSL Setup](deployment/SSL_SETUP_GUIDE.md) - SSL configuration
-   - [Service Discovery](service-discovery.md) - Service architecture
+| Reference | Use |
+|---|---|
+| [`migration/FASTAPI_MIGRATION_SUMMARY.md`](migration/FASTAPI_MIGRATION_SUMMARY.md) | Historical migration exploration. |
+| [`migration/backend-fastapi-reference/README.md`](migration/backend-fastapi-reference/README.md) | Reference-only Python backend notes. |
 
-### For QA
-1. **Testing**
-   - [Quick Test Guide](testing/QUICK_TEST_GUIDE.md) - Quick reference
-   - [Test Environment](testing/TEST_ENVIRONMENT.md) - Environment setup
-   - [Backend Testing](testing/BACKEND_TEST_ENVIRONMENT.md)
-   - [Frontend Testing](testing/FRONTEND_TEST_ENVIRONMENT.md)
+## Documentation Maintenance Rules
 
-### For Product/Design
-1. **Marketing site**
-   - [Marketing Site README](marketing-site/README.md) - Overview
-   - [Component API](marketing-site/COMPONENT_API.md) - Components
-   - [Theme System](marketing-site/THEME_SYSTEM.md) - Design system
-   - [Accessibility](marketing-site/ACCESSIBILITY_FEATURES.md) - A11y features
+Documentation should be updated in the same pull request as the code it describes. Runtime behavior changes must update `README.md`, `SETUP.md`, `PRODUCTION_READINESS.md`, `RELEASES.md`, and `.env.example` when relevant.
 
-## 🔍 Finding Documentation
+| Change Type | Required Documentation Review |
+|---|---|
+| New backend route or tRPC procedure | README architecture, production readiness, PR notes, tests. |
+| New environment variable | `.env.example`, setup guide, production readiness, release notes. |
+| Database schema change | README data model, setup migration instructions, release notes. |
+| Deployment change | Setup guide, Docker notes, CI/CD docs, production readiness. |
+| Provider integration change | Backend roadmap/status, setup secrets, test documentation, release notes. |
 
-### By Topic
+## Status
 
-**Architecture & Design**
-- [Service Discovery](service-discovery.md) - Microservices architecture
-- [Theme System](marketing-site/THEME_SYSTEM.md) - Design system
-- [Component API](marketing-site/COMPONENT_API.md) - Component reference
+| Item | Current Status |
+|---|---|
+| Main README | Updated for Ellie AI `1.1.0` production-hardening baseline. |
+| Setup guide | Added as `SETUP.md`. |
+| Production readiness | Added as `docs/PRODUCTION_READINESS.md`. |
+| Release history | Added as `RELEASES.md`. |
+| Contribution guide | Updated to match the current root pnpm workflow. |
+| Legacy docs | Preserved but marked as supporting or reference material where needed. |
 
-**Development**
-- [Development Tasks](development/DEVELOPMENT_TASKS.md) - Current roadmap
-- [Backend README](../backend/README.md) - Backend development
-- [Frontend README](../frontend/README.md) - Frontend development
+**Last updated:** 2026-05-16
 
-**Testing**
-- [Quick Test Guide](testing/QUICK_TEST_GUIDE.md) - Fast reference
-- [Test Environment](testing/TEST_ENVIRONMENT.md) - Setup guide
-
-**CI/CD**
-- [CI/CD Pipeline](ci-cd/CI_CD_PIPELINE.md) - Complete documentation
-- [CI/CD Setup](ci-cd/CI_CD_SETUP.md) - Configuration
-- [Quick Reference](ci-cd/QUICK_REFERENCE.md) - Commands
-
-**Deployment**
-- [Deployment Guide](deployment/DEPLOYMENT.md) - Production deployment
-- [SSL Setup](deployment/SSL_SETUP_GUIDE.md) - SSL configuration
-
-## 📊 Documentation Status
-
-| Category | Status | Last Updated |
-|----------|--------|--------------|
-| Main README | ✅ Current | October 2025 |
-| CI/CD Documentation | ✅ Current | October 2025 |
-| Deployment Guides | ✅ Current | October 2025 |
-| Testing Documentation | ✅ Current | October 2025 |
-| Development Guides | ✅ Current | October 2025 |
-| Marketing Site Docs | ✅ Current | October 2025 |
-| Architecture Docs | ✅ Current | October 2025 |
-
-## 📝 Documentation Standards
-
-### Writing Guidelines
-- **Clear and concise** - Get to the point quickly
-- **Code examples** - Include practical examples
-- **Up to date** - Keep in sync with code changes
-- **Well organized** - Logical structure and navigation
-- **Accessible** - Easy to find and understand
-
-### Document Types
-- **Guides** - Step-by-step instructions (e.g., DEPLOYMENT.md)
-- **References** - Technical specifications (e.g., COMPONENT_API.md)
-- **Standards** - Documentation conventions (e.g., README_STANDARDS.md)
-
-### Maintenance
-See [README Standards](README_STANDARDS.md) for:
-- Documentation conventions
-- Markdown formatting
-- File organization
-- Update procedures
-
-## 🔄 Contributing to Documentation
-
-### When to Update
-- Adding new features
-- Changing APIs or interfaces
-- Modifying configuration
-- Fixing bugs that affect usage
-- Adding new dependencies
-- Updating workflows
-
-### How to Update
-1. **Edit the relevant document** - Keep docs in sync with code
-2. **Add examples** - Include practical code examples
-3. **Update the index** - Add new documents to this README
-4. **Review for accuracy** - Ensure information is correct
-5. **Submit PR** - Follow the [Contributing Guide](../CONTRIBUTING.md)
-
-## 🆘 Need Help?
-
-### Finding Information
-1. **Search this hub** - Use the navigation above
-2. **Check the main README** - [Main README](../README.md)
-3. **Search GitHub** - Use GitHub's search feature
-4. **Ask the team** - Open a discussion or issue
-
-### Getting Support
-- 📖 **Documentation**: You're here!
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/Alexi5000/Ellie/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/Alexi5000/Ellie/discussions)
-- 🚀 **CI/CD Status**: [GitHub Actions](https://github.com/Alexi5000/Ellie/actions)
-
-## 🎯 Documentation Goals
-
-- ✅ **Comprehensive** - Cover all aspects of the project
-- ✅ **Accessible** - Easy to find and understand
-- ✅ **Current** - Keep in sync with code changes
-- ✅ **Practical** - Include examples and use cases
-- ✅ **Organized** - Logical structure and navigation
-- ✅ **Searchable** - Easy to find specific information
-
----
-
-**Last Updated**: October 2025  
-**Maintained By**: Alex Cinovoj, TechTide AI  
-**Version**: 1.0.0
+**Current version:** 1.1.0

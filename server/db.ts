@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   InsertUser, users,
@@ -10,14 +10,71 @@ import { ENV } from './_core/env';
 let _db: ReturnType<typeof drizzle> | null = null;
 
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
+  if (!_db && ENV.databaseUrl) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      _db = drizzle(ENV.databaseUrl);
     } catch {
       _db = null;
     }
   }
   return _db;
+}
+
+export type DependencyReadiness = {
+  name: string;
+  configured: boolean;
+  healthy: boolean;
+  critical: boolean;
+  message: string;
+  latencyMs?: number;
+};
+
+export async function checkDatabaseReadiness(): Promise<DependencyReadiness> {
+  if (!ENV.databaseUrl) {
+    return {
+      name: "database",
+      configured: false,
+      healthy: false,
+      critical: true,
+      message: "DATABASE_URL is not configured.",
+    };
+  }
+
+  const startedAt = Date.now();
+
+  try {
+    const db = await getDb();
+
+    if (!db) {
+      return {
+        name: "database",
+        configured: true,
+        healthy: false,
+        critical: true,
+        message: "Database client could not be initialized.",
+      };
+    }
+
+    await db.execute(sql`select 1 as ok`);
+
+    return {
+      name: "database",
+      configured: true,
+      healthy: true,
+      critical: true,
+      message: "Database connection is reachable.",
+      latencyMs: Date.now() - startedAt,
+    };
+  } catch (error) {
+    return {
+      name: "database",
+      configured: true,
+      healthy: false,
+      critical: true,
+      message: error instanceof Error ? error.message : "Database readiness check failed.",
+      latencyMs: Date.now() - startedAt,
+    };
+  }
 }
 
 export async function upsertUser(user: InsertUser): Promise<void> {

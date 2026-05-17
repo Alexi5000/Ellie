@@ -1,98 +1,65 @@
-# GitHub Workflows - CI/CD Pipeline
+# Ellie AI GitHub Automation
 
-> Automated CI/CD pipeline with GitHub Actions including linting, testing, security scanning, Docker builds, performance monitoring, and automated deployments.
+This directory contains GitHub metadata for Ellie AI, including workflow definitions, pull request guidance, auto-assignment configuration, and repository automation notes.
 
-## 🚀 Workflows
+## Current Review Standard
 
-### 1. CI Pipeline (`workflows/ci.yml`)
-**Triggers**: Push to main/develop, Pull requests
+Pull requests should prove that the application remains buildable, type-safe, documented, and operationally understandable. Backend or deployment changes should include environment validation and health/readiness evidence.
 
-**Jobs**:
-- ✅ Lint code (ESLint)
-- ✅ Type check (TypeScript)
-- ✅ Run tests (Jest/Vitest)
-- ✅ Security scan
-- ✅ Build applications
-- ✅ Docker build & test
-- ✅ Integration tests
+| Gate | Preferred Command |
+|---|---|
+| Install consistency | `pnpm install --frozen-lockfile` |
+| Environment inventory | `pnpm validate:env` |
+| Production environment gate | `pnpm validate:env:production` |
+| Type safety | `pnpm check` |
+| Unit tests | `pnpm test` |
+| Production build | `pnpm build` |
+| Full gate | `pnpm run ci` |
+| Liveness smoke test | `curl /api/health` |
+| Readiness smoke test | `curl /api/readiness` or `curl /api/ready` |
 
-### 2. Code Quality (`workflows/code-quality.yml`)
-**Triggers**: Push to main/develop
+## Workflow Inventory
 
-**Jobs**:
-- ✅ Prettier format check
-- ✅ ESLint with annotations
-- ✅ TypeScript type check
-- ✅ CodeQL security analysis
-- ✅ Dependency review
+The repository contains several workflow files. Some were created before the current root pnpm workflow was standardized, so maintainers should verify each workflow against `package.json` before relying on it as an authoritative release gate.
 
-### 3. Docker (`workflows/docker.yml`)
-**Triggers**: Push to main
+| Workflow | Intended Purpose | Maintainer Note |
+|---|---|---|
+| `workflows/ci.yml` | General CI checks | Should align with `pnpm validate:env`, `pnpm check`, `pnpm test`, and `pnpm build`. |
+| `workflows/test.yml` | Test automation | Should use root pnpm scripts. |
+| `workflows/code-quality.yml` | Formatting, type, and quality checks | Confirm commands exist before enabling required status checks. |
+| `workflows/docker.yml` | Container build validation | Should build the root `Dockerfile` and smoke-test `/api/health`. |
+| `workflows/performance.yml` | Performance monitoring | Should be treated as optional until Lighthouse targets are confirmed. |
+| `workflows/cd.yml` | Deployment automation | Do not enable production deployment until secrets, environments, rollback, and readiness checks are configured. |
+| `workflows/release.yml` | Release automation | Should publish releases only after the release checklist in `RELEASES.md` is satisfied. |
+| `workflows/pr-checks.yml` | Pull request metadata checks | Should support the updated PR template. |
 
-**Jobs**:
-- ✅ Build Docker images
-- ✅ Security scanning
-- ✅ Integration tests
-- ✅ Push to registry
+## Required Secrets for Production Workflows
 
-### 4. Performance (`workflows/performance.yml`)
-**Triggers**: Push to main, Weekly schedule
+Secrets should be configured in GitHub Actions or the deployment platform, never committed to the repository.
 
-**Jobs**:
-- ✅ Lighthouse audits
-- ✅ Bundle size analysis
-- ✅ Load testing
-- ✅ Performance regression detection
+| Secret | Purpose |
+|---|---|
+| `DATABASE_URL` | MySQL-compatible database connection string. |
+| `JWT_SECRET` | Session and token signing secret. |
+| `BUILT_IN_FORGE_API_URL` | AI/provider gateway endpoint. |
+| `BUILT_IN_FORGE_API_KEY` | AI/provider gateway credential. |
+| `AWS_ACCESS_KEY_ID` | Optional object storage credential when using S3-compatible storage. |
+| `AWS_SECRET_ACCESS_KEY` | Optional object storage credential when using S3-compatible storage. |
+| `AWS_REGION` | Optional object storage region. |
+| `S3_BUCKET_NAME` | Optional media bucket name. |
+| `DOCKER_USERNAME` | Optional container registry username. |
+| `DOCKER_PASSWORD` | Optional container registry token or password. |
 
-### 5. CD Pipeline (`workflows/cd.yml`)
-**Triggers**: Push to main (after CI passes)
+## Maintainer Guidance
 
-**Jobs**:
-- ✅ Deploy to staging
-- ✅ Run smoke tests
-- ✅ Deploy to production
-- ✅ Rollback on failure
+Workflow updates may require a GitHub token or app installation with workflow-write permission. If a branch push is rejected because workflow files changed, push the application changes first and apply workflow changes separately from an account with the required permission.
 
-### 6. Release (`workflows/release.yml`)
-**Triggers**: Tag push (v*)
+The current documentation source of truth is:
 
-**Jobs**:
-- ✅ Generate changelog
-- ✅ Create GitHub release
-- ✅ Tag version
-- ✅ Publish artifacts
-
-### 7. PR Checks (`workflows/pr-checks.yml`)
-**Triggers**: Pull request events
-
-**Jobs**:
-- ✅ Validate PR format
-- ✅ Add size labels
-- ✅ Auto-assign reviewers
-- ✅ Run PR-specific checks
-
-## 📊 Pipeline Status
-
-**View live status**: https://github.com/Alexi5000/Ellie/actions
-
-## 🔧 Configuration
-
-### Secrets Required
-- `OPENAI_API_KEY` - OpenAI API key
-- `GROQ_API_KEY` - Groq API key
-- `DOCKER_USERNAME` - Docker Hub username
-- `DOCKER_PASSWORD` - Docker Hub password
-
-### Environment Variables
-- `NODE_ENV` - Environment (development/production)
-- `CI` - CI environment flag
-
-## 📖 Documentation
-
-- [CI/CD Pipeline](../docs/ci-cd/CI_CD_PIPELINE.md) - Complete documentation
-- [CI/CD Setup](../docs/ci-cd/CI_CD_SETUP.md) - Setup guide
-- [Quick Reference](../docs/ci-cd/QUICK_REFERENCE.md) - Common commands
-
----
-
-**Maintained by**: Alex Cinovoj, TechTide AI
+| Document | Purpose |
+|---|---|
+| [`../README.md`](../README.md) | Product and architecture overview. |
+| [`../SETUP.md`](../SETUP.md) | Setup, build, Docker, and runtime instructions. |
+| [`../docs/PRODUCTION_READINESS.md`](../docs/PRODUCTION_READINESS.md) | Release gates and operational readiness. |
+| [`../RELEASES.md`](../RELEASES.md) | Version history and milestone plan. |
+| [`PULL_REQUEST_TEMPLATE.md`](PULL_REQUEST_TEMPLATE.md) | Required review evidence for each PR. |

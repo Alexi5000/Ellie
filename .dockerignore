@@ -1,0 +1,14 @@
+node_modules
+.pnpm-store
+dist
+build
+coverage
+.vite
+.env
+.env.*
+!.env.example
+.git
+.gitignore
+.DS_Store
+*.log
+/home/ubuntu/repo_buildouts/ellie_audit
