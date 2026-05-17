@@ -1,125 +1,152 @@
-<div align="center">
+<p align="center">
+  <img src="assets/icon.png" alt="Ellie AI logo" width="120" />
+</p>
 
-<img src="assets/icon.png" alt="Ellie AI logo" width="128" />
+<h1 align="center">Ellie AI</h1>
 
-# Ellie AI
+<p align="center">
+  <strong>A production-grade video intelligence workspace for teams that need searchable, conversational understanding over media.</strong>
+</p>
 
-### Video intelligence, built as a real product.
+<p align="center">
+  <a href="#platform-overview">Platform</a> ·
+  <a href="#product-experience">Experience</a> ·
+  <a href="#architecture">Architecture</a> ·
+  <a href="#stack">Stack</a> ·
+  <a href="#local-development">Runbook</a> ·
+  <a href="#production-readiness">Production</a> ·
+  <a href="#template-standard">Template</a>
+</p>
 
-**Ellie is a production-shaped full-stack application for uploading video, preserving structured analysis, and turning media context into a searchable conversational workspace.**
-
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
-[![Express](https://img.shields.io/badge/Express-4.21-000000?logo=express&logoColor=white)](https://expressjs.com/)
-[![tRPC](https://img.shields.io/badge/tRPC-11-2596BE?logo=trpc&logoColor=white)](https://trpc.io/)
-[![Drizzle](https://img.shields.io/badge/Drizzle_ORM-0.44-C5F74F?logo=drizzle&logoColor=black)](https://orm.drizzle.team/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-F59E0B.svg)](LICENSE)
-
-[Experience](#experience) · [Architecture](#architecture) · [Backend](#backend) · [Quick Start](#quick-start) · [Production](#production-readiness) · [Docs](#documentation)
-
-</div>
+<p align="center">
+  <a href="https://www.typescriptlang.org/"><img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white" /></a>
+  <a href="https://react.dev/"><img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black" /></a>
+  <a href="https://vite.dev/"><img alt="Vite" src="https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white" /></a>
+  <a href="https://expressjs.com/"><img alt="Express" src="https://img.shields.io/badge/Express-4.21-000000?logo=express&logoColor=white" /></a>
+  <a href="https://trpc.io/"><img alt="tRPC" src="https://img.shields.io/badge/tRPC-11-2596BE?logo=trpc&logoColor=white" /></a>
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-F59E0B" /></a>
+</p>
 
 ---
 
-![Ellie AI product cover](assets/cover.png)
+<p align="center">
+  <img src="assets/cover.png" alt="Ellie AI product cover" width="100%" />
+</p>
 
-## Experience
+## Platform Overview
 
-Ellie is designed to feel finished before it asks to be extended. The repository contains a complete React application shell, a TypeScript backend, shared contracts, database schema, Docker packaging, environment validation, test coverage, and production-readiness documentation. It is no longer a loose prototype; it is a coherent application repository that a reviewer can clone, build, inspect, and prepare for deployment.
+> **Ellie is built like a SaaS platform, not a demo.** The repository contains a React application, a Node/Express backend, a typed tRPC API surface, a Drizzle/MySQL data layer, S3-compatible storage integration points, Docker packaging, environment validation, tests, production-readiness documentation, release notes, contribution standards, and a reusable README template for the rest of the portfolio.
 
-> Ellie’s promise is direct: upload a video, keep the source context intact, extract structured insight, and make the result available to an AI-assisted workspace.
+Ellie turns video into an operational knowledge surface. A team can upload media, preserve the source context, generate structured analysis, and use the result inside a conversational workspace. The project is intentionally organized as a full-stack product repository so engineering, product, operations, and deployment reviewers can understand the application without reverse-engineering scattered files.
 
-The product surface is intentionally cinematic, but the foundation is practical. React provides the component model for the interface, Vite provides the application build pipeline, Express provides the Node server runtime, tRPC keeps the API contract type-safe from client to server, and Drizzle maps the relational data model into TypeScript.[1] [2] [3] [4] [5]
+| Platform Card  | Current State                                                                                                                     | Production Value                                                                  |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| **Product**    | Video intelligence workspace with upload, analysis, chat, and voice transcription surfaces.                                       | Gives the repository a clear SaaS identity and user-facing workflow.              |
+| **Frontend**   | React 19, Vite, Tailwind-oriented UI, routed pages, product assets, and typed API consumption.                                    | Provides a shippable browser experience rather than a placeholder interface.      |
+| **Backend**    | Express server, tRPC router, health/readiness endpoints, OAuth callback surface, and static asset serving.                        | Creates a deployable application runtime with an inspectable operations boundary. |
+| **Data**       | Drizzle schema and migrations for users, videos, analysis results, conversations, and messages.                                   | Defines durable SaaS entities and persistence boundaries.                         |
+| **Operations** | Dockerfile, Compose file, environment validator, CI-compatible scripts, Prettier gate, tests, and production validation commands. | Makes build and deployment readiness repeatable.                                  |
+| **Governance** | MIT license, setup documentation, release notes, PR template, contribution guidance, and reusable README template.                | Makes the repository look and operate like a mature engineering asset.            |
 
-| Product Layer | What Is Built                                                                                                                 | Why It Matters                                                                                      |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| Frontend      | React, Vite, Tailwind, routed pages, an analysis workspace, responsive layout, and error boundaries.                          | The application opens like a polished product rather than a collection of disconnected screens.     |
-| Backend       | Express runtime, typed tRPC router, health and readiness endpoints, environment parsing, database helper, and storage helper. | Deployment owners can inspect service state and evolve the API without breaking frontend contracts. |
-| Data          | Drizzle schema for users, videos, analysis records, conversations, and messages.                                              | The core media-intelligence entities are modeled as durable product data.                           |
-| Operations    | Dockerfile, `.dockerignore`, `.env.example`, release gates, validation scripts, and readiness documentation.                  | The repository has repeatable paths for build, review, and deployment preparation.                  |
-| Governance    | Setup guide, release notes, contribution standards, pull-request template, and MIT license.                                   | The project now reads and behaves like a professional application repository.                       |
+## Product Experience
 
-## Screenshot
+Ellie is designed around a simple operating model: ingest video, extract intelligence, and make that intelligence usable. The interface is not presented as a generic dashboard. It is framed as a focused workspace for media understanding, where every backend primitive maps to a product concept that a SaaS customer or reviewer can recognize.
 
-<div align="center">
-<img src="assets/screenshot.png" alt="Ellie AI landing page screenshot" width="100%" />
-</div>
+| Experience Panel             | What the User Sees                                                          | What the System Owns                                                         |
+| ---------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| **Media Intake**             | A video-first workflow for capturing content context.                       | Upload procedures, storage keys, processing status, and ownership metadata.  |
+| **Structured Analysis**      | A place to review extracted summaries, timestamps, confidence, and results. | Analysis records tied to videos through the Drizzle schema.                  |
+| **Conversational Workspace** | Chat over the media context instead of searching through raw files.         | Conversation and message entities connected to users and source videos.      |
+| **Voice Surface**            | Transcription-oriented primitives for spoken content workflows.             | Backend voice transcription procedure boundaries and testable API contracts. |
+| **Operational State**        | Health and readiness signals for deployers.                                 | `/api/health`, `/api/readiness`, and `/api/ready` endpoints.                 |
+
+<p align="center">
+  <img src="assets/screenshot.png" alt="Ellie AI landing page screenshot" width="100%" />
+</p>
 
 ## Architecture
 
-Ellie keeps the application stack TypeScript-first. This keeps UI code, server code, shared contracts, validation scripts, database access, and tests in one language, reducing drift between the interface and the backend as the product grows.
+Ellie keeps the repository TypeScript-first across the product boundary. React owns the browser application.[1] Vite owns the build pipeline.[2] Express owns the runtime.[3] tRPC keeps client and server contracts aligned.[4] Drizzle maps the relational data model into typed application code.[5] Vitest and validation scripts keep the release path observable.[6]
 
 ```mermaid
 graph TB
-    Browser["Browser Client\nReact + Vite"]
-    Express["Express Server\nSecurity Headers + Static Assets"]
-    TRPC["tRPC API Layer\nTyped Procedures"]
-    DB["MySQL-Compatible Database\nDrizzle ORM"]
-    Storage["Object Storage\nS3-Compatible Helper"]
-    AI["AI Provider Gateway\nForge / Gemini / Whisper Ready"]
+    User["User\nBrowser Client"]
+    Frontend["Frontend\nReact + Vite"]
+    Server["Application Runtime\nExpress + Node"]
+    API["Typed API\ntRPC Router"]
+    Auth["Identity Boundary\nOAuth Callback + Session Context"]
+    DB["Relational Data\nDrizzle + MySQL"]
+    Storage["Media Storage\nS3-Compatible Helper"]
+    AI["AI Provider Gateway\nForge / Multimodal Ready"]
     Ops["Operations\nHealth + Readiness + Env Validation"]
 
-    Browser -->|HTTP / tRPC| Express
-    Express --> TRPC
-    TRPC --> DB
-    TRPC --> Storage
-    TRPC --> AI
-    Express --> Ops
+    User --> Frontend
+    Frontend --> Server
+    Server --> API
+    Server --> Auth
+    API --> DB
+    API --> Storage
+    API --> AI
+    Server --> Ops
 ```
 
-| Directory  | Role                                                                                                      | Production Value                                                             |
-| ---------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| `client/`  | React application, pages, components, hooks, styles, and tRPC client setup.                               | Owns the complete browser experience.                                        |
-| `server/`  | Express runtime, tRPC router, database access, storage integration, cookies, provider helpers, and tests. | Owns the application API and deployment runtime.                             |
-| `shared/`  | Shared TypeScript constants, types, and cross-boundary contracts.                                         | Keeps frontend and backend expectations aligned.                             |
-| `drizzle/` | Database schema, relations, and migrations.                                                               | Defines persistent product entities and migration history.                   |
-| `scripts/` | Environment validation and automation.                                                                    | Makes release checks repeatable.                                             |
-| `docs/`    | Deployment, CI, testing, production readiness, migration, and marketing-site references.                  | Gives maintainers a single knowledge base for operating and extending Ellie. |
-| `assets/`  | README imagery and product presentation assets.                                                           | Makes the repository presentation complete and professional.                 |
+| System Boundary        | Primary Paths                                              | Responsibility                                                                               |
+| ---------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| **Client Application** | `client/`, `client/src/`, `assets/`                        | Owns the browser product, visual presentation, and frontend API consumption.                 |
+| **Server Runtime**     | `server/_core/index.ts`, `server/routers.ts`               | Owns HTTP serving, health checks, readiness, tRPC procedures, and production bundle hosting. |
+| **Shared Contracts**   | `shared/`, `shared/_core/`                                 | Holds shared constants and cross-boundary TypeScript contracts.                              |
+| **Persistence**        | `drizzle/schema.ts`, `drizzle/migrations/`, `server/db.ts` | Defines relational SaaS entities and database connection behavior.                           |
+| **Storage**            | `server/storage.ts`                                        | Provides object-storage integration points for media and generated artifacts.                |
+| **Automation**         | `scripts/validate-env.ts`, `package.json`, `.github/`      | Defines repeatable validation, CI-compatible commands, and release checks.                   |
+| **Knowledge Base**     | `docs/`                                                    | Captures deployment, testing, migration, development, and production readiness context.      |
 
-## Backend
+## Stack
 
-The backend is built as a hardened baseline rather than a placeholder. It validates configuration, exposes liveness and readiness endpoints, hosts the typed application API, serves the production bundle, and keeps database and storage integration points visible for the next deployment milestone.
+| Layer                | Technology                 |              Version or Track | Why It Is Here                                                                    |
+| -------------------- | -------------------------- | ----------------------------: | --------------------------------------------------------------------------------- |
+| **Language**         | TypeScript                 |                         5.9.3 | Keeps the frontend, backend, contracts, tests, and scripts in one type system.    |
+| **Frontend Runtime** | React                      |                        19.2.x | Provides the application component model and product surface.                     |
+| **Frontend Build**   | Vite                       |                           7.x | Builds the browser application and powers local development.                      |
+| **Server Runtime**   | Node.js + Express          |                Express 4.21.x | Hosts the API, serves production assets, and exposes operational endpoints.       |
+| **API Contract**     | tRPC                       |                        11.6.x | Keeps API procedures strongly typed from server to client.                        |
+| **Database Layer**   | Drizzle ORM + MySQL driver | Drizzle 0.44.x, mysql2 3.15.x | Provides typed relational schema, migrations, and MySQL-compatible access.        |
+| **Validation**       | Zod                        |                         4.1.x | Supports typed validation boundaries for inputs and configuration-adjacent flows. |
+| **Testing**          | Vitest                     |                         2.1.x | Runs server and application tests in CI-compatible form.                          |
+| **Formatting**       | Prettier                   |                         3.6.x | Enforces deterministic repository formatting.                                     |
+| **Packaging**        | Docker + Compose           |            Repository-defined | Provides a container-ready deployment path and local service orchestration.       |
 
-| Backend Component | Path                      | Purpose                                                                                                                  |
-| ----------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Server entrypoint | `server/_core/index.ts`   | Starts Express, applies baseline security headers, mounts tRPC, serves static assets, and exposes operational endpoints. |
-| Environment model | `server/_core/env.ts`     | Classifies configuration by environment and reports safe readiness metadata without leaking secrets.                     |
-| API router        | `server/routers.ts`       | Defines the typed application procedures consumed by the frontend.                                                       |
-| Database helper   | `server/db.ts`            | Creates the Drizzle/MySQL connection and provides readiness checks.                                                      |
-| Storage helper    | `server/storage.ts`       | Provides S3-compatible media and artifact storage integration points.                                                    |
-| Schema            | `drizzle/schema.ts`       | Models users, videos, analysis results, conversations, and messages.                                                     |
-| Validation script | `scripts/validate-env.ts` | Enforces local and production configuration expectations.                                                                |
+## SaaS Capability Map
 
-## API and Operations Surface
+This repository is structured so the product can grow into a broader SaaS platform without changing its core shape. The current milestone emphasizes the foundation: working application shell, typed API, data model, operations surface, and documentation. Billing, organizations, queue workers, observability vendors, and managed deployment settings can be layered on top of this foundation when the external services are selected.
 
-Ellie exposes a practical operations surface for local development, container checks, and deployment review. Liveness answers whether the process is running. Readiness answers whether the runtime has the configuration and dependencies required to receive production traffic.
+| Capability             | Implemented Foundation                                                                                                 | Next Production Extension                                                                         |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| **Authentication**     | User context, logout behavior, OAuth callback route, and owner-oriented environment fields.                            | Connect managed identity provider, session persistence policy, tenant membership, and audit logs. |
+| **Media Intelligence** | Video upload procedure, analysis procedure boundaries, structured result entities, and provider gateway configuration. | Add provider execution queues, retry policies, prompt/version logging, and cost telemetry.        |
+| **Conversation Layer** | Conversation and message entities tied to videos and users.                                                            | Add retrieval ranking, source citations, moderation, and memory controls.                         |
+| **Storage**            | S3-compatible helper and storage-key model.                                                                            | Add signed uploads, lifecycle rules, malware scanning, and regional retention policy.             |
+| **Database**           | MySQL-compatible schema and migration commands.                                                                        | Add managed database backups, migration runbooks, seed data, and tenant isolation policy.         |
+| **Operations**         | Health/readiness endpoints, environment validation, Docker packaging, and CI commands.                                 | Add metrics, structured logs, alerting, uptime monitoring, and release automation.                |
+| **Governance**         | License, README, setup docs, releases, contribution guidance, PR template, and reusable template.                      | Add security policy, code owners, architecture decision records, and support escalation paths.    |
 
-| Endpoint         | Method         | Role            | Expected Use                                                               |
-| ---------------- | -------------- | --------------- | -------------------------------------------------------------------------- |
-| `/api/health`    | `GET`          | Liveness        | Container healthcheck and platform restart decisions.                      |
-| `/api/readiness` | `GET`          | Readiness       | Pre-release and rollout dependency checks.                                 |
-| `/api/ready`     | `GET`          | Readiness alias | Compatibility with deployment platforms that prefer short readiness paths. |
-| `/api/trpc/*`    | `GET` / `POST` | Application API | Type-safe frontend-to-backend procedure calls.                             |
+## Repository Map
 
-The server applies a baseline set of production security headers, including content-type sniffing protection, frame protection, referrer policy, and a restrictive permissions policy. Hosted production deployments should add managed HTTPS, secret rotation, dependency scanning, rate limiting, request logging, and alerting.
+| Path                       | Box                              | What Belongs There                                                                                  |
+| -------------------------- | -------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `client/`                  | **Product Surface**              | React application code, UI composition, routes, browser assets, and client-side integration.        |
+| `server/`                  | **Application Core**             | Express runtime, tRPC routers, OAuth hooks, storage, database access, and server tests.             |
+| `shared/`                  | **Contract Layer**               | Shared constants, types, and cross-boundary primitives.                                             |
+| `drizzle/`                 | **Data Plane**                   | Schema definitions, migrations, metadata, and relational product entities.                          |
+| `scripts/`                 | **Automation**                   | Environment and release validation scripts.                                                         |
+| `docs/`                    | **Operator Knowledge**           | Deployment, CI/CD, testing, migration, development, marketing-site, and production-readiness notes. |
+| `docs/templates/`          | **Portfolio Standard**           | Reusable documentation templates for other repositories.                                            |
+| `assets/`                  | **Brand Layer**                  | README cover, icon, and product imagery.                                                            |
+| `.github/`                 | **Repository Governance**        | Workflows and pull-request automation files.                                                        |
+| `frontend/` and `backend/` | **Legacy Compatibility Bridges** | Compatibility package surfaces used by existing protected workflow expectations.                    |
 
-## Data Model
+## Local Development
 
-Ellie’s schema captures the durable objects required for a video-intelligence workspace. It is intentionally clear: the first production-ready repository milestone should make the product shape obvious before adding queues, billing, tenants, or provider execution logs.
-
-| Entity             | Purpose                                                                        | Relationship                                 |
-| ------------------ | ------------------------------------------------------------------------------ | -------------------------------------------- |
-| `users`            | Stores identity and profile metadata.                                          | Owns videos and conversations.               |
-| `videos`           | Stores uploaded media metadata, storage keys, processing state, and ownership. | Belongs to a user and owns analysis records. |
-| `analysis_results` | Stores timestamped multimodal outputs and confidence metadata.                 | Belongs to a video.                          |
-| `conversations`    | Stores per-video conversational threads.                                       | Belongs to a user and video.                 |
-| `messages`         | Stores user and assistant messages with optional metadata.                     | Belongs to a conversation.                   |
-
-## Quick Start
-
-The repository uses pnpm and a single TypeScript application workspace. The setup below installs dependencies, copies the environment template, validates local configuration, and starts the development server.
+> **Clone, install, validate, run.** Ellie is designed to make the first developer path obvious while keeping production secrets out of the repository.
 
 ```bash
 git clone https://github.com/Alexi5000/Ellie.git
@@ -130,119 +157,161 @@ pnpm validate:env
 pnpm dev
 ```
 
-| Requirement               | Version or Provider | Notes                                                                |
-| ------------------------- | ------------------: | -------------------------------------------------------------------- |
-| Node.js                   |         22 or newer | Matches the intended server runtime and current dependency baseline. |
-| pnpm                      |                10.x | Declared in `package.json` through the package-manager field.        |
-| MySQL-compatible database |      8.x compatible | Required for production database readiness and Drizzle migrations.   |
-| Object storage            |       S3-compatible | Required for real media upload and artifact storage workflows.       |
-| AI/provider gateway       |    Forge-compatible | Required for production multimodal provider execution.               |
+| Requirement          |         Expected Baseline | Notes                                                                 |
+| -------------------- | ------------------------: | --------------------------------------------------------------------- |
+| **Node.js**          |               22 or newer | The repository was validated against the current Node runtime family. |
+| **pnpm**             |                      10.x | The project declares pnpm through `packageManager`.                   |
+| **Database**         |          MySQL-compatible | Required for production readiness and Drizzle migration execution.    |
+| **Storage**          |             S3-compatible | Required for real media upload and artifact persistence.              |
+| **Provider Gateway** | Forge-compatible endpoint | Required for production multimodal analysis flows.                    |
 
-## Configuration
+## Environment Model
 
-Configuration is documented in `.env.example`. Development can run with placeholder values, while production readiness requires real credentials supplied by the deployment platform or secret manager.
+The environment file is intentionally explicit. Development can use safe placeholders for local validation. Production must supply real credentials through the deployment platform or secret manager.
 
-| Variable                 | Required in Production | Purpose                                                                                 |
-| ------------------------ | ---------------------: | --------------------------------------------------------------------------------------- |
-| `DATABASE_URL`           |                    Yes | MySQL-compatible connection string used by Drizzle.                                     |
-| `JWT_SECRET`             |                    Yes | High-entropy signing secret for authenticated sessions and future protected procedures. |
-| `BUILT_IN_FORGE_API_URL` |                    Yes | AI/provider gateway endpoint.                                                           |
-| `BUILT_IN_FORGE_API_KEY` |                    Yes | AI/provider gateway credential.                                                         |
-| `VITE_APP_ID`            |                     No | Public application identifier.                                                          |
-| `VITE_APP_TITLE`         |                     No | Public application title.                                                               |
-| `VITE_APP_LOGO_URL`      |                     No | Public logo URL for branding.                                                           |
-| `OAUTH_SERVER_URL`       |                     No | Optional OAuth authority for authenticated deployments.                                 |
-| `OWNER_OPEN_ID`          |                     No | Optional initial owner identity.                                                        |
-| `PORT`                   |                     No | Runtime HTTP port.                                                                      |
-
-## Available Scripts
-
-| Command                        | Purpose                                                                                 |
-| ------------------------------ | --------------------------------------------------------------------------------------- |
-| `pnpm dev`                     | Start the Express runtime with Vite middleware and backend hot reload.                  |
-| `pnpm validate:env`            | Print a safe local configuration inventory.                                             |
-| `pnpm validate:env:production` | Fail when production-required variables are missing.                                    |
-| `pnpm check`                   | Run TypeScript typechecking without emitting files.                                     |
-| `pnpm test`                    | Run the Vitest suite.                                                                   |
-| `pnpm build`                   | Build the Vite frontend and bundled Node server.                                        |
-| `pnpm start`                   | Start the built production server.                                                      |
-| `pnpm ci`                      | Run environment validation, typecheck, tests, and build as a single local release gate. |
-| `pnpm db:generate`             | Generate Drizzle migration files.                                                       |
-| `pnpm db:migrate`              | Apply Drizzle migrations.                                                               |
-| `pnpm format:check`            | Verify Prettier formatting for CI compatibility.                                        |
-
-## Docker
-
-Ellie includes a root production Dockerfile and `.dockerignore`. The image installs dependencies with pnpm, builds the frontend and backend bundle, starts the Node production server, and exposes `/api/health` for liveness checks.
+| Variable                 | Required for Production | Purpose                                                                           |
+| ------------------------ | ----------------------: | --------------------------------------------------------------------------------- |
+| `DATABASE_URL`           |                     Yes | MySQL-compatible database connection string used by the server and Drizzle layer. |
+| `JWT_SECRET`             |                     Yes | High-entropy signing secret for protected session and auth-related flows.         |
+| `BUILT_IN_FORGE_API_URL` |                     Yes | Provider gateway URL for AI and multimodal execution.                             |
+| `BUILT_IN_FORGE_API_KEY` |                     Yes | Provider gateway credential.                                                      |
+| `VITE_APP_ID`            |                      No | Public application identifier exposed to the browser bundle.                      |
+| `VITE_APP_TITLE`         |                      No | Public application title for branded deployments.                                 |
+| `VITE_APP_LOGO_URL`      |                      No | Public logo URL for branded deployments.                                          |
+| `OAUTH_SERVER_URL`       |                      No | Optional OAuth authority for authenticated deployments.                           |
+| `OWNER_OPEN_ID`          |                      No | Optional initial owner identity.                                                  |
+| `PORT`                   |                      No | Runtime HTTP port.                                                                |
 
 ```bash
-docker build -t ellie-ai:local .
-docker run --rm -p 5000:5000 --env-file .env ellie-ai:local
-curl http://localhost:5000/api/health
-curl http://localhost:5000/api/readiness
+pnpm validate:env
+NODE_ENV=production pnpm validate:env:production
 ```
 
-Readiness is intentionally separate from liveness. A container can be alive while still refusing production promotion because a database, secret, or provider credential is missing.
+## Commands
+
+| Command                        | Box                        | What It Proves                                                                  |
+| ------------------------------ | -------------------------- | ------------------------------------------------------------------------------- |
+| `pnpm dev`                     | **Developer Loop**         | Starts the Express runtime with development middleware and hot reload behavior. |
+| `pnpm build`                   | **Release Build**          | Builds the Vite frontend and bundles the Node server into `dist/`.              |
+| `pnpm start`                   | **Production Runtime**     | Starts the compiled application server from `dist/index.js`.                    |
+| `pnpm check`                   | **Type Gate**              | Runs TypeScript without emitting artifacts.                                     |
+| `pnpm test`                    | **Test Gate**              | Runs the Vitest suite.                                                          |
+| `pnpm format:check`            | **Formatting Gate**        | Verifies repository formatting without rewriting files.                         |
+| `pnpm format`                  | **Formatting Fix**         | Applies the repository’s Prettier rules.                                        |
+| `pnpm validate:env`            | **Configuration Gate**     | Validates local environment completeness.                                       |
+| `pnpm validate:env:production` | **Production Config Gate** | Validates production-required environment fields.                               |
+| `pnpm ci`                      | **Composite Gate**         | Runs environment validation, typecheck, tests, and build.                       |
+| `pnpm db:generate`             | **Migration Authoring**    | Generates Drizzle migration artifacts.                                          |
+| `pnpm db:migrate`              | **Migration Apply**        | Applies pending Drizzle migrations.                                             |
+| `pnpm preview`                 | **Local Release Preview**  | Builds and starts the compiled production app locally.                          |
 
 ## Production Readiness
 
-Ellie is now a **full production-ready repository baseline**: it has a real frontend, a real backend, typed contracts, database schema, Docker packaging, validation scripts, documentation, release hygiene, and a license. The application should still be treated as a release candidate until production secrets, hosted infrastructure, durable media jobs, provider contract tests, authenticated tenancy, and observability are configured in the target environment.
+Ellie’s repository is built to present the difference between what is already committed and what a deployment owner must supply. The application code, schema, runtime, scripts, docs, and packaging are present. Production deployment still requires real managed infrastructure, secrets, DNS, TLS, monitoring, and provider credentials.
 
-| Gate                        | Command or Evidence                                     |                  Required Before Production |
-| --------------------------- | ------------------------------------------------------- | ------------------------------------------: |
-| Reproducible install        | `pnpm install --frozen-lockfile`                        |                                         Yes |
-| Environment inventory       | `pnpm validate:env`                                     |                                         Yes |
-| Production environment gate | `pnpm validate:env:production` with real target secrets |                                         Yes |
-| Type safety                 | `pnpm check`                                            |                                         Yes |
-| Unit tests                  | `pnpm test`                                             |                                         Yes |
-| Production build            | `pnpm build`                                            |                                         Yes |
-| Formatting compatibility    | `pnpm format:check`                                     | Yes for CI workflows that enforce Prettier. |
-| Runtime liveness            | `curl /api/health`                                      |                                         Yes |
-| Runtime readiness           | `curl /api/readiness` or `curl /api/ready`              |                                         Yes |
-| Migration review            | `pnpm db:generate` and migration diff review            |               Required when schema changes. |
+| Readiness Area        | Repository Status                                                              | Deployment Owner Action                                                                    |
+| --------------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| **Application Build** | `pnpm build` compiles frontend and backend artifacts.                          | Run build in the deployment platform and persist `dist/` as the release artifact.          |
+| **Type Safety**       | `pnpm check` validates the TypeScript project.                                 | Keep this gate blocking on protected branches.                                             |
+| **Tests**             | `pnpm test` runs Vitest coverage for core server behavior.                     | Expand test coverage as provider and billing flows are connected.                          |
+| **Formatting**        | `pnpm format:check` verifies deterministic Markdown and source formatting.     | Keep format checks in CI before merge.                                                     |
+| **Configuration**     | `.env.example` and `scripts/validate-env.ts` document required runtime values. | Supply production secrets through a managed secret store.                                  |
+| **Database**          | Drizzle schema and migration scripts are committed.                            | Provision MySQL-compatible database and run migrations through the release process.        |
+| **Storage**           | S3-compatible helper exists.                                                   | Provision buckets, access policy, lifecycle policy, and signed-upload flow.                |
+| **Containerization**  | Dockerfile and Compose file exist.                                             | Build, scan, and deploy the container through the chosen platform.                         |
+| **Security**          | Baseline security headers and secret validation are present.                   | Add managed TLS, rate limiting, dependency scanning, audit logging, and incident response. |
 
-## Documentation
+## Deployment Path
 
-| Document                                                                                 | Purpose                                                                                       |
-| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| [`SETUP.md`](SETUP.md)                                                                   | Local setup, production build, environment validation, Docker, and health-check instructions. |
-| [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md)                           | Release gates, backend status, operational endpoints, and hardening roadmap.                  |
-| [`RELEASES.md`](RELEASES.md)                                                             | Version history and planned production milestones.                                            |
-| [`CONTRIBUTING.md`](CONTRIBUTING.md)                                                     | Branching, validation, documentation, and review expectations.                                |
-| [`docs/README.md`](docs/README.md)                                                       | Documentation index for repository maintainers.                                               |
-| [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md)                   | Review checklist and validation evidence template.                                            |
-| [`docs/migration/backend-fastapi-reference/`](docs/migration/backend-fastapi-reference/) | Reference-only FastAPI exploration notes; the active backend is TypeScript and Express.       |
+```bash
+pnpm install --frozen-lockfile
+pnpm validate:env:production
+pnpm check
+pnpm test
+pnpm build
+pnpm start
+```
 
-## Release Status
+| Deployment Step | Description                                                        | Success Signal                                                     |
+| --------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| **Install**     | Restore the lockfile-defined dependency graph.                     | `pnpm install --frozen-lockfile` exits cleanly.                    |
+| **Configure**   | Inject production database, provider, auth, and storage variables. | `pnpm validate:env:production` passes without placeholder secrets. |
+| **Verify**      | Run typecheck, tests, and formatting/build gates.                  | CI reports green validation gates.                                 |
+| **Migrate**     | Generate and apply database migrations.                            | Drizzle migration command completes against the target database.   |
+| **Release**     | Start the compiled Node server.                                    | `/api/health` and `/api/readiness` return successful responses.    |
+| **Observe**     | Attach logs, metrics, alerting, and uptime monitoring.             | Operators can detect incidents before users report them.           |
 
-The current hardened version is **1.1.0**. This milestone establishes the full-stack repository baseline and makes the project buildable, reviewable, and ready for deployment preparation. It does not pretend that every hosted production concern has already been solved; instead, it gives the next engineering pass a stable product and operations foundation.
+## API and Operations Surface
 
-| Version | Status            | Summary                                                                                                                                                            |
-| ------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `1.1.0` | Release candidate | Adds backend readiness, health checks, Docker packaging, validation scripts, full documentation, application presentation polish, and repository license coverage. |
-| `1.2.0` | Planned           | Add authenticated owner/user flows, job records, queue-backed video analysis, and provider adapter tests.                                                          |
-| `2.0.0` | Planned           | Add multi-tenant production workflows, observability, hosted deployment recipes, and end-to-end media-processing guarantees.                                       |
+| Endpoint              | Method         | Box                   | Expected Use                                                    |
+| --------------------- | -------------- | --------------------- | --------------------------------------------------------------- |
+| `/api/health`         | `GET`          | **Liveness**          | Container checks and platform restart decisions.                |
+| `/api/readiness`      | `GET`          | **Readiness**         | Dependency and configuration checks before traffic is routed.   |
+| `/api/ready`          | `GET`          | **Compatibility**     | Short readiness alias for platforms that prefer compact probes. |
+| `/api/oauth/callback` | `GET`          | **Identity Boundary** | OAuth callback surface for authenticated deployments.           |
+| `/api/trpc/*`         | `GET` / `POST` | **Application API**   | Type-safe frontend-to-backend procedure calls.                  |
+
+## Data Model
+
+| Entity             | Box                     | Purpose                                                                        |
+| ------------------ | ----------------------- | ------------------------------------------------------------------------------ |
+| `users`            | **Identity**            | Stores user identity and profile metadata.                                     |
+| `videos`           | **Media Asset**         | Stores uploaded video metadata, storage keys, processing state, and ownership. |
+| `analysis_results` | **Intelligence Record** | Stores timestamped multimodal outputs and confidence metadata.                 |
+| `conversations`    | **Workspace Thread**    | Stores per-video conversational threads.                                       |
+| `messages`         | **Dialogue Event**      | Stores user and assistant messages with optional metadata.                     |
+
+## Security and Compliance Posture
+
+Ellie is not claiming a completed compliance program. It is claiming a repository structure that makes a compliance program possible. The committed baseline includes explicit environment modeling, no committed production secrets, runtime health probes, readiness probes, security header defaults, typed contracts, repeatable validation commands, and visible deployment documentation.
+
+| Control Area         | Repository Foundation                                              | Recommended Production Layer                                                |
+| -------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------- |
+| **Secrets**          | `.env.example` documents required values without real credentials. | Managed secret store, rotation policy, environment-specific access control. |
+| **Transport**        | Application is ready to sit behind managed HTTPS.                  | TLS termination, HSTS, secure cookies, and certificate monitoring.          |
+| **Access**           | OAuth callback and owner configuration surfaces exist.             | Full identity provider, RBAC, tenant membership, and audit trails.          |
+| **Abuse Protection** | API boundaries are centralized through Express and tRPC.           | Rate limiting, WAF, bot controls, and anomaly detection.                    |
+| **Supply Chain**     | Lockfile and CI-compatible validation commands exist.              | Dependency review, vulnerability scanning, pinned deployment images.        |
+| **Observability**    | Health/readiness endpoints are committed.                          | Structured logs, traces, metrics, alerting, and dashboard ownership.        |
+
+## Documentation System
+
+| Document                                 | Purpose                                                                                |
+| ---------------------------------------- | -------------------------------------------------------------------------------------- |
+| `README.md`                              | Product-facing and engineering-facing source of truth for Ellie’s SaaS platform shape. |
+| `docs/PRODUCTION_READINESS.md`           | Production readiness notes and release considerations.                                 |
+| `docs/deployment/`                       | Deployment-specific guidance.                                                          |
+| `docs/testing/`                          | Test and validation guidance.                                                          |
+| `docs/development/`                      | Local development and engineering workflow notes.                                      |
+| `docs/ci-cd/`                            | Continuous integration and delivery notes.                                             |
+| `docs/migration/`                        | Migration and legacy compatibility context.                                            |
+| `docs/marketing-site/`                   | Brand and marketing-site references.                                                   |
+| `docs/templates/SAAS_README_TEMPLATE.md` | Reusable README standard for other application repositories.                           |
+
+## Template Standard
+
+A reusable README system has been added at `docs/templates/SAAS_README_TEMPLATE.md`. It is designed to be copied into the rest of the portfolio and filled with repository-specific facts. The standard is intentionally product-grade: it asks each repository to present its product promise, stack, architecture, capability map, runbook, production posture, security posture, validation gates, and roadmap in the same polished format.
+
+> **Template rule:** every impressive claim must be backed by a file, command, endpoint, schema, workflow, or deployment artifact in the repository. The tone can be premium, but the content must stay real.
 
 ## Roadmap
 
-The next engineering work should focus on backend depth and operational guarantees. The visual and repository presentation layer is now in place; the highest-value production work is durable processing, provider isolation, authenticated tenancy, integration tests, and deployment monitoring.
-
-| Priority | Workstream        | Outcome                                                                                           |
-| -------: | ----------------- | ------------------------------------------------------------------------------------------------- |
-|        1 | Provider adapters | Gemini, Whisper, and storage calls become testable interfaces with contract tests.                |
-|        2 | Processing jobs   | Video analysis moves from request-bound execution into durable background jobs.                   |
-|        3 | Authentication    | User ownership, session enforcement, and protected procedures become mandatory for private media. |
-|        4 | Observability     | Structured logs, metrics, traces, and alerts make production behavior measurable.                 |
-|        5 | Integration tests | Router, database, storage, provider, and readiness behavior are covered by repeatable tests.      |
+| Horizon   | Workstream                                                                                                       | Outcome                                                                                     |
+| --------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| **Now**   | Repository hardening, documentation polish, validation gates, and production configuration clarity.              | Ellie reads and builds like a complete full-stack application repository.                   |
+| **Next**  | Managed database, object storage, provider gateway, authentication, and deployment environment selection.        | Ellie becomes a live SaaS deployment with real infrastructure behind the committed runtime. |
+| **Later** | Tenant model, billing, queues, provider observability, retrieval quality, audit trails, and compliance controls. | Ellie becomes a scalable commercial media-intelligence platform.                            |
 
 ## License
 
-Ellie is released under the [MIT License](LICENSE).
+Ellie is released under the [MIT License](LICENSE). The license file is included at the repository root so downstream reviewers, contributors, and deployment owners can evaluate usage terms without ambiguity.
 
 ## References
 
-[1]: https://react.dev/ "React documentation"
-[2]: https://vite.dev/guide/ "Vite guide"
-[3]: https://expressjs.com/ "Express documentation"
-[4]: https://trpc.io/docs "tRPC documentation"
-[5]: https://orm.drizzle.team/docs/overview "Drizzle ORM documentation"
+[1]: https://react.dev/ "React Documentation"
+[2]: https://vite.dev/ "Vite Documentation"
+[3]: https://expressjs.com/ "Express Documentation"
+[4]: https://trpc.io/ "tRPC Documentation"
+[5]: https://orm.drizzle.team/ "Drizzle ORM Documentation"
+[6]: https://vitest.dev/ "Vitest Documentation"
+[7]: https://docs.docker.com/ "Docker Documentation"
