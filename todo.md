@@ -1,6 +1,7 @@
 # Ellie AI — Video Analysis Agent TODO
 
 ## Core Infrastructure
+
 - [x] Project initialization with Vite + React + TypeScript
 - [x] Full-stack upgrade with tRPC + database + auth
 - [x] Database schema: users, videos, analysis_results, conversations, messages
@@ -11,6 +12,7 @@
 - [x] tRPC routers: video upload, AI analysis, chat, voice transcription
 
 ## UI Design — Neural Noir Theme
+
 - [x] Custom dark theme with amber/gold accents and cyan analysis states
 - [x] Space Grotesk + IBM Plex Sans + JetBrains Mono typography
 - [x] Glass panel effects, waveform animations, floating particles
@@ -18,6 +20,7 @@
 - [x] Generated visual assets (hero bg, waveform, avatar, upload illustration)
 
 ## Landing Page (Home)
+
 - [x] Cinematic hero section with asymmetric layout
 - [x] Animated waveform visualization
 - [x] Capability pills (Frame Captioning, Audio Transcription, etc.)
@@ -28,6 +31,7 @@
 - [x] CTA section and footer
 
 ## Analysis Workspace
+
 - [x] Video upload zone with drag-and-drop
 - [x] Video player with custom controls (play/pause, seek, volume, fullscreen)
 - [x] Real backend video upload to S3
@@ -41,13 +45,16 @@
 - [x] Auth-gated access with login redirect
 
 ## Testing
+
 - [x] Write vitest tests for backend routers (10/10 passing)
 - [x] Verify production build (success)
 
 ## Polish
+
 - [x] Final UI review and screenshot
 
 ## GitHub Push
+
 - [x] Create comprehensive README.md with architecture diagrams, setup instructions, and feature showcase
 - [x] Copy architecture diagram PNGs into repository
 - [x] Create ARCHITECTURE.md with detailed technical documentation (included in README)
@@ -55,6 +62,7 @@
 - [x] Verify push was successful
 
 ## Security Overhaul — Public Anonymous App
+
 - [x] Full security audit of codebase
 - [x] Remove all authentication requirements — make app fully public
 - [x] Convert all protectedProcedure to publicProcedure

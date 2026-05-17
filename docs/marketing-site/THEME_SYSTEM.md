@@ -79,7 +79,7 @@ No additional dependencies required - uses React's built-in Context API.
 In your main entry file (`main.tsx` or `index.tsx`):
 
 ```typescript
-import './styles/theme.css';
+import "./styles/theme.css";
 ```
 
 ### 3. Wrap App with ThemeProvider
@@ -102,27 +102,27 @@ Update `tailwind.config.js`:
 
 ```javascript
 export default {
-  darkMode: 'class', // Enable class-based dark mode
+  darkMode: "class", // Enable class-based dark mode
   theme: {
     extend: {
       colors: {
         background: {
-          primary: 'var(--color-bg-primary)',
-          secondary: 'var(--color-bg-secondary)',
-          tertiary: 'var(--color-bg-tertiary)',
+          primary: "var(--color-bg-primary)",
+          secondary: "var(--color-bg-secondary)",
+          tertiary: "var(--color-bg-tertiary)",
         },
         text: {
-          primary: 'var(--color-text-primary)',
-          secondary: 'var(--color-text-secondary)',
-          tertiary: 'var(--color-text-tertiary)',
+          primary: "var(--color-text-primary)",
+          secondary: "var(--color-text-secondary)",
+          tertiary: "var(--color-text-tertiary)",
         },
         accent: {
-          primary: 'var(--color-accent-primary)',
-          secondary: 'var(--color-accent-secondary)',
+          primary: "var(--color-accent-primary)",
+          secondary: "var(--color-accent-secondary)",
         },
         border: {
-          primary: 'var(--color-border-primary)',
-          secondary: 'var(--color-border-secondary)',
+          primary: "var(--color-border-primary)",
+          secondary: "var(--color-border-secondary)",
         },
       },
     },
@@ -144,11 +144,11 @@ function MyComponent() {
     <div>
       <p>Current theme: {theme}</p>
       <p>System preference: {systemTheme}</p>
-      
+
       <button onClick={toggleTheme}>
         Toggle Theme
       </button>
-      
+
       <button onClick={() => setTheme('dark')}>
         Set Dark Theme
       </button>
@@ -162,16 +162,16 @@ function MyComponent() {
 ```typescript
 interface ThemeContextValue {
   // Current active theme
-  theme: 'light' | 'dark';
-  
+  theme: "light" | "dark";
+
   // Toggle between light and dark
   toggleTheme: () => void;
-  
+
   // System color scheme preference
-  systemTheme: 'light' | 'dark';
-  
+  systemTheme: "light" | "dark";
+
   // Set theme explicitly
-  setTheme: (theme: 'light' | 'dark') => void;
+  setTheme: (theme: "light" | "dark") => void;
 }
 ```
 
@@ -198,7 +198,7 @@ function Header() {
 interface ThemeToggleProps {
   // Additional CSS classes
   className?: string;
-  
+
   // Show text label alongside icon
   showLabel?: boolean;
 }
@@ -211,11 +211,13 @@ interface ThemeToggleProps {
 ```tsx
 function Card() {
   return (
-    <div className="
+    <div
+      className="
       bg-background-primary
       text-text-primary
       border border-border-primary
-    ">
+    "
+    >
       <h2 className="text-text-primary">Title</h2>
       <p className="text-text-secondary">Description</p>
     </div>
@@ -242,10 +244,12 @@ function Card() {
 ```tsx
 function CustomComponent() {
   return (
-    <div style={{
-      backgroundColor: 'var(--color-bg-primary)',
-      color: 'var(--color-text-primary)',
-    }}>
+    <div
+      style={{
+        backgroundColor: "var(--color-bg-primary)",
+        color: "var(--color-text-primary)",
+      }}
+    >
       Content
     </div>
   );
@@ -259,11 +263,11 @@ import { useReducedMotion } from './hooks/useReducedMotion';
 
 function AnimatedComponent() {
   const prefersReducedMotion = useReducedMotion();
-  
-  const transitionClass = prefersReducedMotion 
-    ? '' 
+
+  const transitionClass = prefersReducedMotion
+    ? ''
     : 'transition-all duration-300';
-  
+
   return (
     <div className={`transform hover:scale-105 ${transitionClass}`}>
       Content
@@ -284,14 +288,14 @@ Edit `src/styles/theme.css`:
   --color-bg-primary: #ffffff;
   --color-bg-secondary: #f8fafc;
   --color-bg-tertiary: #f1f5f9;
-  
+
   --color-text-primary: #0f172a;
   --color-text-secondary: #475569;
   --color-text-tertiary: #64748b;
-  
+
   --color-accent-primary: #3b82f6;
   --color-accent-secondary: #8b5cf6;
-  
+
   --color-border-primary: #e2e8f0;
   --color-border-secondary: #cbd5e1;
 }
@@ -301,14 +305,14 @@ Edit `src/styles/theme.css`:
   --color-bg-primary: #0f172a;
   --color-bg-secondary: #1e293b;
   --color-bg-tertiary: #334155;
-  
+
   --color-text-primary: #f8fafc;
   --color-text-secondary: #cbd5e1;
   --color-text-tertiary: #94a3b8;
-  
+
   --color-accent-primary: #60a5fa;
   --color-accent-secondary: #a78bfa;
-  
+
   --color-border-primary: #334155;
   --color-border-secondary: #475569;
 }
@@ -370,7 +374,7 @@ Edit `theme.css`:
 Edit `ThemeContext.tsx`:
 
 ```typescript
-const THEME_STORAGE_KEY = 'my-app-theme'; // Change this
+const THEME_STORAGE_KEY = "my-app-theme"; // Change this
 ```
 
 ## Best Practices
@@ -408,6 +412,7 @@ document.documentElement.classList.toggle('dark');
 ### 4. Provide Sufficient Contrast
 
 Ensure WCAG AA compliance:
+
 - Normal text: 4.5:1 contrast ratio
 - Large text: 3:1 contrast ratio
 - UI components: 3:1 contrast ratio
@@ -436,7 +441,7 @@ For server-side rendering, provide a default:
 
 ```typescript
 const getSystemTheme = (): Theme => {
-  if (typeof window === 'undefined') return 'light';
+  if (typeof window === "undefined") return "light";
   // ... rest of implementation
 };
 ```
@@ -451,7 +456,7 @@ const getSystemTheme = (): Theme => {
 
 ```typescript
 // In browser console
-localStorage.getItem('ellie-theme');
+localStorage.getItem("ellie-theme");
 ```
 
 If null, check browser privacy settings or incognito mode.
@@ -464,7 +469,7 @@ If null, check browser privacy settings or incognito mode.
 
 ```typescript
 // In browser console
-window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 ```
 
 If true, this is expected behavior for accessibility.
@@ -491,13 +496,16 @@ color: #0f172a;
 
 ```html
 <script>
-  (function() {
-    const theme = localStorage.getItem('ellie-theme');
-    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  (function () {
+    const theme = localStorage.getItem("ellie-theme");
+    const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+      .matches
+      ? "dark"
+      : "light";
     const activeTheme = theme || systemTheme;
-    
-    if (activeTheme === 'dark') {
-      document.documentElement.classList.add('dark');
+
+    if (activeTheme === "dark") {
+      document.documentElement.classList.add("dark");
     }
   })();
 </script>
@@ -527,7 +535,7 @@ color: #0f172a;
 
 ```typescript
 // In browser console
-window.matchMedia('(prefers-color-scheme: dark)');
+window.matchMedia("(prefers-color-scheme: dark)");
 ```
 
 If undefined, browser doesn't support this feature.
@@ -543,7 +551,7 @@ import { useTheme } from './hooks/useTheme';
 
 function CustomToggle() {
   const { theme, toggleTheme } = useTheme();
-  
+
   return (
     <button
       onClick={toggleTheme}
@@ -558,18 +566,18 @@ function CustomToggle() {
 ### Programmatic Theme Control
 
 ```typescript
-import { useTheme } from './hooks/useTheme';
+import { useTheme } from "./hooks/useTheme";
 
 function ThemeController() {
   const { setTheme } = useTheme();
-  
+
   // Set theme based on time of day
   useEffect(() => {
     const hour = new Date().getHours();
     const isDaytime = hour >= 6 && hour < 18;
-    setTheme(isDaytime ? 'light' : 'dark');
+    setTheme(isDaytime ? "light" : "dark");
   }, [setTheme]);
-  
+
   return null;
 }
 ```
@@ -581,7 +589,7 @@ import { useTheme } from './hooks/useTheme';
 
 function Logo() {
   const { theme } = useTheme();
-  
+
   return (
     <img
       src={theme === 'dark' ? '/logo-dark.svg' : '/logo-light.svg'}
@@ -597,10 +605,10 @@ function Logo() {
 
 ```typescript
 export interface ThemeContextValue {
-  theme: 'light' | 'dark';
+  theme: "light" | "dark";
   toggleTheme: () => void;
-  systemTheme: 'light' | 'dark';
-  setTheme: (theme: 'light' | 'dark') => void;
+  systemTheme: "light" | "dark";
+  setTheme: (theme: "light" | "dark") => void;
 }
 ```
 
@@ -615,7 +623,7 @@ interface ThemeProviderProps {
 ### useTheme
 
 ```typescript
-function useTheme(): ThemeContextValue
+function useTheme(): ThemeContextValue;
 ```
 
 Throws error if used outside ThemeProvider.
@@ -623,7 +631,7 @@ Throws error if used outside ThemeProvider.
 ### useReducedMotion
 
 ```typescript
-function useReducedMotion(): boolean
+function useReducedMotion(): boolean;
 ```
 
 Returns true if user prefers reduced motion.

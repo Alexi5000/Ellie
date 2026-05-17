@@ -1,0 +1,15 @@
+{
+  "name": "@ellie/frontend-ci-compat",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Compatibility bridge for legacy GitHub Actions that still expect a frontend workspace.",
+  "scripts": {
+    "lint": "cd .. && npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 check",
+    "type-check": "cd .. && npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 check",
+    "test": "cd .. && npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 test",
+    "build": "cd .. && npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 build",
+    "format": "cd .. && npx --yes prettier@3.6.2 --write \"frontend/package.json\"",
+    "format:check": "cd .. && npx --yes prettier@3.6.2 --check \"frontend/package.json\""
+  }
+}

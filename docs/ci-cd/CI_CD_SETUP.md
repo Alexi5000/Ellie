@@ -15,6 +15,7 @@ This guide will help you set up the complete CI/CD pipeline for the Ellie Voice 
 ## Step 1: Install Dependencies
 
 ### Backend Dependencies
+
 ```bash
 cd backend
 npm install --save-dev \
@@ -25,6 +26,7 @@ npm install --save-dev \
 ```
 
 ### Frontend Dependencies
+
 ```bash
 cd frontend
 npm install --save-dev \
@@ -44,6 +46,7 @@ Go to your repository settings → Secrets and variables → Actions
 ### Required Secrets
 
 #### For Deployment (Optional)
+
 ```
 STAGING_HOST          # e.g., staging.example.com
 STAGING_USER          # e.g., deploy
@@ -54,16 +57,19 @@ PRODUCTION_SSH_KEY    # Your SSH private key
 ```
 
 #### For Notifications (Optional)
+
 ```
 SLACK_WEBHOOK         # Your Slack webhook URL
 ```
 
 #### For Security Scanning (Optional)
+
 ```
 SNYK_TOKEN           # Your Snyk API token
 ```
 
 #### For API Keys (Optional - uses mocks if not provided)
+
 ```
 OPENAI_API_KEY       # Your OpenAI API key
 GROQ_API_KEY         # Your Groq API key
@@ -91,6 +97,7 @@ GROQ_API_KEY         # Your Groq API key
 ### Required Status Checks
 
 Select these checks as required:
+
 - ✅ Lint Code
 - ✅ TypeScript Type Check
 - ✅ Backend Tests
@@ -147,11 +154,13 @@ If using Docker Hub instead:
 ### Test CI Pipeline
 
 1. Create a feature branch:
+
    ```bash
    git checkout -b feature/test-ci
    ```
 
 2. Make a small change:
+
    ```bash
    echo "# Test" >> README.md
    git add README.md
@@ -166,12 +175,14 @@ If using Docker Hub instead:
 ### Test CD Pipeline (After Deployment Setup)
 
 1. Merge PR to main:
+
    ```bash
    git checkout main
    git pull origin main
    ```
 
 2. Create a release tag:
+
    ```bash
    git tag v1.0.0
    git push origin v1.0.0
@@ -217,6 +228,7 @@ Your `.github/workflows/` directory now contains:
 ## Scripts Added
 
 ### Backend package.json
+
 - `lint` - Run ESLint
 - `lint:fix` - Fix ESLint issues
 - `type-check` - TypeScript type checking
@@ -225,6 +237,7 @@ Your `.github/workflows/` directory now contains:
 - `test:coverage` - Run tests with coverage
 
 ### Frontend package.json
+
 - `lint` - Run ESLint
 - `lint:fix` - Fix ESLint issues
 - `type-check` - TypeScript type checking
@@ -252,6 +265,7 @@ Your `.github/workflows/` directory now contains:
 **Problem:** Workflows don't trigger on push/PR
 
 **Solution:**
+
 1. Check Actions are enabled in repository settings
 2. Verify workflow files are in `.github/workflows/`
 3. Check YAML syntax is valid
@@ -262,6 +276,7 @@ Your `.github/workflows/` directory now contains:
 **Problem:** ESLint or Prettier checks fail
 
 **Solution:**
+
 ```bash
 # Fix automatically
 npm run lint:fix
@@ -277,6 +292,7 @@ cd frontend && npm run lint:fix && npm run format
 **Problem:** TypeScript type errors
 
 **Solution:**
+
 ```bash
 # Check locally
 cd backend && npm run type-check
@@ -290,6 +306,7 @@ cd frontend && npm run type-check
 **Problem:** Tests fail in CI but pass locally
 
 **Solution:**
+
 1. Check environment variables
 2. Verify test setup scripts run
 3. Check for race conditions
@@ -300,6 +317,7 @@ cd frontend && npm run type-check
 **Problem:** Docker images fail to build
 
 **Solution:**
+
 1. Test build locally:
    ```bash
    docker build -t test ./backend
@@ -314,6 +332,7 @@ cd frontend && npm run type-check
 **Problem:** Deployment to staging/production fails
 
 **Solution:**
+
 1. Verify SSH keys are correct
 2. Check server is accessible
 3. Verify Docker is installed on server
@@ -348,6 +367,7 @@ cd frontend && npm run type-check
 ## Support
 
 For help with CI/CD setup:
+
 1. Check [CI/CD Pipeline Documentation](CI_CD_PIPELINE.md)
 2. Review GitHub Actions logs
 3. Check workflow file comments

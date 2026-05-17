@@ -42,14 +42,14 @@ The Ellie marketing website is built with accessibility as a core principle, not
 
 ### Global Keyboard Shortcuts
 
-| Key | Action |
-|-----|--------|
-| `Tab` | Move focus forward |
-| `Shift + Tab` | Move focus backward |
-| `Enter` | Activate focused element |
-| `Space` | Activate buttons/checkboxes |
-| `Escape` | Close modals/menus |
-| `Arrow Keys` | Navigate within components |
+| Key           | Action                      |
+| ------------- | --------------------------- |
+| `Tab`         | Move focus forward          |
+| `Shift + Tab` | Move focus backward         |
+| `Enter`       | Activate focused element    |
+| `Space`       | Activate buttons/checkboxes |
+| `Escape`      | Close modals/menus          |
+| `Arrow Keys`  | Navigate within components  |
 
 ### Component-Specific Navigation
 
@@ -66,6 +66,7 @@ Tab Order:
 ```
 
 **Keyboard Support:**
+
 - `Tab`: Navigate through links
 - `Enter`: Activate link
 - `Space`: Toggle theme/menu
@@ -80,6 +81,7 @@ Tab Order:
 ```
 
 **Keyboard Support:**
+
 - `Tab`: Focus tab list
 - `Arrow Left/Right`: Navigate between tabs
 - `Home`: Jump to first tab
@@ -89,6 +91,7 @@ Tab Order:
 #### Mobile Menu
 
 **Keyboard Support:**
+
 - `Tab`: Navigate menu items
 - `Escape`: Close menu
 - `Enter`: Activate link
@@ -97,6 +100,7 @@ Tab Order:
 #### Solutions Tabs
 
 **Keyboard Support:**
+
 - `Tab`: Focus tab list
 - `Arrow Left/Right`: Switch solutions
 - `Enter/Space`: Activate tab
@@ -233,6 +237,7 @@ Decorative elements are hidden from screen readers:
 ### Screen Reader Testing
 
 Tested with:
+
 - **NVDA** (Windows)
 - **JAWS** (Windows)
 - **VoiceOver** (macOS/iOS)
@@ -260,6 +265,7 @@ All interactive elements have visible focus indicators:
 ```
 
 **Minimum Requirements:**
+
 - 2px outline width
 - High contrast color
 - Visible on all backgrounds
@@ -275,23 +281,23 @@ useEffect(() => {
   if (isOpen) {
     // Store last focused element
     const lastFocused = document.activeElement;
-    
+
     // Focus first element in menu
     firstElement?.focus();
-    
+
     // Trap focus within menu
     const handleTab = (e: KeyboardEvent) => {
-      if (e.key === 'Tab') {
+      if (e.key === "Tab") {
         // Cycle focus within menu
       }
     };
-    
-    document.addEventListener('keydown', handleTab);
-    
+
+    document.addEventListener("keydown", handleTab);
+
     return () => {
       // Restore focus
       lastFocused?.focus();
-      document.removeEventListener('keydown', handleTab);
+      document.removeEventListener("keydown", handleTab);
     };
   }
 }, [isOpen]);
@@ -329,12 +335,12 @@ Logical tab order throughout the site:
 
 All text meets WCAG AA standards:
 
-| Element | Minimum Ratio | Actual Ratio |
-|---------|--------------|--------------|
-| Normal text | 4.5:1 | 7.2:1 (light), 8.1:1 (dark) |
-| Large text (18px+) | 3:1 | 7.2:1 (light), 8.1:1 (dark) |
-| UI components | 3:1 | 4.8:1 (light), 5.2:1 (dark) |
-| Focus indicators | 3:1 | 5.5:1 |
+| Element            | Minimum Ratio | Actual Ratio                |
+| ------------------ | ------------- | --------------------------- |
+| Normal text        | 4.5:1         | 7.2:1 (light), 8.1:1 (dark) |
+| Large text (18px+) | 3:1           | 7.2:1 (light), 8.1:1 (dark) |
+| UI components      | 3:1           | 4.8:1 (light), 5.2:1 (dark) |
+| Focus indicators   | 3:1           | 5.5:1                       |
 
 ### Color Palette Contrast
 
@@ -396,19 +402,19 @@ All animations respect `prefers-reduced-motion`:
 // Hook to detect motion preference
 export function useReducedMotion(): boolean {
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  
+
   useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
     setPrefersReducedMotion(mediaQuery.matches);
-    
+
     const handleChange = () => {
       setPrefersReducedMotion(mediaQuery.matches);
     };
-    
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
-  
+
   return prefersReducedMotion;
 }
 ```
@@ -419,7 +425,7 @@ export function useReducedMotion(): boolean {
 // Component with motion support
 function AnimatedComponent() {
   const prefersReducedMotion = useReducedMotion();
-  
+
   return (
     <motion.div
       animate={prefersReducedMotion ? {} : { scale: 1.05 }}
@@ -489,14 +495,10 @@ Errors are announced to screen readers:
     id="email"
     type="email"
     aria-invalid={hasError}
-    aria-describedby={hasError ? 'email-error' : undefined}
+    aria-describedby={hasError ? "email-error" : undefined}
   />
   {hasError && (
-    <div
-      id="email-error"
-      role="alert"
-      className="text-error"
-    >
+    <div id="email-error" role="alert" className="text-error">
       Please enter a valid email address
     </div>
   )}
@@ -638,6 +640,7 @@ npm test -- --grep "accessibility"
 ### Browser Testing
 
 Test in multiple browsers:
+
 - Chrome + ChromeVox
 - Firefox + NVDA
 - Safari + VoiceOver

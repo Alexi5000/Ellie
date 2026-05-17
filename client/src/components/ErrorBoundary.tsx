@@ -29,7 +29,9 @@ class ErrorBoundary extends Component<Props, State> {
               size={48}
               className="text-destructive mb-6 flex-shrink-0"
             />
-            <h2 className="text-xl mb-2 text-foreground">Something went wrong</h2>
+            <h2 className="text-xl mb-2 text-foreground">
+              Something went wrong
+            </h2>
             <p className="text-sm text-muted-foreground mb-6">
               An unexpected error occurred. Please reload the page to try again.
             </p>

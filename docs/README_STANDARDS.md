@@ -16,15 +16,18 @@ README.md (Root)           → Project overview, quick start, high-level archite
 ## 🎯 Purpose of Each README
 
 ### Root README (`README.md`)
+
 **Audience**: Everyone (developers, users, contributors, stakeholders)
 
 **Purpose**:
+
 - Project overview and value proposition
 - Quick start for the entire project
 - High-level architecture overview
 - Links to detailed documentation
 
 **Should Include**:
+
 - Project description and badges
 - Quick start guide
 - Project structure overview
@@ -33,6 +36,7 @@ README.md (Root)           → Project overview, quick start, high-level archite
 - Contributing and license info
 
 **Should NOT Include**:
+
 - Detailed API documentation
 - Component-level details
 - Implementation specifics
@@ -41,15 +45,18 @@ README.md (Root)           → Project overview, quick start, high-level archite
 ---
 
 ### Backend README (`backend/README.md`)
+
 **Audience**: Backend developers
 
 **Purpose**:
+
 - Backend-specific setup and development
 - API endpoint documentation
 - Service architecture details
 - Backend testing guide
 
 **Should Include**:
+
 - Backend tech stack
 - Detailed project structure
 - API endpoints
@@ -59,6 +66,7 @@ README.md (Root)           → Project overview, quick start, high-level archite
 - Performance benchmarks
 
 **Should NOT Include**:
+
 - Frontend details
 - General project overview (link to root)
 - Deployment (link to docs)
@@ -66,15 +74,18 @@ README.md (Root)           → Project overview, quick start, high-level archite
 ---
 
 ### Frontend README (`frontend/README.md`)
+
 **Audience**: Frontend developers
 
 **Purpose**:
+
 - Frontend-specific setup and development
 - Component documentation
 - Styling and theming guide
 - Frontend testing guide
 
 **Should Include**:
+
 - Frontend tech stack
 - Detailed project structure
 - Component documentation
@@ -84,6 +95,7 @@ README.md (Root)           → Project overview, quick start, high-level archite
 - Performance optimization
 
 **Should NOT Include**:
+
 - Backend details
 - General project overview (link to root)
 - Deployment (link to docs)
@@ -91,20 +103,24 @@ README.md (Root)           → Project overview, quick start, high-level archite
 ---
 
 ### Docs README (`docs/README.md`)
+
 **Audience**: All developers, documentation maintainers
 
 **Purpose**:
+
 - Documentation navigation hub
 - Quick links by role
 - Documentation status tracking
 
 **Should Include**:
+
 - Documentation structure
 - Quick links by role (Developer, DevOps, QA)
 - Document status table
 - Documentation conventions
 
 **Should NOT Include**:
+
 - Actual documentation content (link to it)
 - Setup instructions (link to other READMEs)
 
@@ -125,7 +141,7 @@ README.md (Root)           → Project overview, quick start, high-level archite
 
 - [Section 1](#section-1)
 - [Section 2](#section-2)
-...
+  ...
 
 ## Section 1
 
@@ -142,9 +158,11 @@ Link to CONTRIBUTING.md with specific guidelines
 ## 📄 Documentation
 
 ### [Component] Documentation
+
 - Links to relevant docs
 
 ### Related Documentation
+
 - Cross-references to other READMEs
 
 ## 🆘 Troubleshooting
@@ -154,11 +172,13 @@ Common issues and solutions
 ## 📞 Support
 
 ### Getting Help
+
 - Documentation links
 - Issue tracker
 - Contact info
 
 ### Quick Links
+
 - Cross-references
 
 ---
@@ -195,23 +215,27 @@ Common issues and solutions
 ### Cross-Reference Patterns
 
 **From Root to Subsystems**:
+
 ```markdown
 - **[🔧 Backend Guide](backend/README.md)** - Backend API documentation
 - **[⚛️ Frontend Guide](frontend/README.md)** - Frontend application documentation
 ```
 
 **From Subsystems to Root**:
+
 ```markdown
 - **[Main README](../README.md)** - Project overview
 ```
 
 **Between Subsystems**:
+
 ```markdown
 - **[Backend README](../backend/README.md)** - Backend documentation
 - **[Frontend README](../frontend/README.md)** - Frontend documentation
 ```
 
 **To Documentation**:
+
 ```markdown
 - **[Documentation Hub](../docs/README.md)** - All documentation
 - **[Test Guide](../docs/testing/QUICK_TEST_GUIDE.md)** - Testing documentation
@@ -222,6 +246,7 @@ Common issues and solutions
 ### Badges
 
 Use shields.io badges for:
+
 - Language/framework versions
 - Build status
 - License
@@ -236,6 +261,7 @@ Use shields.io badges for:
 ### Emojis
 
 Use emojis consistently for section headers:
+
 - 📖 Table of Contents
 - 🚀 Quick Start
 - 🏗️ Architecture
@@ -252,15 +278,17 @@ Use emojis consistently for section headers:
 
 Always specify language for syntax highlighting:
 
-```markdown
+````markdown
 ```bash
 npm install
 ```
+````
 
 ```typescript
 const example = "code";
 ```
-```
+
+````
 
 ### Links
 
@@ -320,22 +348,22 @@ Use descriptive link text:
 ## 🎯 Best Practices
 
 ### DO:
-✅ Keep READMEs focused on their specific audience  
-✅ Use cross-references instead of duplicating content  
-✅ Update "Last Updated" date when making changes  
-✅ Use consistent formatting and emojis  
-✅ Include practical examples  
-✅ Link to detailed documentation  
-✅ Keep quick start sections concise  
+✅ Keep READMEs focused on their specific audience
+✅ Use cross-references instead of duplicating content
+✅ Update "Last Updated" date when making changes
+✅ Use consistent formatting and emojis
+✅ Include practical examples
+✅ Link to detailed documentation
+✅ Keep quick start sections concise
 
 ### DON'T:
-❌ Duplicate content across READMEs  
-❌ Include implementation details in root README  
-❌ Mix concerns (e.g., frontend details in backend README)  
-❌ Let READMEs become outdated  
-❌ Use broken links  
-❌ Forget to update cross-references  
-❌ Make READMEs too long (link to docs instead)  
+❌ Duplicate content across READMEs
+❌ Include implementation details in root README
+❌ Mix concerns (e.g., frontend details in backend README)
+❌ Let READMEs become outdated
+❌ Use broken links
+❌ Forget to update cross-references
+❌ Make READMEs too long (link to docs instead)
 
 ## 📝 Examples
 
@@ -352,7 +380,7 @@ Use descriptive link text:
 - **[Main README](../README.md)** - Project overview
 - **[Frontend README](../frontend/README.md)** - Frontend documentation
 - **[Documentation Hub](../docs/README.md)** - All documentation
-```
+````
 
 ### Good Navigation Example
 

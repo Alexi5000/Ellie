@@ -23,6 +23,7 @@ docker-compose up --build
 ```
 
 **Services Available:**
+
 - Frontend: http://localhost:3000
 - Backend: http://localhost:5000
 - Nginx Proxy: http://localhost:80
@@ -40,6 +41,7 @@ docker-compose -f docker-compose.prod.yml up --build
 ```
 
 **Services Available:**
+
 - Application: http://localhost:80 (https://localhost:443 with SSL)
 - Monitoring: http://localhost:9090
 
@@ -50,6 +52,7 @@ docker-compose -f docker-compose.prod.yml up --build
 Create the following environment files:
 
 **backend/.env** (Development):
+
 ```env
 NODE_ENV=development
 OPENAI_API_KEY=your_openai_api_key
@@ -58,6 +61,7 @@ REDIS_URL=redis://redis:6379
 ```
 
 **backend/.env.production** (Production):
+
 ```env
 NODE_ENV=production
 OPENAI_API_KEY=your_openai_api_key
@@ -128,10 +132,10 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '0.5'
+          cpus: "0.5"
           memory: 512M
         reservations:
-          cpus: '0.25'
+          cpus: "0.25"
           memory: 256M
 ```
 

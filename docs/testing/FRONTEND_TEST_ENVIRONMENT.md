@@ -81,8 +81,8 @@ const mockMediaRecorder = vi.fn().mockImplementation(() => ({
   stop: vi.fn(),
   addEventListener: vi.fn(),
   removeEventListener: vi.fn(),
-  state: 'inactive',
-  mimeType: 'audio/webm',
+  state: "inactive",
+  mimeType: "audio/webm",
 }));
 ```
 
@@ -94,7 +94,7 @@ class MockWebSocket {
   static OPEN = 1;
   static CLOSING = 2;
   static CLOSED = 3;
-  
+
   addEventListener = vi.fn();
   removeEventListener = vi.fn();
   send = vi.fn();
@@ -106,7 +106,7 @@ class MockWebSocket {
 #### Socket.io Mock
 
 ```typescript
-vi.mock('socket.io-client', () => ({
+vi.mock("socket.io-client", () => ({
   io: vi.fn().mockReturnValue({
     on: vi.fn(),
     off: vi.fn(),
@@ -114,7 +114,7 @@ vi.mock('socket.io-client', () => ({
     connect: vi.fn(),
     disconnect: vi.fn(),
     connected: true,
-    id: 'mock-socket-id',
+    id: "mock-socket-id",
   }),
 }));
 ```
@@ -124,9 +124,10 @@ vi.mock('socket.io-client', () => ({
 ### Best Practices
 
 1. **Use Testing Library**: Prefer user-centric queries
+
    ```typescript
    import { render, screen, waitFor } from '@testing-library/react';
-   
+
    it('should display button', () => {
      render(<VoiceButton />);
      expect(screen.getByRole('button')).toBeInTheDocument();
@@ -134,6 +135,7 @@ vi.mock('socket.io-client', () => ({
    ```
 
 2. **Handle Async Operations**: Use waitFor for async updates
+
    ```typescript
    it('should update state', async () => {
      render(<Component />);
@@ -144,19 +146,21 @@ vi.mock('socket.io-client', () => ({
    ```
 
 3. **Mock API Calls**: Use fetch mock
+
    ```typescript
    beforeEach(() => {
      (global.fetch as any).mockResolvedValue({
        ok: true,
-       json: async () => ({ data: 'test' }),
+       json: async () => ({ data: "test" }),
      });
    });
    ```
 
 4. **Test User Interactions**: Use userEvent
+
    ```typescript
    import userEvent from '@testing-library/user-event';
-   
+
    it('should handle click', async () => {
      const user = userEvent.setup();
      render(<Button />);
@@ -170,10 +174,10 @@ vi.mock('socket.io-client', () => ({
 ```typescript
 it('should start recording', async () => {
   render(<VoiceInterface />);
-  
+
   const button = screen.getByRole('button', { name: /start/i });
   await userEvent.click(button);
-  
+
   await waitFor(() => {
     expect(mockMediaRecorder).toHaveBeenCalled();
   });
@@ -187,7 +191,7 @@ import { socketService } from '../services/socketService';
 
 it('should connect to socket', async () => {
   render(<App />);
-  
+
   await waitFor(() => {
     expect(socketService.connect).toHaveBeenCalled();
   });
@@ -201,13 +205,13 @@ it('should catch errors', () => {
   const ThrowError = () => {
     throw new Error('Test error');
   };
-  
+
   render(
     <ErrorBoundary>
       <ThrowError />
     </ErrorBoundary>
   );
-  
+
   expect(screen.getByText(/error occurred/i)).toBeInTheDocument();
 });
 ```
@@ -247,26 +251,31 @@ VITEST_VERBOSE=true npm test
 ## Running Tests
 
 ### All Tests
+
 ```bash
 npm test
 ```
 
 ### Specific Test File
+
 ```bash
 npm test -- VoiceInterface.test.tsx
 ```
 
 ### Watch Mode
+
 ```bash
 npm run test:watch
 ```
 
 ### With UI
+
 ```bash
 npx vitest --ui
 ```
 
 ### With Coverage
+
 ```bash
 npm test -- --coverage
 ```
@@ -296,15 +305,15 @@ frontend/
 ### Testing Hooks
 
 ```typescript
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor } from "@testing-library/react";
 
-it('should use voice recording', async () => {
+it("should use voice recording", async () => {
   const { result } = renderHook(() => useVoiceRecording());
-  
+
   act(() => {
     result.current.startRecording();
   });
-  
+
   await waitFor(() => {
     expect(result.current.isRecording).toBe(true);
   });
@@ -335,7 +344,7 @@ it('should detect mobile device', () => {
     value: 'Mobile',
     configurable: true,
   });
-  
+
   render(<MobileComponent />);
   expect(screen.getByTestId('mobile-view')).toBeInTheDocument();
 });

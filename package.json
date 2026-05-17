@@ -1,6 +1,6 @@
 {
   "name": "ellie-ai",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -8,9 +8,24 @@
     "build": "vite build && esbuild server/_core/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc --noEmit",
+    "validate:env": "tsx scripts/validate-env.ts",
+    "validate:env:production": "NODE_ENV=production tsx scripts/validate-env.ts",
+    "ci": "pnpm validate:env && pnpm check && pnpm test && pnpm build",
     "format": "prettier --write .",
     "test": "vitest run",
-    "db:push": "drizzle-kit generate && drizzle-kit migrate"
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "pnpm db:generate && pnpm db:migrate",
+    "lint": "pnpm check",
+    "type-check": "pnpm check",
+    "format:check": "prettier --check .",
+    "lint:fix": "prettier --write .",
+    "preview": "pnpm build && pnpm start",
+    "test:setup": "npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 validate:env",
+    "test:backend": "npx --yes pnpm@10.15.1 test",
+    "test:frontend": "npx --yes pnpm@10.15.1 test",
+    "test:integration": "npx --yes pnpm@10.15.1 test",
+    "test:production": "DATABASE_URL=${DATABASE_URL:-mysql://ellie:ellie@127.0.0.1:3306/ellie_ci} JWT_SECRET=${JWT_SECRET:-dummy-ci-jwt-secret-change-before-production} BUILT_IN_FORGE_API_URL=${BUILT_IN_FORGE_API_URL:-https://forge.local.invalid} BUILT_IN_FORGE_API_KEY=${BUILT_IN_FORGE_API_KEY:-dummy-ci-forge-key} npx --yes pnpm@10.15.1 validate:env:production && npx --yes pnpm@10.15.1 build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",

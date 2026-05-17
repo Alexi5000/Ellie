@@ -18,6 +18,7 @@ The project includes two SSL setup scripts:
 2. **Bash Script** (`docker/ssl-setup.sh`) - For Linux/Mac environments
 
 Both scripts perform the same functions:
+
 - Create SSL directory structure
 - Generate self-signed certificates for development (optional)
 - Provide instructions for production certificate setup
@@ -27,11 +28,13 @@ Both scripts perform the same functions:
 ### For Development (Self-Signed Certificates)
 
 #### Windows (PowerShell)
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File docker/ssl-setup.ps1 -Domain localhost -SelfSigned
 ```
 
 #### Linux/Mac (Bash)
+
 ```bash
 bash docker/ssl-setup.sh localhost --self-signed
 ```
@@ -41,11 +44,13 @@ bash docker/ssl-setup.sh localhost --self-signed
 ### For Production (CA-Signed Certificates)
 
 #### Windows (PowerShell)
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File docker/ssl-setup.ps1 -Domain your-domain.com
 ```
 
 #### Linux/Mac (Bash)
+
 ```bash
 bash docker/ssl-setup.sh your-domain.com
 ```
@@ -88,6 +93,7 @@ sudo chmod 600 ./ssl/private/ellie.key
 ```
 
 **Automatic Renewal:**
+
 ```bash
 # Test renewal
 sudo certbot renew --dry-run
@@ -154,26 +160,28 @@ nginx:
 Edit `docker/nginx-production.conf`:
 
 1. **Uncomment the HTTPS redirect** in the HTTP server block:
+
 ```nginx
 server {
     listen 80;
     server_name _;
-    
+
     # Uncomment this line:
     return 301 https://$server_name$request_uri;
 }
 ```
 
 2. **Uncomment SSL certificate paths** in the HTTPS server block:
+
 ```nginx
 server {
     listen 443 ssl http2;
     server_name _;
-    
+
     # Uncomment these lines:
     ssl_certificate /etc/ssl/certs/ellie.crt;
     ssl_certificate_key /etc/ssl/private/ellie.key;
-    
+
     # ... rest of configuration
 }
 ```
@@ -256,6 +264,7 @@ chmod 600 ssl/private/ellie.key
 ### Security Headers
 
 The nginx configuration includes security headers:
+
 - X-Frame-Options
 - X-Content-Type-Options
 - X-XSS-Protection
@@ -265,6 +274,7 @@ The nginx configuration includes security headers:
 ### TLS Configuration
 
 The application uses:
+
 - TLS 1.2 and TLS 1.3 only
 - Strong cipher suites
 - Perfect Forward Secrecy
@@ -277,6 +287,7 @@ The application uses:
 **Error:** `nginx: [emerg] cannot load certificate`
 
 **Solution:**
+
 1. Verify files exist: `ls -la ssl/certs/ ssl/private/`
 2. Check file permissions
 3. Ensure volume mounts are uncommented in docker-compose.prod.yml
@@ -286,6 +297,7 @@ The application uses:
 **Error:** `Permission denied` when accessing certificate files
 
 **Solution:**
+
 ```bash
 sudo chmod 644 ssl/certs/ellie.crt
 sudo chmod 600 ssl/private/ellie.key
@@ -296,6 +308,7 @@ sudo chmod 600 ssl/private/ellie.key
 **Error:** Browser shows "Certificate not trusted"
 
 **Solution:**
+
 - Ensure you have the full certificate chain
 - Include intermediate certificates in ellie.crt
 - Verify certificate order: server cert first, then intermediates
@@ -305,6 +318,7 @@ sudo chmod 600 ssl/private/ellie.key
 **Error:** Browser console shows mixed content warnings
 
 **Solution:**
+
 - Update all API URLs to use HTTPS
 - Check REACT_APP_API_URL and REACT_APP_SOCKET_URL
 - Ensure WebSocket connections use wss:// instead of ws://
@@ -314,9 +328,11 @@ sudo chmod 600 ssl/private/ellie.key
 **Error:** `OpenSSL not found` when generating self-signed certificates
 
 **Solutions:**
+
 1. Install OpenSSL for Windows
 2. Use WSL (Windows Subsystem for Linux)
 3. Use PowerShell's built-in certificate cmdlet:
+
 ```powershell
 New-SelfSignedCertificate -DnsName "localhost" -CertStoreLocation "cert:\LocalMachine\My"
 ```
@@ -354,6 +370,7 @@ openssl x509 -in ssl/certs/ellie.crt -noout -text
 ## Support
 
 For issues or questions:
+
 1. Check the troubleshooting section above
 2. Review nginx logs: `docker-compose -f docker-compose.prod.yml logs nginx`
 3. Verify SSL configuration with online tools

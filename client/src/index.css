@@ -52,9 +52,9 @@
   --color-cyan: oklch(0.78 0.12 195);
   --color-cyan-dim: oklch(0.55 0.1 195);
   --color-neural-glow: oklch(0.82 0.15 75 / 20%);
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
 }
 
 :root {
@@ -102,10 +102,17 @@
     @apply bg-background text-foreground;
     font-family: var(--font-body);
   }
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: var(--font-display);
   }
-  code, pre, .font-mono {
+  code,
+  pre,
+  .font-mono {
     font-family: var(--font-mono);
   }
   button:not(:disabled),
@@ -165,19 +172,22 @@
 
   /* Neural Noir: Amber glow effects */
   .glow-amber {
-    box-shadow: 0 0 20px oklch(0.82 0.15 75 / 15%),
-                0 0 60px oklch(0.82 0.15 75 / 5%);
+    box-shadow:
+      0 0 20px oklch(0.82 0.15 75 / 15%),
+      0 0 60px oklch(0.82 0.15 75 / 5%);
   }
 
   .glow-amber-strong {
-    box-shadow: 0 0 20px oklch(0.82 0.15 75 / 25%),
-                0 0 60px oklch(0.82 0.15 75 / 10%),
-                0 0 100px oklch(0.82 0.15 75 / 5%);
+    box-shadow:
+      0 0 20px oklch(0.82 0.15 75 / 25%),
+      0 0 60px oklch(0.82 0.15 75 / 10%),
+      0 0 100px oklch(0.82 0.15 75 / 5%);
   }
 
   .glow-cyan {
-    box-shadow: 0 0 20px oklch(0.78 0.12 195 / 15%),
-                0 0 60px oklch(0.78 0.12 195 / 5%);
+    box-shadow:
+      0 0 20px oklch(0.78 0.12 195 / 15%),
+      0 0 60px oklch(0.78 0.12 195 / 5%);
   }
 
   /* Neural Noir: Text glow */
@@ -194,13 +204,20 @@
     position: relative;
   }
   .border-gradient::before {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(135deg, oklch(0.82 0.15 75 / 40%), oklch(0.78 0.12 195 / 20%), transparent);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    background: linear-gradient(
+      135deg,
+      oklch(0.82 0.15 75 / 40%),
+      oklch(0.78 0.12 195 / 20%),
+      transparent
+    );
+    mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
     mask-composite: exclude;
     pointer-events: none;
   }
@@ -211,7 +228,8 @@
   }
 
   @keyframes pulseRing {
-    0%, 100% {
+    0%,
+    100% {
       box-shadow: 0 0 0 0 oklch(0.82 0.15 75 / 40%);
     }
     50% {
@@ -232,8 +250,12 @@
   }
 
   @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
   }
 
   /* Neural Noir: Waveform bars animation */
@@ -242,8 +264,13 @@
   }
 
   @keyframes waveformPulse {
-    0%, 100% { transform: scaleY(0.3); }
-    50% { transform: scaleY(1); }
+    0%,
+    100% {
+      transform: scaleY(0.3);
+    }
+    50% {
+      transform: scaleY(1);
+    }
   }
 }
 
@@ -265,10 +292,19 @@
 
 /* Float animation for particles */
 @keyframes float {
-  0%, 100% { transform: translateY(0) translateX(0); }
-  25% { transform: translateY(-10px) translateX(5px); }
-  50% { transform: translateY(-5px) translateX(-5px); }
-  75% { transform: translateY(-15px) translateX(3px); }
+  0%,
+  100% {
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-10px) translateX(5px);
+  }
+  50% {
+    transform: translateY(-5px) translateX(-5px);
+  }
+  75% {
+    transform: translateY(-15px) translateX(3px);
+  }
 }
 
 /* Font utility classes */
@@ -281,7 +317,7 @@
 
 /* Film grain overlay */
 .film-grain::after {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   opacity: 0.03;

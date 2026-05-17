@@ -1,486 +1,118 @@
-# Contributing to Ellie Voice Receptionist
+# Contributing to Ellie AI
 
-Thank you for your interest in contributing to Ellie Voice Receptionist! This document provides guidelines and instructions for contributing to the project.
+Thank you for contributing to Ellie AI. This repository is being hardened as a professional full-stack TypeScript application, so every contribution should improve product quality, backend correctness, operational readiness, documentation accuracy, or release confidence.
 
-## 📋 Table of Contents
+## Working Agreement
 
-- [Code of Conduct](#code-of-conduct)
-- [Getting Started](#getting-started)
-- [Development Workflow](#development-workflow)
-- [Coding Standards](#coding-standards)
-- [Testing Guidelines](#testing-guidelines)
-- [Documentation](#documentation)
-- [Pull Request Process](#pull-request-process)
-- [Project Structure](#project-structure)
+Contributors should keep changes small enough to review, document operational impact, and run the required validation gates before requesting review. Ellie’s active backend is the TypeScript Express/tRPC runtime in `server/`; the FastAPI material under `docs/migration/` is reference material unless a future migration is explicitly approved.
 
-## 🤝 Code of Conduct
+| Principle             | Expectation                                                                                         |
+| --------------------- | --------------------------------------------------------------------------------------------------- |
+| Backend truthfulness  | Do not document unimplemented provider workflows as production-complete. Mark planned work clearly. |
+| Type safety           | Keep client calls, tRPC procedures, shared types, and database schema changes aligned.              |
+| Operational readiness | Update health, readiness, setup, and release documentation when runtime behavior changes.           |
+| Security hygiene      | Do not commit secrets, generated credentials, private media, or local environment files.            |
+| Reviewability         | Use focused branches, conventional commits, validation evidence, and clear PR descriptions.         |
 
-- Be respectful and inclusive
-- Welcome newcomers and help them get started
-- Focus on constructive feedback
-- Respect different viewpoints and experiences
+## Prerequisites
 
-## 🚀 Getting Started
+| Tool                      |        Version | Purpose                                                         |
+| ------------------------- | -------------: | --------------------------------------------------------------- |
+| Node.js                   |    22 or newer | Development and production runtime.                             |
+| pnpm                      |           10.x | Dependency management through the lockfile.                     |
+| MySQL-compatible database | 8.x compatible | Required for database-backed production flows.                  |
+| Docker                    | Current stable | Optional but recommended for release and deployment validation. |
 
-### Prerequisites
-
-- Node.js 18+ and npm
-- Docker Desktop
-- Git
-- Code editor (VS Code recommended)
-
-### Initial Setup
-
-1. **Fork and Clone**
-   ```bash
-   git clone https://github.com/Alexi5000/Ellie.git
-   cd Ellie
-   ```
-
-2. **Install Dependencies**
-   ```bash
-   # Backend
-   cd backend && npm install
-   
-   # Frontend
-   cd ../frontend && npm install
-   
-   # Root (for integration tests)
-   cd .. && npm install
-   ```
-
-3. **Environment Configuration**
-   ```bash
-   # Backend
-   cp backend/.env.example backend/.env
-   # Edit backend/.env with your API keys
-   
-   # Frontend
-   cp frontend/.env.example frontend/.env
-   ```
-
-4. **Start Development Environment**
-   ```bash
-   npm run docker:up
-   ```
-
-## 🔄 Development Workflow
-
-### Branch Strategy
-
-- `main` - Production-ready code
-- `develop` - Integration branch for features
-- `feature/*` - New features
-- `bugfix/*` - Bug fixes
-- `hotfix/*` - Urgent production fixes
-
-### Creating a Feature Branch
+## Local Setup
 
 ```bash
-git checkout develop
-git pull origin develop
-git checkout -b feature/your-feature-name
+git clone https://github.com/Alexi5000/Ellie.git
+cd Ellie
+pnpm install --frozen-lockfile
+cp .env.example .env
+pnpm validate:env
+pnpm dev
 ```
 
-### Making Changes
-
-1. **Write Code**
-   - Follow coding standards (see below)
-   - Add tests for new functionality
-   - Update documentation as needed
-
-2. **Test Locally**
-   ```bash
-   # Run all tests
-   npm run test:all
-   
-   # Run specific tests
-   npm run test:backend
-   npm run test:frontend
-   ```
-
-3. **Commit Changes**
-   ```bash
-   git add .
-   git commit -m "feat: add new feature description"
-   ```
-
-### Commit Message Convention
-
-Follow [Conventional Commits](https://www.conventionalcommits.org/):
-
-- `feat:` - New feature
-- `fix:` - Bug fix
-- `docs:` - Documentation changes
-- `style:` - Code style changes (formatting, etc.)
-- `refactor:` - Code refactoring
-- `test:` - Adding or updating tests
-- `chore:` - Maintenance tasks
-
-**Examples:**
-```
-feat: add voice recording pause functionality
-fix: resolve WebSocket connection timeout issue
-docs: update API documentation for voice endpoints
-test: add integration tests for AI service
-```
-
-## 💻 Coding Standards
-
-### TypeScript/JavaScript
-
-- Use TypeScript for type safety
-- Follow ESLint configuration
-- Use meaningful variable names
-- Add JSDoc comments for public APIs
-- Prefer `const` over `let`, avoid `var`
-- Use async/await over promises
-
-**Example:**
-```typescript
-/**
- * Process voice input and generate AI response
- * @param audioData - Raw audio buffer
- * @param sessionId - User session identifier
- * @returns Processed response with audio
- */
-async function processVoiceInput(
-  audioData: Buffer,
-  sessionId: string
-): Promise<VoiceResponse> {
-  // Implementation
-}
-```
-
-### React Components
-
-- Use functional components with hooks
-- Implement proper prop types
-- Add accessibility attributes
-- Handle loading and error states
-- Use meaningful component names
-
-**Example:**
-```typescript
-interface VoiceButtonProps {
-  onStart: () => void;
-  onStop: () => void;
-  isRecording: boolean;
-  disabled?: boolean;
-}
-
-export const VoiceButton: React.FC<VoiceButtonProps> = ({
-  onStart,
-  onStop,
-  isRecording,
-  disabled = false,
-}) => {
-  // Implementation
-};
-```
-
-### Python (FastAPI)
-
-- Follow PEP 8 style guide
-- Use type hints
-- Add docstrings for functions
-- Use Pydantic models for validation
-
-**Example:**
-```python
-from pydantic import BaseModel, Field
-
-class VoiceRequest(BaseModel):
-    """Voice processing request model"""
-    text: str = Field(..., max_length=4000)
-    language: str = Field(default="en", regex="^[a-z]{2}$")
-    
-    class Config:
-        schema_extra = {
-            "example": {
-                "text": "Hello, how can I help you?",
-                "language": "en"
-            }
-        }
-```
-
-## 🧪 Testing Guidelines
-
-### Writing Tests
-
-1. **Test Coverage**
-   - Aim for 80%+ code coverage
-   - Test happy paths and edge cases
-   - Test error handling
-
-2. **Test Structure**
-   ```typescript
-   describe('Component/Service Name', () => {
-     describe('Method/Feature Name', () => {
-       it('should do something specific', () => {
-         // Arrange
-         const input = createTestData();
-         
-         // Act
-         const result = functionUnderTest(input);
-         
-         // Assert
-         expect(result).toBe(expected);
-       });
-     });
-   });
-   ```
-
-3. **Use Test Helpers**
-   ```typescript
-   // Backend
-   import { createMockMulterFile, flushPromises } from './test/testHelpers';
-   
-   // Frontend
-   import { renderWithProviders, mockGetUserMedia } from './test/testHelpers';
-   ```
-
-### Running Tests
-
-```bash
-# All tests
-npm run test:all
-
-# Backend only
-npm run test:backend
-
-# Frontend only
-npm run test:frontend
-
-# Watch mode
-cd backend && npm run test:watch
-cd frontend && npm run test:watch
-
-# With coverage
-npm test -- --coverage
-```
-
-## 📚 Documentation
-
-### When to Update Documentation
-
-- Adding new features
-- Changing APIs
-- Modifying configuration
-- Fixing bugs that affect usage
-- Adding new dependencies
-
-### Documentation Structure
-
-```
-docs/
-├── README.md                    # Documentation index
-├── development/                 # Development guides
-├── testing/                     # Testing documentation
-├── migration/                   # Migration guides
-├── architecture.md              # System architecture
-├── deployment.md                # Deployment guide
-└── api-reference.md            # API documentation
-```
-
-### Documentation Style
-
-- Use clear, concise language
-- Include code examples
-- Add diagrams where helpful
-- Keep it up to date
-- Link to related documentation
-
-## 🔀 Pull Request Process
-
-### Before Submitting
-
-1. **Update from develop**
-   ```bash
-   git checkout develop
-   git pull origin develop
-   git checkout your-feature-branch
-   git rebase develop
-   ```
-
-2. **Run Tests**
-   ```bash
-   npm run test:all
-   ```
-
-3. **Check Linting**
-   ```bash
-   cd backend && npm run lint
-   cd frontend && npm run lint
-   ```
-
-4. **Update Documentation**
-   - Update relevant docs
-   - Add/update tests
-   - Update CHANGELOG if applicable
-
-### Submitting PR
-
-1. **Push to Your Fork**
-   ```bash
-   git push origin feature/your-feature-name
-   ```
-
-2. **Create Pull Request**
-   - Go to GitHub repository
-   - Click "New Pull Request"
-   - Select your branch
-   - Fill out PR template
-
-3. **PR Template**
-   ```markdown
-   ## Description
-   Brief description of changes
-   
-   ## Type of Change
-   - [ ] Bug fix
-   - [ ] New feature
-   - [ ] Breaking change
-   - [ ] Documentation update
-   
-   ## Testing
-   - [ ] Tests pass locally
-   - [ ] Added new tests
-   - [ ] Updated documentation
-   
-   ## Checklist
-   - [ ] Code follows style guidelines
-   - [ ] Self-review completed
-   - [ ] Comments added for complex code
-   - [ ] Documentation updated
-   - [ ] No new warnings generated
-   ```
-
-### Review Process
-
-1. **Automated Checks**
-   - CI/CD pipeline runs tests
-   - Linting checks pass
-   - Build succeeds
-
-2. **Code Review**
-   - At least one approval required
-   - Address review comments
-   - Update PR as needed
-
-3. **Merge**
-   - Squash and merge to develop
-   - Delete feature branch
-   - Update local repository
-
-## 📁 Project Structure
-
-```
-ellie-voice-receptionist/
-├── backend/                 # Node.js/Express backend
-│   ├── src/
-│   │   ├── routes/         # API routes
-│   │   ├── services/       # Business logic
-│   │   ├── middleware/     # Express middleware
-│   │   └── test/           # Test utilities
-│   └── package.json
-├── backend-fastapi/        # Python/FastAPI backend
-│   ├── app/
-│   │   ├── api/           # API endpoints
-│   │   ├── core/          # Core configuration
-│   │   └── services/      # Business logic
-│   └── requirements.txt
-├── frontend/               # React/TypeScript frontend
-│   ├── src/
-│   │   ├── components/    # React components
-│   │   ├── hooks/         # Custom hooks
-│   │   ├── contexts/      # React contexts
-│   │   └── test/          # Test utilities
-│   └── package.json
-├── docker/                 # Docker configurations
-├── docs/                   # Documentation
-├── scripts/                # Build/deployment scripts
-├── tests/                  # Integration tests
-└── package.json           # Root orchestration
-```
-
-## 🐛 Reporting Bugs
-
-### Before Reporting
-
-1. Check existing issues
-2. Verify it's reproducible
-3. Test on latest version
-4. Gather relevant information
-
-### Bug Report Template
-
-```markdown
-## Bug Description
-Clear description of the bug
-
-## Steps to Reproduce
-1. Go to '...'
-2. Click on '...'
-3. See error
-
-## Expected Behavior
-What should happen
-
-## Actual Behavior
-What actually happens
-
-## Environment
-- OS: [e.g., Windows 10]
-- Browser: [e.g., Chrome 96]
-- Node Version: [e.g., 18.0.0]
-- Docker Version: [e.g., 20.10.0]
-
-## Additional Context
-Screenshots, logs, etc.
-```
-
-## 💡 Feature Requests
-
-### Proposing Features
-
-1. Check existing feature requests
-2. Describe the problem it solves
-3. Propose a solution
-4. Consider alternatives
-5. Discuss implementation
-
-### Feature Request Template
-
-```markdown
-## Problem Statement
-What problem does this solve?
-
-## Proposed Solution
-How should it work?
-
-## Alternatives Considered
-What other approaches were considered?
-
-## Additional Context
-Mockups, examples, etc.
-```
-
-## 🆘 Getting Help
-
-- **Documentation**: Check [docs/](docs/)
-- **Issues**: Search existing issues
-- **Discussions**: GitHub Discussions
-- **Chat**: Project Slack/Discord
-
-## 📄 License
-
-By contributing, you agree that your contributions will be licensed under the MIT License.
-
-## 🙏 Thank You!
-
-Your contributions make this project better for everyone. Thank you for taking the time to contribute!
-
----
-
-**Questions?** Open an issue or reach out to the maintainers.
+The local validator reports missing production-only variables as inventory findings in development. Production validation is stricter and should be run in a secret-complete environment.
+
+## Branch Strategy
+
+Use branch names that identify the intent and surface area of the change.
+
+| Branch Prefix | Use Case                                                 |
+| ------------- | -------------------------------------------------------- |
+| `feature/`    | Product or backend capability changes.                   |
+| `fix/`        | Defect correction.                                       |
+| `docs/`       | Documentation-only updates.                              |
+| `hardening/`  | Production-readiness, security, or release-gate work.    |
+| `chore/`      | Maintenance tasks such as dependency or tooling updates. |
+
+Do not push directly to `main`. Open a pull request and include validation evidence.
+
+## Commit Messages
+
+Use Conventional Commits so release notes and code review history remain readable.
+
+| Prefix      | Meaning                                          |
+| ----------- | ------------------------------------------------ |
+| `feat:`     | User-visible or backend capability.              |
+| `fix:`      | Bug fix.                                         |
+| `docs:`     | Documentation-only change.                       |
+| `refactor:` | Code structure change without behavior change.   |
+| `test:`     | Test addition or correction.                     |
+| `chore:`    | Tooling, dependency, or maintenance change.      |
+| `security:` | Security hardening or vulnerability remediation. |
+
+## Required Validation
+
+Run the relevant gates before opening a pull request. Backend or runtime changes should run the full set.
+
+| Gate                        | Command                          | When Required                                               |
+| --------------------------- | -------------------------------- | ----------------------------------------------------------- |
+| Install consistency         | `pnpm install --frozen-lockfile` | Dependency or lockfile changes.                             |
+| Environment inventory       | `pnpm validate:env`              | Every PR that touches backend, config, docs, or deployment. |
+| Production environment gate | `pnpm validate:env:production`   | Release candidates and deployment changes.                  |
+| Typecheck                   | `pnpm check`                     | Every code PR.                                              |
+| Tests                       | `pnpm test`                      | Every code PR.                                              |
+| Build                       | `pnpm build`                     | Every code or deployment PR.                                |
+| Full gate                   | `pnpm ci`                        | Release candidates and large backend changes.               |
+
+## Backend Contribution Rules
+
+Backend changes should preserve clear boundaries between request handling, persistence, provider integration, and operational checks.
+
+| Area                  | Rule                                                                                                 |
+| --------------------- | ---------------------------------------------------------------------------------------------------- |
+| tRPC routers          | Validate inputs with schemas and keep client contracts synchronized.                                 |
+| Database schema       | Generate migrations, review diffs, and document rollback considerations.                             |
+| Provider integrations | Use adapter boundaries so tests can run without real provider credentials.                           |
+| Health/readiness      | Keep `/api/health` lightweight and reserve `/api/readiness` for configuration and dependency status. |
+| Secrets               | Read secrets only from environment variables or platform secret stores.                              |
+| Long-running work     | Prefer durable jobs over request-bound media processing.                                             |
+
+## Documentation Requirements
+
+Update documentation when a change affects setup, environment variables, endpoints, release gates, architecture, or user-visible behavior.
+
+| Document                           | Update When                                                                     |
+| ---------------------------------- | ------------------------------------------------------------------------------- |
+| `README.md`                        | Product positioning, architecture, scripts, or operational behavior changes.    |
+| `SETUP.md`                         | Installation, environment, Docker, database, or runtime instructions change.    |
+| `docs/PRODUCTION_READINESS.md`     | Backend readiness, operational gates, or risk posture changes.                  |
+| `RELEASES.md`                      | Any release candidate, milestone, or production-impacting change is introduced. |
+| `.github/PULL_REQUEST_TEMPLATE.md` | Review policy or validation expectations change.                                |
+
+## Pull Request Expectations
+
+A professional PR should include a plain-language summary, validation commands, operational impact, screenshots for UI changes, and explicit notes for backend, database, environment, and deployment effects.
+
+Before requesting review, confirm that no `.env`, credentials, private media, generated logs, or local build artifacts have been committed.
+
+## Reporting Bugs
+
+A high-quality bug report should include the affected route or endpoint, reproduction steps, expected behavior, actual behavior, environment details, logs with secrets redacted, and whether `/api/health` or `/api/readiness` is failing.
+
+## License
+
+By contributing, you agree that your contributions are licensed under the MIT License.

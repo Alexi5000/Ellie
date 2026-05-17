@@ -1,139 +1,88 @@
-## Description
+## Summary
 
-<!-- Provide a brief description of the changes in this PR -->
+Describe the change in plain language. Include product impact, backend impact, and the reason this change is needed.
 
 ## Type of Change
 
-<!-- Mark the relevant option with an "x" -->
+- [ ] Feature
+- [ ] Bug fix
+- [ ] Backend hardening
+- [ ] Security hardening
+- [ ] Documentation
+- [ ] Release / deployment
+- [ ] Refactor
+- [ ] Test update
+- [ ] Dependency or tooling update
 
-- [ ] 🐛 Bug fix (non-breaking change which fixes an issue)
-- [ ] ✨ New feature (non-breaking change which adds functionality)
-- [ ] 💥 Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] 📝 Documentation update
-- [ ] 🎨 Style/UI update (no functional changes)
-- [ ] ♻️ Code refactoring (no functional changes)
-- [ ] ⚡ Performance improvement
-- [ ] ✅ Test update
-- [ ] 🔧 Build/CI update
-- [ ] 🔒 Security update
+## Product and User Impact
 
-## Related Issues
+Explain what users, operators, or maintainers will notice after this change.
 
-<!-- Link to related issues using #issue_number -->
+## Backend and Data Impact
 
-Closes #
-Related to #
+| Question                                                                        | Answer |
+| ------------------------------------------------------------------------------- | ------ |
+| Does this change tRPC procedures, server middleware, or operational endpoints?  |        |
+| Does this change the database schema or migrations?                             |        |
+| Does this change storage, AI provider, auth, or background-processing behavior? |        |
+| Does this introduce new environment variables or secrets?                       |        |
+| Does this affect `/api/health`, `/api/readiness`, or `/api/ready`?              |        |
 
-## Changes Made
+## Validation Evidence
 
-<!-- List the main changes made in this PR -->
+Check every command that was run and paste relevant output or artifact links in the notes below.
 
-- 
-- 
-- 
+- [ ] `pnpm install --frozen-lockfile`
+- [ ] `pnpm validate:env`
+- [ ] `pnpm validate:env:production`
+- [ ] `pnpm check`
+- [ ] `pnpm test`
+- [ ] `pnpm build`
+- [ ] `pnpm run ci`
+- [ ] Runtime smoke test: `/api/health`
+- [ ] Runtime smoke test: `/api/readiness` or `/api/ready`
+- [ ] Docker build and container smoke test
+- [ ] Not applicable; this is documentation-only
 
-## Testing
+### Validation Notes
 
-<!-- Describe the tests you ran and how to reproduce them -->
-
-### Test Environment
-- [ ] Local development
-- [ ] Docker containers
-- [ ] Staging environment
-
-### Tests Performed
-- [ ] Unit tests pass
-- [ ] Integration tests pass
-- [ ] Manual testing completed
-- [ ] Browser testing (if frontend changes)
-
-### Test Commands
-```bash
-# Commands used to test these changes
-npm test
-npm run lint
-npm run type-check
+```text
+Paste command output summaries, health/readiness responses, or CI links here. Redact secrets.
 ```
 
-## Screenshots
+## Screenshots or Recordings
 
-<!-- If applicable, add screenshots to help explain your changes -->
+Add screenshots for UI changes. If no visual surface changed, write `Not applicable`.
 
-## Checklist
+## Documentation and Release Notes
 
-<!-- Mark completed items with an "x" -->
+- [ ] `README.md` updated or verified as still accurate
+- [ ] `SETUP.md` updated or verified as still accurate
+- [ ] `docs/PRODUCTION_READINESS.md` updated or verified as still accurate
+- [ ] `RELEASES.md` updated or verified as still accurate
+- [ ] `.env.example` updated when configuration changed
+- [ ] Migration or deployment notes added when required
 
-### Code Quality
-- [ ] My code follows the project's style guidelines
-- [ ] I have performed a self-review of my code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] My changes generate no new warnings
-- [ ] I have run `npm run lint` and fixed all issues
-- [ ] I have run `npm run format` to format my code
+## Security Checklist
 
-### Testing
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing unit tests pass locally with my changes
-- [ ] I have run `npm test` and all tests pass
-- [ ] I have tested on multiple browsers (if frontend changes)
+- [ ] No secrets, tokens, private media, `.env` files, or credentials are committed
+- [ ] New inputs are validated before use
+- [ ] Auth and ownership checks are preserved or improved
+- [ ] Provider credentials are read from environment or secret stores only
+- [ ] Dependency changes are intentional and documented
 
-### Documentation
-- [ ] I have updated the documentation accordingly
-- [ ] I have updated the README if needed
-- [ ] I have added/updated JSDoc comments for new functions
-- [ ] I have updated the CHANGELOG (if applicable)
+## Reviewer Focus Areas
 
-### Dependencies
-- [ ] I have not added unnecessary dependencies
-- [ ] All new dependencies are properly documented
-- [ ] I have run `npm audit` and addressed any issues
+List the files or behaviors reviewers should inspect most carefully.
 
-### Security
-- [ ] My changes do not introduce security vulnerabilities
-- [ ] I have not committed sensitive information (API keys, passwords, etc.)
-- [ ] I have followed security best practices
-
-## Performance Impact
-
-<!-- Describe any performance implications of your changes -->
-
-- [ ] No performance impact
-- [ ] Performance improved
-- [ ] Performance may be affected (explain below)
-
-## Breaking Changes
-
-<!-- If this PR includes breaking changes, describe them here -->
+-
+-
+-
 
 ## Deployment Notes
 
-<!-- Any special deployment considerations? -->
+Describe rollout requirements, required secrets, database migrations, rollback considerations, and monitoring checks.
 
-## Additional Context
+## Related Issues or Follow-Ups
 
-<!-- Add any other context about the PR here -->
-
----
-
-## For Reviewers
-
-### Review Focus Areas
-<!-- Highlight specific areas that need careful review -->
-
-- 
-- 
-
-### Questions for Reviewers
-<!-- Any specific questions or concerns? -->
-
-- 
-- 
-
----
-
-**PR Author Checklist:**
-- [ ] I have read the [Contributing Guidelines](../CONTRIBUTING.md)
-- [ ] I have assigned appropriate labels
-- [ ] I have requested reviews from relevant team members
-- [ ] I have linked related issues
-- [ ] All CI checks are passing
+Link related issues, TODOs, or planned follow-up PRs.

@@ -5,12 +5,14 @@ Enterprise-grade AI voice assistant backend built with FastAPI, featuring micros
 ## 🚀 Features
 
 ### Core Functionality
+
 - **Voice Processing**: Speech-to-text and text-to-speech with OpenAI Whisper and TTS
 - **AI Integration**: Dual AI provider support (OpenAI GPT + Groq) with intelligent routing
 - **Real-time Communication**: WebSocket support for live voice interactions
 - **Legal Compliance**: Built-in legal disclaimers and GDPR compliance features
 
 ### Enterprise Architecture
+
 - **Service Discovery**: Automatic service registration and health monitoring
 - **Circuit Breaker**: Fault tolerance with automatic recovery
 - **Rate Limiting**: Advanced rate limiting with Redis backend
@@ -18,6 +20,7 @@ Enterprise-grade AI voice assistant backend built with FastAPI, featuring micros
 - **Load Balancing**: Intelligent request routing with health-based selection
 
 ### Monitoring & Observability
+
 - **Structured Logging**: JSON-structured logs with correlation IDs
 - **Prometheus Metrics**: Comprehensive metrics export
 - **Health Checks**: Deep health monitoring with dependency checking
@@ -25,6 +28,7 @@ Enterprise-grade AI voice assistant backend built with FastAPI, featuring micros
 - **Real-time Dashboard**: Live system monitoring interface
 
 ### Security & Compliance
+
 - **JWT Authentication**: Secure API access with token-based auth
 - **Input Validation**: Comprehensive request validation with Pydantic
 - **CORS Protection**: Configurable cross-origin resource sharing
@@ -43,6 +47,7 @@ Enterprise-grade AI voice assistant backend built with FastAPI, featuring micros
 ### Quick Start
 
 1. **Clone and setup**:
+
 ```bash
 git clone <repository>
 cd backend-fastapi
@@ -50,14 +55,16 @@ cp .env.example .env
 ```
 
 2. **Configure environment**:
-Edit `.env` file with your API keys and settings.
+   Edit `.env` file with your API keys and settings.
 
 3. **Start with Docker**:
+
 ```bash
 docker-compose up -d
 ```
 
 4. **Or start manually**:
+
 ```bash
 chmod +x scripts/start.sh
 ./scripts/start.sh
@@ -66,22 +73,26 @@ chmod +x scripts/start.sh
 ### Manual Installation
 
 1. **Create virtual environment**:
+
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
 2. **Install dependencies**:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 3. **Start Redis** (if not using Docker):
+
 ```bash
 redis-server
 ```
 
 4. **Run the application**:
+
 ```bash
 uvicorn app.main:app --reload
 ```
@@ -139,22 +150,26 @@ Once running, access the interactive API documentation:
 ### Key Endpoints
 
 #### Voice Processing
+
 - `POST /api/v1/voice/process` - Process voice or text input
 - `POST /api/v1/voice/speech-to-text` - Convert speech to text
 - `POST /api/v1/voice/text-to-speech` - Convert text to speech
 
 #### Service Management
+
 - `GET /api/v1/services/` - List all services
 - `POST /api/v1/services/register` - Register new service
 - `GET /api/v1/services/discover/{name}` - Discover service
 
 #### Monitoring
+
 - `GET /health` - Health check
 - `GET /metrics` - Prometheus metrics
 - `GET /api/v1/monitoring/logs` - Recent logs
 - `GET /api/v1/monitoring/metrics` - System metrics
 
 #### Analytics
+
 - `GET /api/v1/analytics/usage` - Usage statistics
 - `GET /api/v1/analytics/performance` - Performance metrics
 - `GET /api/v1/analytics/dashboard` - Dashboard data
@@ -162,6 +177,7 @@ Once running, access the interactive API documentation:
 ### WebSocket
 
 Real-time communication endpoint:
+
 - `WS /ws` - WebSocket connection for live interactions
 
 ## 🧪 Testing
@@ -214,6 +230,7 @@ curl http://localhost:8000/metrics
 Access the real-time dashboard at: http://localhost:8080
 
 Features:
+
 - Live service status
 - Performance metrics
 - Error tracking
@@ -277,11 +294,13 @@ data = await cache_service.get("key")
 ### Docker Deployment
 
 1. **Production build**:
+
 ```bash
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
 2. **With monitoring**:
+
 ```bash
 docker-compose --profile monitoring up -d
 ```
@@ -289,17 +308,20 @@ docker-compose --profile monitoring up -d
 ### Manual Deployment
 
 1. **Install dependencies**:
+
 ```bash
 pip install -r requirements.txt
 ```
 
 2. **Set production environment**:
+
 ```bash
 export ENVIRONMENT=production
 export WORKERS=4
 ```
 
 3. **Start with Gunicorn**:
+
 ```bash
 gunicorn app.main:app -w 4 -k uvicorn.workers.UvicornWorker
 ```
@@ -349,6 +371,7 @@ class VoiceRequest(BaseModel):
 ### Benchmarks
 
 Typical performance metrics:
+
 - **Voice Processing**: ~2-5 seconds end-to-end
 - **Text Processing**: ~500ms-1s response time
 - **API Throughput**: 1000+ requests/second

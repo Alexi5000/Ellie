@@ -17,11 +17,13 @@ Complete API reference for all marketing components in the Ellie marketing websi
 Context provider for theme management.
 
 **Import:**
+
 ```typescript
-import { ThemeProvider } from './contexts/ThemeContext';
+import { ThemeProvider } from "./contexts/ThemeContext";
 ```
 
 **Props:**
+
 ```typescript
 interface ThemeProviderProps {
   children: ReactNode;
@@ -29,6 +31,7 @@ interface ThemeProviderProps {
 ```
 
 **Usage:**
+
 ```tsx
 <ThemeProvider>
   <App />
@@ -36,6 +39,7 @@ interface ThemeProviderProps {
 ```
 
 **Features:**
+
 - Detects system color scheme preference
 - Persists theme to localStorage
 - Provides theme state and controls
@@ -48,19 +52,22 @@ interface ThemeProviderProps {
 Button component to toggle between light and dark themes.
 
 **Import:**
+
 ```typescript
-import { ThemeToggle } from './components/theme/ThemeToggle';
+import { ThemeToggle } from "./components/theme/ThemeToggle";
 ```
 
 **Props:**
+
 ```typescript
 interface ThemeToggleProps {
-  className?: string;      // Additional CSS classes
-  showLabel?: boolean;     // Show text label (default: false)
+  className?: string; // Additional CSS classes
+  showLabel?: boolean; // Show text label (default: false)
 }
 ```
 
 **Usage:**
+
 ```tsx
 <ThemeToggle />
 <ThemeToggle showLabel />
@@ -68,6 +75,7 @@ interface ThemeToggleProps {
 ```
 
 **Features:**
+
 - Sun/moon icons for visual feedback
 - Keyboard navigation support
 - Accessible tooltip
@@ -75,6 +83,7 @@ interface ThemeToggleProps {
 - ARIA labels for screen readers
 
 **Accessibility:**
+
 - `aria-label` for button
 - `aria-hidden` for decorative icons
 - Keyboard accessible (Tab, Enter, Space)
@@ -89,25 +98,28 @@ interface ThemeToggleProps {
 Sticky navigation header with responsive mobile menu.
 
 **Import:**
+
 ```typescript
-import { Header } from './components/marketing/Header';
+import { Header } from "./components/marketing/Header";
 ```
 
 **Props:**
+
 ```typescript
 interface HeaderProps {
-  transparent?: boolean;   // Use transparent background (default: false)
-  className?: string;      // Additional CSS classes
+  transparent?: boolean; // Use transparent background (default: false)
+  className?: string; // Additional CSS classes
 }
 
 interface NavLink {
-  label: string;          // Link text
-  href: string;           // Link URL
-  external?: boolean;     // Open in new tab (default: false)
+  label: string; // Link text
+  href: string; // Link URL
+  external?: boolean; // Open in new tab (default: false)
 }
 ```
 
 **Usage:**
+
 ```tsx
 <Header />
 <Header transparent />
@@ -115,6 +127,7 @@ interface NavLink {
 ```
 
 **Features:**
+
 - Sticky positioning with backdrop blur
 - Responsive hamburger menu on mobile
 - Theme toggle integration
@@ -123,6 +136,7 @@ interface NavLink {
 - Accessible focus states
 
 **Navigation Links:**
+
 - Custom Agents
 - Pricing
 - Docs (external)
@@ -131,6 +145,7 @@ interface NavLink {
 - Enterprise
 
 **Accessibility:**
+
 - `<nav>` landmark with `aria-label`
 - Keyboard accessible
 - Focus indicators
@@ -144,57 +159,65 @@ interface NavLink {
 Multi-column footer with navigation links and social media.
 
 **Import:**
+
 ```typescript
-import { Footer } from './components/marketing/Footer';
+import { Footer } from "./components/marketing/Footer";
 ```
 
 **Props:**
+
 ```typescript
 interface FooterProps {
-  columns: FooterColumn[];        // Array of footer columns
-  socialLinks?: SocialLink[];     // Social media links
-  copyrightText?: string;         // Copyright text
-  className?: string;             // Additional CSS classes
+  columns: FooterColumn[]; // Array of footer columns
+  socialLinks?: SocialLink[]; // Social media links
+  copyrightText?: string; // Copyright text
+  className?: string; // Additional CSS classes
 }
 
 interface FooterColumn {
-  title: string;                  // Column heading
-  links: FooterLink[];            // Array of links
+  title: string; // Column heading
+  links: FooterLink[]; // Array of links
 }
 
 interface FooterLink {
-  label: string;                  // Link text
-  href: string;                   // Link URL
-  external?: boolean;             // Open in new tab
+  label: string; // Link text
+  href: string; // Link URL
+  external?: boolean; // Open in new tab
 }
 
 interface SocialLink {
-  platform: string;               // Platform name
-  url: string;                    // Profile URL
-  icon: React.ReactNode;          // Icon component
+  platform: string; // Platform name
+  url: string; // Profile URL
+  icon: React.ReactNode; // Icon component
 }
 ```
 
 **Usage:**
+
 ```tsx
 <Footer
   columns={[
     {
-      title: 'Product',
+      title: "Product",
       links: [
-        { label: 'Features', href: '/features' },
-        { label: 'Pricing', href: '/pricing' }
-      ]
-    }
+        { label: "Features", href: "/features" },
+        { label: "Pricing", href: "/pricing" },
+      ],
+    },
   ]}
   socialLinks={[
-    { platform: 'Twitter', url: 'https://twitter.com/ellie', icon: <TwitterIcon /> }
+    {
+      platform: "Twitter",
+      url: "https://twitter.com/ellie",
+      icon: <TwitterIcon />,
+    },
   ]}
   copyrightText="© 2024 Ellie"
 />
 ```
 
 **Features:**
+
 - Multi-column layout
 - Semantic HTML (`<footer>`, `<nav>`)
 - Skip-to-content link
@@ -203,6 +226,7 @@ interface SocialLink {
 - Social media integration
 
 **Accessibility:**
+
 - `<footer>` landmark
 - Skip-to-content link
 - Keyboard navigation
@@ -218,24 +242,28 @@ interface SocialLink {
 Split-layout hero section with animated orb.
 
 **Import:**
+
 ```typescript
-import { Hero } from './components/marketing/Hero';
+import { Hero } from "./components/marketing/Hero";
 ```
 
 **Props:**
+
 ```typescript
 interface HeroProps {
-  onTalkToEllie?: () => void;    // Callback for "Talk to Ellie" button
-  className?: string;             // Additional CSS classes
+  onTalkToEllie?: () => void; // Callback for "Talk to Ellie" button
+  className?: string; // Additional CSS classes
 }
 ```
 
 **Usage:**
+
 ```tsx
-<Hero onTalkToEllie={() => console.log('Talk to Ellie clicked')} />
+<Hero onTalkToEllie={() => console.log("Talk to Ellie clicked")} />
 ```
 
 **Features:**
+
 - Two-column responsive layout
 - Animated orb with Framer Motion
 - Multiple CTA buttons
@@ -243,6 +271,7 @@ interface HeroProps {
 - Responsive stacking on mobile
 
 **Content:**
+
 - Headline: "Voice AI assistant for developers"
 - Supporting text
 - Primary CTA: "Sign up"
@@ -251,6 +280,7 @@ interface HeroProps {
 - Animated orb visualization
 
 **Accessibility:**
+
 - Semantic HTML
 - Keyboard accessible buttons
 - Focus indicators
@@ -263,48 +293,52 @@ interface HeroProps {
 Responsive grid of feature cards.
 
 **Import:**
+
 ```typescript
-import { Features } from './components/marketing/Features';
+import { Features } from "./components/marketing/Features";
 ```
 
 **Props:**
+
 ```typescript
 interface FeaturesProps {
-  features: Feature[];           // Array of features
-  columns?: 2 | 3 | 4;          // Desktop columns (default: 3)
-  className?: string;            // Additional CSS classes
+  features: Feature[]; // Array of features
+  columns?: 2 | 3 | 4; // Desktop columns (default: 3)
+  className?: string; // Additional CSS classes
 }
 
 interface Feature {
-  id: string;                    // Unique identifier
-  name: string;                  // Feature name
-  description: string;           // Feature description
-  icon: React.ReactNode;         // Icon component
+  id: string; // Unique identifier
+  name: string; // Feature name
+  description: string; // Feature description
+  icon: React.ReactNode; // Icon component
 }
 ```
 
 **Usage:**
+
 ```tsx
 <Features
   features={[
     {
-      id: 'multilingual',
-      name: 'Multilingual',
-      description: 'Support for 40+ languages with native accent detection.',
-      icon: <GlobeIcon />
+      id: "multilingual",
+      name: "Multilingual",
+      description: "Support for 40+ languages with native accent detection.",
+      icon: <GlobeIcon />,
     },
     {
-      id: 'api-native',
-      name: 'API-native',
-      description: 'RESTful API with comprehensive SDKs.',
-      icon: <CodeIcon />
-    }
+      id: "api-native",
+      name: "API-native",
+      description: "RESTful API with comprehensive SDKs.",
+      icon: <CodeIcon />,
+    },
   ]}
   columns={3}
 />
 ```
 
 **Features:**
+
 - Responsive grid layout (3 cols → 2 cols → 1 col)
 - Consistent card heights
 - Hover effects (lift and glow)
@@ -313,6 +347,7 @@ interface Feature {
 - Respects prefers-reduced-motion
 
 **Accessibility:**
+
 - `<section>` landmark with `aria-label`
 - Semantic HTML
 - Keyboard accessible
@@ -325,55 +360,59 @@ interface Feature {
 Animated statistics band with count-up effect.
 
 **Import:**
+
 ```typescript
-import { KPIBand } from './components/marketing/KPIBand';
+import { KPIBand } from "./components/marketing/KPIBand";
 ```
 
 **Props:**
+
 ```typescript
 interface KPIBandProps {
-  stats: KPIStat[];                    // Array of statistics
-  animationDuration?: number;          // Duration in ms (default: 2000)
-  className?: string;                  // Additional CSS classes
+  stats: KPIStat[]; // Array of statistics
+  animationDuration?: number; // Duration in ms (default: 2000)
+  className?: string; // Additional CSS classes
 }
 
 interface KPIStat {
-  label: string;                       // Stat label
-  value: number;                       // Numeric value
-  suffix?: string;                     // Suffix (e.g., '+', 'M')
-  prefix?: string;                     // Prefix (e.g., '$')
-  format?: 'number' | 'abbreviated';   // Number format
+  label: string; // Stat label
+  value: number; // Numeric value
+  suffix?: string; // Suffix (e.g., '+', 'M')
+  prefix?: string; // Prefix (e.g., '$')
+  format?: "number" | "abbreviated"; // Number format
 }
 ```
 
 **Usage:**
+
 ```tsx
 <KPIBand
   stats={[
     {
-      label: 'Calls',
+      label: "Calls",
       value: 150000000,
-      suffix: '+',
-      format: 'abbreviated'  // Displays as "150M+"
+      suffix: "+",
+      format: "abbreviated", // Displays as "150M+"
     },
     {
-      label: 'Assistants',
+      label: "Assistants",
       value: 1500000,
-      suffix: '+',
-      format: 'abbreviated'  // Displays as "1.5M+"
+      suffix: "+",
+      format: "abbreviated", // Displays as "1.5M+"
     },
     {
-      label: 'Developers',
+      label: "Developers",
       value: 350000,
-      suffix: '+',
-      format: 'abbreviated'  // Displays as "350K+"
-    }
+      suffix: "+",
+      format: "abbreviated", // Displays as "350K+"
+    },
   ]}
   animationDuration={2500}
 />
 ```
 
 **Features:**
+
 - Count-up animations with easing
 - Intersection Observer trigger
 - Reduced motion support (instant display)
@@ -381,6 +420,7 @@ interface KPIStat {
 - Number formatting (abbreviated, full)
 
 **Accessibility:**
+
 - Semantic HTML
 - Respects prefers-reduced-motion
 - Screen reader friendly
@@ -392,44 +432,48 @@ interface KPIStat {
 Horizontal strip of company/technology logos.
 
 **Import:**
+
 ```typescript
-import { LogosStrip } from './components/marketing/LogosStrip';
+import { LogosStrip } from "./components/marketing/LogosStrip";
 ```
 
 **Props:**
+
 ```typescript
 interface LogosStripProps {
-  logos: Logo[];              // Array of logos
-  className?: string;         // Additional CSS classes
+  logos: Logo[]; // Array of logos
+  className?: string; // Additional CSS classes
 }
 
 interface Logo {
-  name: string;               // Company/tech name
-  src: string;                // Logo image URL
-  srcDark?: string;           // Dark mode logo URL (optional)
-  alt: string;                // Alt text
-  width: number;              // Image width
-  height: number;             // Image height
+  name: string; // Company/tech name
+  src: string; // Logo image URL
+  srcDark?: string; // Dark mode logo URL (optional)
+  alt: string; // Alt text
+  width: number; // Image width
+  height: number; // Image height
 }
 ```
 
 **Usage:**
+
 ```tsx
 <LogosStrip
   logos={[
     {
-      name: 'Company A',
-      src: '/logos/company-a.svg',
-      srcDark: '/logos/company-a-dark.svg',
-      alt: 'Company A logo',
+      name: "Company A",
+      src: "/logos/company-a.svg",
+      srcDark: "/logos/company-a-dark.svg",
+      alt: "Company A logo",
       width: 120,
-      height: 40
-    }
+      height: 40,
+    },
   ]}
 />
 ```
 
 **Features:**
+
 - Automatic dark mode logo switching
 - Responsive wrapping
 - Lazy loading
@@ -438,6 +482,7 @@ interface Logo {
 - Consistent sizing
 
 **Accessibility:**
+
 - Descriptive alt text
 - Semantic HTML
 - Keyboard accessible
@@ -449,67 +494,71 @@ interface Logo {
 Tabbed solutions section with flow diagrams.
 
 **Import:**
+
 ```typescript
-import { Solutions } from './components/marketing/Solutions';
+import { Solutions } from "./components/marketing/Solutions";
 ```
 
 **Props:**
+
 ```typescript
 interface SolutionsProps {
-  solutions: Solution[];                    // Array of solutions
-  defaultSolution?: 'inbound' | 'outbound'; // Initial tab
-  className?: string;                       // Additional CSS classes
+  solutions: Solution[]; // Array of solutions
+  defaultSolution?: "inbound" | "outbound"; // Initial tab
+  className?: string; // Additional CSS classes
 }
 
 interface Solution {
-  id: 'inbound' | 'outbound';              // Solution ID
-  title: string;                            // Solution title
-  description: string;                      // Description
-  nodes: FlowNode[];                        // Flow diagram nodes
-  connections: FlowConnection[];            // Node connections
-  caseStudyUrl: string;                     // Case study link
-  tryNowUrl: string;                        // Try now link
+  id: "inbound" | "outbound"; // Solution ID
+  title: string; // Solution title
+  description: string; // Description
+  nodes: FlowNode[]; // Flow diagram nodes
+  connections: FlowConnection[]; // Node connections
+  caseStudyUrl: string; // Case study link
+  tryNowUrl: string; // Try now link
 }
 
 interface FlowNode {
-  id: string;                               // Node ID
-  label: string;                            // Node label
-  type: 'start' | 'action' | 'condition' | 'end';
+  id: string; // Node ID
+  label: string; // Node label
+  type: "start" | "action" | "condition" | "end";
 }
 
 interface FlowConnection {
-  from: string;                             // Source node ID
-  to: string;                               // Target node ID
-  label?: string;                           // Connection label
+  from: string; // Source node ID
+  to: string; // Target node ID
+  label?: string; // Connection label
 }
 ```
 
 **Usage:**
+
 ```tsx
 <Solutions
   solutions={[
     {
-      id: 'inbound',
-      title: 'Inbound Calls',
-      description: 'Handle incoming customer calls...',
+      id: "inbound",
+      title: "Inbound Calls",
+      description: "Handle incoming customer calls...",
       nodes: [
-        { id: 'start', label: 'Receive Call', type: 'start' },
-        { id: 'action', label: 'Use Tool', type: 'action' },
-        { id: 'end', label: 'Complete', type: 'end' }
+        { id: "start", label: "Receive Call", type: "start" },
+        { id: "action", label: "Use Tool", type: "action" },
+        { id: "end", label: "Complete", type: "end" },
       ],
       connections: [
-        { from: 'start', to: 'action' },
-        { from: 'action', to: 'end' }
+        { from: "start", to: "action" },
+        { from: "action", to: "end" },
       ],
-      caseStudyUrl: '/case-studies/inbound',
-      tryNowUrl: '/try/inbound'
-    }
+      caseStudyUrl: "/case-studies/inbound",
+      tryNowUrl: "/try/inbound",
+    },
   ]}
   defaultSolution="inbound"
 />
 ```
 
 **Features:**
+
 - Tabbed interface
 - SVG flow diagrams
 - Smooth transitions
@@ -518,6 +567,7 @@ interface FlowConnection {
 - Reduced motion support
 
 **Accessibility:**
+
 - ARIA tab pattern
 - Keyboard navigation
 - Focus indicators
@@ -530,54 +580,59 @@ interface FlowConnection {
 Three-step explainer cards.
 
 **Import:**
+
 ```typescript
-import { Explainer } from './components/marketing/Explainer';
+import { Explainer } from "./components/marketing/Explainer";
 ```
 
 **Props:**
+
 ```typescript
 interface ExplainerProps {
-  headline: string;              // Section headline
-  steps: ExplainerStep[];        // Array of steps
-  className?: string;            // Additional CSS classes
+  headline: string; // Section headline
+  steps: ExplainerStep[]; // Array of steps
+  className?: string; // Additional CSS classes
 }
 
 interface ExplainerStep {
-  id: string;                    // Step ID
-  title: string;                 // Step title
-  description: string;           // Step description (2-3 sentences)
-  icon: React.ReactNode;         // Icon component
+  id: string; // Step ID
+  title: string; // Step title
+  description: string; // Step description (2-3 sentences)
+  icon: React.ReactNode; // Icon component
 }
 ```
 
 **Usage:**
+
 ```tsx
 <Explainer
   headline="Try in minutes. Deploy in days."
   steps={[
     {
-      id: 'choose',
-      title: 'Choose your workflow',
-      description: 'Select from pre-built templates or create custom workflows.',
-      icon: <ChooseIcon />
+      id: "choose",
+      title: "Choose your workflow",
+      description:
+        "Select from pre-built templates or create custom workflows.",
+      icon: <ChooseIcon />,
     },
     {
-      id: 'plugin',
-      title: 'Plug it in',
-      description: 'Integrate with your existing systems using our API.',
-      icon: <PluginIcon />
+      id: "plugin",
+      title: "Plug it in",
+      description: "Integrate with your existing systems using our API.",
+      icon: <PluginIcon />,
     },
     {
-      id: 'done',
-      title: 'Done',
-      description: 'Your voice AI assistant is ready to handle calls.',
-      icon: <DoneIcon />
-    }
+      id: "done",
+      title: "Done",
+      description: "Your voice AI assistant is ready to handle calls.",
+      icon: <DoneIcon />,
+    },
   ]}
 />
 ```
 
 **Features:**
+
 - Horizontal card layout on desktop
 - Vertical stacking on mobile
 - Staggered entrance animations
@@ -585,6 +640,7 @@ interface ExplainerStep {
 - Reduced motion support
 
 **Accessibility:**
+
 - Semantic HTML
 - Keyboard accessible
 - Respects prefers-reduced-motion
@@ -596,60 +652,65 @@ interface ExplainerStep {
 Reliability and compliance proof points.
 
 **Import:**
+
 ```typescript
-import { Reliability } from './components/marketing/Reliability';
+import { Reliability } from "./components/marketing/Reliability";
 ```
 
 **Props:**
+
 ```typescript
 interface ReliabilityProps {
-  metrics: ReliabilityMetric[];  // Array of metrics
-  className?: string;             // Additional CSS classes
+  metrics: ReliabilityMetric[]; // Array of metrics
+  className?: string; // Additional CSS classes
 }
 
 interface ReliabilityMetric {
-  id: string;                     // Metric ID
-  label: string;                  // Metric label
-  value: string;                  // Metric value
-  icon: React.ReactNode;          // Icon/badge component
-  disclaimer?: string;            // Optional disclaimer
+  id: string; // Metric ID
+  label: string; // Metric label
+  value: string; // Metric value
+  icon: React.ReactNode; // Icon/badge component
+  disclaimer?: string; // Optional disclaimer
 }
 ```
 
 **Usage:**
+
 ```tsx
 <Reliability
   metrics={[
     {
-      id: 'uptime',
-      label: 'Uptime',
-      value: '99.99%',
+      id: "uptime",
+      label: "Uptime",
+      value: "99.99%",
       icon: <UptimeIcon />,
-      disclaimer: 'Based on last 12 months'
+      disclaimer: "Based on last 12 months",
     },
     {
-      id: 'latency',
-      label: 'Latency',
-      value: 'Sub-500ms',
-      icon: <SpeedIcon />
+      id: "latency",
+      label: "Latency",
+      value: "Sub-500ms",
+      icon: <SpeedIcon />,
     },
     {
-      id: 'compliance',
-      label: 'Compliance',
-      value: 'SOC2, HIPAA, PCI',
-      icon: <ShieldIcon />
-    }
+      id: "compliance",
+      label: "Compliance",
+      value: "SOC2, HIPAA, PCI",
+      icon: <ShieldIcon />,
+    },
   ]}
 />
 ```
 
 **Features:**
+
 - Horizontal card layout
 - Icon/badge integration
 - Responsive wrapping
 - Subtle styling (not guarantee-like)
 
 **Accessibility:**
+
 - Semantic HTML
 - Descriptive labels
 - Keyboard accessible
@@ -663,34 +724,37 @@ interface ReliabilityMetric {
 Tabbed code snippets with syntax highlighting.
 
 **Import:**
+
 ```typescript
-import { CodeTabs } from './components/marketing/CodeTabs';
+import { CodeTabs } from "./components/marketing/CodeTabs";
 ```
 
 **Props:**
+
 ```typescript
 interface CodeTabsProps {
-  tabs: CodeTab[];               // Array of code tabs
-  defaultTab?: string;           // Initially active tab ID
-  className?: string;            // Additional CSS classes
+  tabs: CodeTab[]; // Array of code tabs
+  defaultTab?: string; // Initially active tab ID
+  className?: string; // Additional CSS classes
 }
 
 interface CodeTab {
-  id: string;                    // Tab ID
-  label: string;                 // Tab label
-  language: string;              // Language for syntax highlighting
-  code: string;                  // Code content
+  id: string; // Tab ID
+  label: string; // Tab label
+  language: string; // Language for syntax highlighting
+  code: string; // Code content
 }
 ```
 
 **Usage:**
+
 ```tsx
 <CodeTabs
   tabs={[
     {
-      id: 'ts',
-      label: 'TypeScript',
-      language: 'typescript',
+      id: "ts",
+      label: "TypeScript",
+      language: "typescript",
       code: `import { EllieClient } from '@ellie/sdk';
 
 const client = new EllieClient({
@@ -700,12 +764,12 @@ const client = new EllieClient({
 const call = await client.calls.create({
   assistantId: 'asst_abc123',
   to: '+1234567890',
-});`
+});`,
     },
     {
-      id: 'py',
-      label: 'Python',
-      language: 'python',
+      id: "py",
+      label: "Python",
+      language: "python",
       code: `from ellie import EllieClient
 
 client = EllieClient(
@@ -715,14 +779,15 @@ client = EllieClient(
 call = client.calls.create(
     assistant_id="asst_abc123",
     to="+1234567890"
-)`
-    }
+)`,
+    },
   ]}
   defaultTab="ts"
 />
 ```
 
 **Features:**
+
 - Syntax highlighting with react-syntax-highlighter
 - Copy-to-clipboard with confirmation
 - Keyboard navigation (arrow keys, Home, End)
@@ -731,6 +796,7 @@ call = client.calls.create(
 - Accessible tab panel pattern
 
 **Keyboard Navigation:**
+
 - `Tab`: Focus tab list
 - `Arrow Left/Right`: Navigate tabs
 - `Home`: First tab
@@ -738,6 +804,7 @@ call = client.calls.create(
 - `Enter/Space`: Activate tab
 
 **Accessibility:**
+
 - ARIA tab pattern
 - `role="tablist"`, `role="tab"`, `role="tabpanel"`
 - `aria-selected`, `aria-controls`
@@ -753,26 +820,30 @@ call = client.calls.create(
 Animated orb visualization for Hero section.
 
 **Import:**
+
 ```typescript
-import { AnimatedOrb } from './components/marketing/Hero/AnimatedOrb';
+import { AnimatedOrb } from "./components/marketing/Hero/AnimatedOrb";
 ```
 
 **Props:**
+
 ```typescript
 interface AnimatedOrbProps {
-  isActive?: boolean;            // Animation active state
-  reducedMotion?: boolean;       // Disable animations
-  className?: string;            // Additional CSS classes
+  isActive?: boolean; // Animation active state
+  reducedMotion?: boolean; // Disable animations
+  className?: string; // Additional CSS classes
 }
 ```
 
 **Usage:**
+
 ```tsx
 <AnimatedOrb isActive />
 <AnimatedOrb reducedMotion />
 ```
 
 **Features:**
+
 - Framer Motion spring animations
 - Mic-reactive visual feedback
 - Fallback to static/minimal animation
@@ -786,20 +857,23 @@ interface AnimatedOrbProps {
 Mobile navigation menu for Header.
 
 **Import:**
+
 ```typescript
-import { MobileMenu } from './components/marketing/Header/MobileMenu';
+import { MobileMenu } from "./components/marketing/Header/MobileMenu";
 ```
 
 **Props:**
+
 ```typescript
 interface MobileMenuProps {
-  isOpen: boolean;               // Menu open state
-  onClose: () => void;           // Close callback
-  navigationLinks: NavLink[];    // Navigation links
+  isOpen: boolean; // Menu open state
+  onClose: () => void; // Close callback
+  navigationLinks: NavLink[]; // Navigation links
 }
 ```
 
 **Usage:**
+
 ```tsx
 <MobileMenu
   isOpen={isMenuOpen}
@@ -809,6 +883,7 @@ interface MobileMenuProps {
 ```
 
 **Features:**
+
 - Slide-in animation
 - Focus trap
 - Backdrop overlay
@@ -816,6 +891,7 @@ interface MobileMenuProps {
 - Escape key to close
 
 **Accessibility:**
+
 - Focus trap when open
 - `aria-hidden` when closed
 - Keyboard accessible
@@ -830,21 +906,24 @@ interface MobileMenuProps {
 Access theme state and controls.
 
 **Import:**
+
 ```typescript
-import { useTheme } from './hooks/useTheme';
+import { useTheme } from "./hooks/useTheme";
 ```
 
 **Returns:**
+
 ```typescript
 interface ThemeContextValue {
-  theme: 'light' | 'dark';       // Current theme
-  toggleTheme: () => void;       // Toggle function
-  systemTheme: 'light' | 'dark'; // System preference
+  theme: "light" | "dark"; // Current theme
+  toggleTheme: () => void; // Toggle function
+  systemTheme: "light" | "dark"; // System preference
   setTheme: (theme: Theme) => void; // Set theme explicitly
 }
 ```
 
 **Usage:**
+
 ```tsx
 const { theme, toggleTheme, systemTheme, setTheme } = useTheme();
 ```
@@ -858,13 +937,15 @@ const { theme, toggleTheme, systemTheme, setTheme } = useTheme();
 Check if user prefers reduced motion.
 
 **Import:**
+
 ```typescript
-import { useReducedMotion } from './hooks/useReducedMotion';
+import { useReducedMotion } from "./hooks/useReducedMotion";
 ```
 
 **Returns:** `boolean`
 
 **Usage:**
+
 ```tsx
 const prefersReducedMotion = useReducedMotion();
 
@@ -878,32 +959,33 @@ const duration = prefersReducedMotion ? 0 : 300;
 Detect when element enters viewport.
 
 **Import:**
+
 ```typescript
-import { useIntersectionObserver } from './hooks/useIntersectionObserver';
+import { useIntersectionObserver } from "./hooks/useIntersectionObserver";
 ```
 
 **Parameters:**
+
 ```typescript
 interface UseIntersectionObserverOptions {
-  threshold?: number | number[];  // Visibility threshold (default: 0)
-  root?: Element | null;          // Root element (default: viewport)
-  rootMargin?: string;            // Root margin (default: '0px')
-  triggerOnce?: boolean;          // Trigger only once (default: false)
+  threshold?: number | number[]; // Visibility threshold (default: 0)
+  root?: Element | null; // Root element (default: viewport)
+  rootMargin?: string; // Root margin (default: '0px')
+  triggerOnce?: boolean; // Trigger only once (default: false)
 }
 ```
 
 **Returns:** `[React.RefObject<T>, boolean]`
 
 **Usage:**
+
 ```tsx
 const [ref, isVisible] = useIntersectionObserver<HTMLDivElement>({
   threshold: 0.1,
   triggerOnce: true,
 });
 
-<div ref={ref}>
-  {isVisible && <AnimatedContent />}
-</div>
+<div ref={ref}>{isVisible && <AnimatedContent />}</div>;
 ```
 
 ---
@@ -913,26 +995,29 @@ const [ref, isVisible] = useIntersectionObserver<HTMLDivElement>({
 Copy text to clipboard.
 
 **Import:**
+
 ```typescript
-import { useClipboard } from './hooks/useClipboard';
+import { useClipboard } from "./hooks/useClipboard";
 ```
 
 **Returns:**
+
 ```typescript
 interface UseClipboardReturn {
-  copied: boolean;                      // Copy success state
+  copied: boolean; // Copy success state
   copyToClipboard: (text: string) => Promise<void>;
-  reset: () => void;                    // Reset copied state
+  reset: () => void; // Reset copied state
 }
 ```
 
 **Usage:**
+
 ```tsx
 const { copied, copyToClipboard } = useClipboard();
 
-<button onClick={() => copyToClipboard('Hello')}>
-  {copied ? 'Copied!' : 'Copy'}
-</button>
+<button onClick={() => copyToClipboard("Hello")}>
+  {copied ? "Copied!" : "Copy"}
+</button>;
 ```
 
 ---
@@ -942,17 +1027,19 @@ const { copied, copyToClipboard } = useClipboard();
 Animate number count-up.
 
 **Import:**
+
 ```typescript
-import { useCountUp } from './hooks/useCountUp';
+import { useCountUp } from "./hooks/useCountUp";
 ```
 
 **Parameters:**
+
 ```typescript
 interface UseCountUpOptions {
-  end: number;                    // Target value
-  duration?: number;              // Duration in ms (default: 2000)
-  start?: number;                 // Start value (default: 0)
-  decimals?: number;              // Decimal places (default: 0)
+  end: number; // Target value
+  duration?: number; // Duration in ms (default: 2000)
+  start?: number; // Start value (default: 0)
+  decimals?: number; // Decimal places (default: 0)
   easing?: (t: number) => number; // Easing function
 }
 ```
@@ -960,6 +1047,7 @@ interface UseCountUpOptions {
 **Returns:** `number`
 
 **Usage:**
+
 ```tsx
 const count = useCountUp({
   end: 1000,
@@ -967,7 +1055,7 @@ const count = useCountUp({
   decimals: 0,
 });
 
-<div>{count}</div>
+<div>{count}</div>;
 ```
 
 ---
@@ -977,11 +1065,13 @@ const count = useCountUp({
 Handle keyboard navigation.
 
 **Import:**
+
 ```typescript
-import { useKeyboardNavigation } from './hooks/useKeyboardNavigation';
+import { useKeyboardNavigation } from "./hooks/useKeyboardNavigation";
 ```
 
 **Parameters:**
+
 ```typescript
 interface UseKeyboardNavigationOptions {
   onArrowLeft?: () => void;
@@ -997,6 +1087,7 @@ interface UseKeyboardNavigationOptions {
 **Returns:** `(event: React.KeyboardEvent) => void`
 
 **Usage:**
+
 ```tsx
 const handleKeyDown = useKeyboardNavigation({
   onArrowLeft: () => previousItem(),
@@ -1006,7 +1097,7 @@ const handleKeyDown = useKeyboardNavigation({
 
 <div onKeyDown={handleKeyDown} tabIndex={0}>
   Content
-</div>
+</div>;
 ```
 
 ---
@@ -1016,8 +1107,9 @@ const handleKeyDown = useKeyboardNavigation({
 Responsive media query hook.
 
 **Import:**
+
 ```typescript
-import { useMediaQuery } from './hooks/useMediaQuery';
+import { useMediaQuery } from "./hooks/useMediaQuery";
 ```
 
 **Parameters:** `string` (media query)
@@ -1025,12 +1117,17 @@ import { useMediaQuery } from './hooks/useMediaQuery';
 **Returns:** `boolean`
 
 **Usage:**
-```tsx
-const isMobile = useMediaQuery('(max-width: 768px)');
-const isDesktop = useMediaQuery('(min-width: 1024px)');
 
-{isMobile && <MobileView />}
-{isDesktop && <DesktopView />}
+```tsx
+const isMobile = useMediaQuery("(max-width: 768px)");
+const isDesktop = useMediaQuery("(min-width: 1024px)");
+
+{
+  isMobile && <MobileView />;
+}
+{
+  isDesktop && <DesktopView />;
+}
 ```
 
 ---

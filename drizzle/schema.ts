@@ -1,4 +1,13 @@
-import { int, mysqlEnum, mysqlTable, text, timestamp, varchar, json, float } from "drizzle-orm/mysql-core";
+import {
+  int,
+  mysqlEnum,
+  mysqlTable,
+  text,
+  timestamp,
+  varchar,
+  json,
+  float,
+} from "drizzle-orm/mysql-core";
 
 /**
  * Core user table backing auth flow.
@@ -33,7 +42,9 @@ export const videos = mysqlTable("videos", {
   mimeType: varchar("mimeType", { length: 100 }).notNull(),
   fileSize: int("fileSize").notNull(),
   duration: float("duration"),
-  status: mysqlEnum("status", ["uploading", "processing", "ready", "error"]).default("uploading").notNull(),
+  status: mysqlEnum("status", ["uploading", "processing", "ready", "error"])
+    .default("uploading")
+    .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
@@ -48,7 +59,14 @@ export type InsertVideo = typeof videos.$inferInsert;
 export const analysisResults = mysqlTable("analysis_results", {
   id: int("id").autoincrement().primaryKey(),
   videoId: int("videoId").notNull(),
-  type: mysqlEnum("type", ["frame", "transcript", "audio", "scene", "emotion", "summary"]).notNull(),
+  type: mysqlEnum("type", [
+    "frame",
+    "transcript",
+    "audio",
+    "scene",
+    "emotion",
+    "summary",
+  ]).notNull(),
   timestamp: float("timestamp"),
   content: text("content").notNull(),
   confidence: float("confidence"),

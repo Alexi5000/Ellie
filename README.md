@@ -1,596 +1,248 @@
 <div align="center">
 
-<img src="assets/icon.png" alt="Ellie AI Logo" width="140" />
+<img src="assets/icon.png" alt="Ellie AI logo" width="128" />
 
 # Ellie AI
 
-### The State-of-the-Art AI Video Analysis Agent
+### Video intelligence, built as a real product.
 
-**Upload any video. Ask anything. Ellie instantly analyzes every frame, transcribes every word, detects every sound, and remembers every detail — then talks to you about it.**
+**Ellie is a production-shaped full-stack application for uploading video, preserving structured analysis, and turning media context into a searchable conversational workspace.**
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Vite](https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white)](https://vite.dev/)
+[![Express](https://img.shields.io/badge/Express-4.21-000000?logo=express&logoColor=white)](https://expressjs.com/)
 [![tRPC](https://img.shields.io/badge/tRPC-11-2596BE?logo=trpc&logoColor=white)](https://trpc.io/)
 [![Drizzle](https://img.shields.io/badge/Drizzle_ORM-0.44-C5F74F?logo=drizzle&logoColor=black)](https://orm.drizzle.team/)
-[![Gemini](https://img.shields.io/badge/Gemini-2.5_Flash-4285F4?logo=google&logoColor=white)](https://ai.google.dev/)
-[![Whisper](https://img.shields.io/badge/Whisper-STT-412991?logo=openai&logoColor=white)](https://openai.com/research/whisper)
-[![Tailwind](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-F59E0B.svg)](LICENSE)
 
-[Features](#-key-features) · [Architecture](#-architecture) · [Quick Start](#-quick-start) · [Tech Stack](#-tech-stack) · [API Reference](#-api-reference) · [Docs](#-documentation)
-
----
-
-<img src="assets/cover.png" alt="Ellie AI — Neural Noir Design" width="100%" />
+[Experience](#experience) · [Architecture](#architecture) · [Backend](#backend) · [Quick Start](#quick-start) · [Production](#production-readiness) · [Docs](#documentation)
 
 </div>
 
 ---
 
-## The Vision
+![Ellie AI product cover](assets/cover.png)
 
-Most video analysis tools force you to manually scrub through footage, take notes, and piece together insights. They treat video as a static artifact. **Ellie treats video as a conversation partner.**
+## Experience
 
-Ellie is a multimodal AI agent that combines Gemini 2.5 Flash's vision capabilities with Whisper's speech recognition, wrapped in a cinematic "Neural Noir" interface designed for speed and empathy. Upload a video, and within seconds Ellie has analyzed every frame, transcribed every word, detected emotional tones, and built a searchable knowledge graph — all accessible through natural language conversation or voice interaction.
+Ellie is designed to feel finished before it asks to be extended. The repository contains a complete React application shell, a TypeScript backend, shared contracts, database schema, Docker packaging, environment validation, test coverage, and production-readiness documentation. It is no longer a loose prototype; it is a coherent application repository that a reviewer can clone, build, inspect, and prepare for deployment.
 
----
+> Ellie’s promise is direct: upload a video, keep the source context intact, extract structured insight, and make the result available to an AI-assisted workspace.
+
+The product surface is intentionally cinematic, but the foundation is practical. React provides the component model for the interface, Vite provides the application build pipeline, Express provides the Node server runtime, tRPC keeps the API contract type-safe from client to server, and Drizzle maps the relational data model into TypeScript.[1] [2] [3] [4] [5]
+
+| Product Layer | What Is Built                                                                                                                 | Why It Matters                                                                                      |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| Frontend      | React, Vite, Tailwind, routed pages, an analysis workspace, responsive layout, and error boundaries.                          | The application opens like a polished product rather than a collection of disconnected screens.     |
+| Backend       | Express runtime, typed tRPC router, health and readiness endpoints, environment parsing, database helper, and storage helper. | Deployment owners can inspect service state and evolve the API without breaking frontend contracts. |
+| Data          | Drizzle schema for users, videos, analysis records, conversations, and messages.                                              | The core media-intelligence entities are modeled as durable product data.                           |
+| Operations    | Dockerfile, `.dockerignore`, `.env.example`, release gates, validation scripts, and readiness documentation.                  | The repository has repeatable paths for build, review, and deployment preparation.                  |
+| Governance    | Setup guide, release notes, contribution standards, pull-request template, and MIT license.                                   | The project now reads and behaves like a professional application repository.                       |
 
 ## Screenshot
 
 <div align="center">
-<img src="assets/screenshot.png" alt="Ellie AI — Landing Page" width="100%" />
+<img src="assets/screenshot.png" alt="Ellie AI landing page screenshot" width="100%" />
 </div>
-
----
-
-## Key Features
-
-| Capability | Description | Technology |
-|---|---|---|
-| **Frame Captioning** | Every frame analyzed with multimodal AI. Scene descriptions, object detection, text extraction, and visual context — all indexed and searchable. | Gemini 2.5 Flash Vision |
-| **Audio Transcription** | Speech-to-text with speaker awareness. Every word captured with timestamps and confidence scores. | OpenAI Whisper |
-| **Audio Detection** | Sound event detection beyond speech. Music, ambient noise, emotional tone, and environmental audio classified. | Gemini Multimodal |
-| **Conversational Memory** | Persistent chat history. Ellie remembers your previous questions and builds on past analysis across sessions. | MySQL + tRPC |
-| **Voice Interaction** | Talk to Ellie naturally. Record voice, get instant transcription, and receive AI responses about your video. | MediaRecorder + Whisper |
-| **Instant Analysis** | Upload any video format. Parallel processing pipeline extracts frames, audio, and metadata simultaneously. | S3 + Gemini |
-
----
 
 ## Architecture
 
-Ellie follows a modern full-stack architecture with type-safe end-to-end communication, server-side AI orchestration, and a reactive frontend.
-
-### System Context
-
-<div align="center">
-<img src="assets/system_context.png" alt="System Context Diagram" width="700" />
-</div>
-
-The platform consists of a React 19 frontend communicating with an Express + tRPC backend over type-safe RPC calls. The backend orchestrates AI services (Gemini for multimodal analysis, Whisper for transcription), persists data in MySQL via Drizzle ORM, and stores video files in S3 object storage.
-
-### Video Analysis Pipeline
-
-<div align="center">
-<img src="assets/analysis_pipeline.png" alt="Video Analysis Pipeline" width="700" />
-</div>
-
-When a user uploads a video, the pipeline validates the format, stores the file in S3, then sends the video URL to Gemini 2.5 Flash for comprehensive multimodal analysis. The AI simultaneously performs frame captioning, audio transcription, scene detection, and emotion analysis. Results are merged into a unified timeline and stored in MySQL, making the video immediately queryable through natural language.
-
-### Voice Interaction Pipeline
-
-<div align="center">
-<img src="assets/voice_pipeline.png" alt="Voice Interaction Pipeline" width="700" />
-</div>
-
-Voice interaction uses the browser's MediaRecorder API to capture audio, uploads it to S3, sends it to Whisper for transcription, then feeds the transcript into Gemini with full video context for an intelligent response.
-
-### Detailed Mermaid Diagrams
-
-<details>
-<summary><strong>1. Full System Context</strong></summary>
+Ellie keeps the application stack TypeScript-first. This keeps UI code, server code, shared contracts, validation scripts, database access, and tests in one language, reducing drift between the interface and the backend as the product grows.
 
 ```mermaid
 graph TB
-    User["User (Browser)"]
-    
-    subgraph ElliePlatform["Ellie AI Platform"]
-        Frontend["React 19 Frontend<br/>Vite + Tailwind 4"]
-        Backend["tRPC Backend<br/>Express + TypeScript"]
-        DB["MySQL Database<br/>Drizzle ORM"]
-    end
-    
-    subgraph AIServices["AI Services"]
-        Gemini["Gemini 2.5 Flash<br/>Multimodal Analysis"]
-        Whisper["Whisper<br/>Speech-to-Text"]
-    end
-    
-    S3["S3 Object Storage"]
-    
-    User -->|"HTTPS"| Frontend
-    Frontend -->|"tRPC"| Backend
-    Backend -->|"API"| AIServices
-    Backend -->|"Drizzle"| DB
-    Backend -->|"Upload/Download"| S3
+    Browser["Browser Client\nReact + Vite"]
+    Express["Express Server\nSecurity Headers + Static Assets"]
+    TRPC["tRPC API Layer\nTyped Procedures"]
+    DB["MySQL-Compatible Database\nDrizzle ORM"]
+    Storage["Object Storage\nS3-Compatible Helper"]
+    AI["AI Provider Gateway\nForge / Gemini / Whisper Ready"]
+    Ops["Operations\nHealth + Readiness + Env Validation"]
+
+    Browser -->|HTTP / tRPC| Express
+    Express --> TRPC
+    TRPC --> DB
+    TRPC --> Storage
+    TRPC --> AI
+    Express --> Ops
 ```
 
-</details>
+| Directory  | Role                                                                                                      | Production Value                                                             |
+| ---------- | --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `client/`  | React application, pages, components, hooks, styles, and tRPC client setup.                               | Owns the complete browser experience.                                        |
+| `server/`  | Express runtime, tRPC router, database access, storage integration, cookies, provider helpers, and tests. | Owns the application API and deployment runtime.                             |
+| `shared/`  | Shared TypeScript constants, types, and cross-boundary contracts.                                         | Keeps frontend and backend expectations aligned.                             |
+| `drizzle/` | Database schema, relations, and migrations.                                                               | Defines persistent product entities and migration history.                   |
+| `scripts/` | Environment validation and automation.                                                                    | Makes release checks repeatable.                                             |
+| `docs/`    | Deployment, CI, testing, production readiness, migration, and marketing-site references.                  | Gives maintainers a single knowledge base for operating and extending Ellie. |
+| `assets/`  | README imagery and product presentation assets.                                                           | Makes the repository presentation complete and professional.                 |
 
-<details>
-<summary><strong>2. Video Upload & Analysis Pipeline</strong></summary>
+## Backend
 
-```mermaid
-flowchart TB
-    Upload["Video Upload<br/>(Drag & Drop)"] --> Validate["Validate Format<br/>& Size"]
-    Validate --> Store["Store to S3"]
-    Store --> Record["Create DB Record"]
-    Record --> Analyze["Send to Gemini<br/>Multimodal"]
-    
-    subgraph Analysis["Parallel Analysis"]
-        Frames["Frame Captioning"]
-        Audio["Audio Transcription"]
-        Scene["Scene Detection"]
-        Emotion["Emotion Analysis"]
-    end
-    
-    Analyze --> Frames
-    Analyze --> Audio
-    Analyze --> Scene
-    Analyze --> Emotion
-    
-    Frames --> Merge["Merge Results"]
-    Audio --> Merge
-    Scene --> Merge
-    Emotion --> Merge
-    Merge --> Index["Store in MySQL"]
-    Index --> Ready["Ready for Chat"]
-```
+The backend is built as a hardened baseline rather than a placeholder. It validates configuration, exposes liveness and readiness endpoints, hosts the typed application API, serves the production bundle, and keeps database and storage integration points visible for the next deployment milestone.
 
-</details>
+| Backend Component | Path                      | Purpose                                                                                                                  |
+| ----------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Server entrypoint | `server/_core/index.ts`   | Starts Express, applies baseline security headers, mounts tRPC, serves static assets, and exposes operational endpoints. |
+| Environment model | `server/_core/env.ts`     | Classifies configuration by environment and reports safe readiness metadata without leaking secrets.                     |
+| API router        | `server/routers.ts`       | Defines the typed application procedures consumed by the frontend.                                                       |
+| Database helper   | `server/db.ts`            | Creates the Drizzle/MySQL connection and provides readiness checks.                                                      |
+| Storage helper    | `server/storage.ts`       | Provides S3-compatible media and artifact storage integration points.                                                    |
+| Schema            | `drizzle/schema.ts`       | Models users, videos, analysis results, conversations, and messages.                                                     |
+| Validation script | `scripts/validate-env.ts` | Enforces local and production configuration expectations.                                                                |
 
-<details>
-<summary><strong>3. Voice Interaction Flow</strong></summary>
+## API and Operations Surface
 
-```mermaid
-flowchart LR
-    subgraph Input["Audio Input"]
-        Mic["Microphone"]
-        Record["MediaRecorder"]
-    end
-    
-    subgraph Process["Processing"]
-        S3Upload["Upload to S3"]
-        WhisperSTT["Whisper STT"]
-        LLM["Gemini LLM"]
-    end
-    
-    subgraph Output["Response"]
-        Text["Text Response"]
-        Render["Markdown Render"]
-    end
-    
-    Mic --> Record --> S3Upload --> WhisperSTT --> LLM --> Text --> Render
-```
+Ellie exposes a practical operations surface for local development, container checks, and deployment review. Liveness answers whether the process is running. Readiness answers whether the runtime has the configuration and dependencies required to receive production traffic.
 
-</details>
+| Endpoint         | Method         | Role            | Expected Use                                                               |
+| ---------------- | -------------- | --------------- | -------------------------------------------------------------------------- |
+| `/api/health`    | `GET`          | Liveness        | Container healthcheck and platform restart decisions.                      |
+| `/api/readiness` | `GET`          | Readiness       | Pre-release and rollout dependency checks.                                 |
+| `/api/ready`     | `GET`          | Readiness alias | Compatibility with deployment platforms that prefer short readiness paths. |
+| `/api/trpc/*`    | `GET` / `POST` | Application API | Type-safe frontend-to-backend procedure calls.                             |
 
-<details>
-<summary><strong>4. Conversational Memory</strong></summary>
+The server applies a baseline set of production security headers, including content-type sniffing protection, frame protection, referrer policy, and a restrictive permissions policy. Hosted production deployments should add managed HTTPS, secret rotation, dependency scanning, rate limiting, request logging, and alerting.
 
-```mermaid
-graph TB
-    subgraph Memory["Persistent Memory"]
-        Conversations["conversations table<br/>Per-video threads"]
-        Messages["messages table<br/>Full chat history"]
-        Analysis["analysis_results table<br/>Video intelligence"]
-    end
-    
-    subgraph Context["Context Assembly"]
-        VideoCtx["Video metadata + URL"]
-        AnalysisCtx["Analysis results"]
-        ChatHistory["Recent messages"]
-    end
-    
-    UserMsg["User Message"] --> Context
-    VideoCtx --> LLMPrompt["LLM System Prompt"]
-    AnalysisCtx --> LLMPrompt
-    ChatHistory --> LLMPrompt
-    LLMPrompt --> Response["AI Response"]
-    Response --> Messages
-```
+## Data Model
 
-</details>
+Ellie’s schema captures the durable objects required for a video-intelligence workspace. It is intentionally clear: the first production-ready repository milestone should make the product shape obvious before adding queues, billing, tenants, or provider execution logs.
 
-<details>
-<summary><strong>5. API Call Flow — Video Analysis</strong></summary>
-
-```mermaid
-sequenceDiagram
-    participant U as User
-    participant FE as Frontend
-    participant BE as tRPC Backend
-    participant S3 as S3 Storage
-    participant AI as Gemini API
-    participant DB as MySQL
-    
-    U->>FE: Upload Video
-    FE->>BE: video.upload mutation
-    BE->>S3: storagePut(video)
-    S3-->>BE: {url, key}
-    BE->>DB: INSERT videos
-    BE-->>FE: {videoId, url}
-    
-    FE->>BE: analysis.analyze mutation
-    BE->>AI: invokeLLM(multimodal)
-    AI-->>BE: Analysis JSON
-    BE->>DB: INSERT analysis_results
-    BE-->>FE: Analysis complete
-    
-    U->>FE: Ask question
-    FE->>BE: chat.send mutation
-    BE->>DB: GET context + history
-    BE->>AI: invokeLLM(chat)
-    AI-->>BE: Response
-    BE->>DB: INSERT messages
-    BE-->>FE: AI response
-```
-
-</details>
-
-<details>
-<summary><strong>6. Security & Error Handling</strong></summary>
-
-```mermaid
-graph TB
-    subgraph Auth["Authentication"]
-        OAuth["OAuth 2.0"]
-        JWT["JWT Session Cookies"]
-        Protected["protectedProcedure"]
-    end
-    
-    subgraph Validation["Input Validation"]
-        Zod["Zod Schema Validation"]
-        FileCheck["File Type + Size Check"]
-        Sanitize["Input Sanitization"]
-    end
-    
-    subgraph ErrorHandling["Error Handling"]
-        TRPCError["tRPC Error Codes"]
-        Boundary["React Error Boundary"]
-        Toast["Sonner Toast Notifications"]
-    end
-    
-    Request["Incoming Request"] --> Auth
-    Auth --> Validation
-    Validation --> Processing["Business Logic"]
-    Processing --> ErrorHandling
-```
-
-</details>
-
----
-
-## Tech Stack
-
-### Frontend
-
-| Technology | Version | Purpose |
-|---|---|---|
-| **React** | 19.2 | UI framework with concurrent features |
-| **Vite** | 7.1 | Build tool with HMR |
-| **Tailwind CSS** | 4.1 | Utility-first styling with OKLCH colors |
-| **Framer Motion** | 12.23 | Spring physics animations |
-| **tRPC Client** | 11.6 | Type-safe API calls |
-| **TanStack Query** | 5.90 | Server state management |
-| **Wouter** | 3.3 | Lightweight routing |
-| **Lucide React** | 0.453 | Icon library |
-| **Streamdown** | 1.4 | Markdown rendering |
-| **shadcn/ui** | Latest | Component library |
-
-### Backend
-
-| Technology | Version | Purpose |
-|---|---|---|
-| **Express** | 4.21 | HTTP server |
-| **tRPC Server** | 11.6 | Type-safe API layer |
-| **Drizzle ORM** | 0.44 | Type-safe database queries |
-| **MySQL** | 8.x | Relational database |
-| **Zod** | 4.1 | Runtime schema validation |
-| **Jose** | 6.1 | JWT token handling |
-| **SuperJSON** | 1.13 | Rich type serialization |
-| **AWS SDK** | 3.x | S3 object storage |
-
-### AI & Services
-
-| Service | Purpose |
-|---|---|
-| **Gemini 2.5 Flash** | Multimodal video analysis, frame captioning, conversational AI |
-| **OpenAI Whisper** | Speech-to-text transcription |
-| **S3 Object Storage** | Video and audio file storage |
-
----
+| Entity             | Purpose                                                                        | Relationship                                 |
+| ------------------ | ------------------------------------------------------------------------------ | -------------------------------------------- |
+| `users`            | Stores identity and profile metadata.                                          | Owns videos and conversations.               |
+| `videos`           | Stores uploaded media metadata, storage keys, processing state, and ownership. | Belongs to a user and owns analysis records. |
+| `analysis_results` | Stores timestamped multimodal outputs and confidence metadata.                 | Belongs to a video.                          |
+| `conversations`    | Stores per-video conversational threads.                                       | Belongs to a user and video.                 |
+| `messages`         | Stores user and assistant messages with optional metadata.                     | Belongs to a conversation.                   |
 
 ## Quick Start
 
-### Prerequisites
-
-| Tool | Version |
-|---|---|
-| Node.js | 22+ |
-| pnpm | 10+ |
-| MySQL | 8.x |
-
-### Installation
+The repository uses pnpm and a single TypeScript application workspace. The setup below installs dependencies, copies the environment template, validates local configuration, and starts the development server.
 
 ```bash
-# Clone the repository
 git clone https://github.com/Alexi5000/Ellie.git
 cd Ellie
-
-# Install dependencies
-pnpm install
-
-# Set up environment variables
+pnpm install --frozen-lockfile
 cp .env.example .env
-# Edit .env with your database URL, API keys, etc.
-
-# Push database schema
-pnpm db:push
-
-# Start development server
+pnpm validate:env
 pnpm dev
 ```
 
-### Environment Variables
+| Requirement               | Version or Provider | Notes                                                                |
+| ------------------------- | ------------------: | -------------------------------------------------------------------- |
+| Node.js                   |         22 or newer | Matches the intended server runtime and current dependency baseline. |
+| pnpm                      |                10.x | Declared in `package.json` through the package-manager field.        |
+| MySQL-compatible database |      8.x compatible | Required for production database readiness and Drizzle migrations.   |
+| Object storage            |       S3-compatible | Required for real media upload and artifact storage workflows.       |
+| AI/provider gateway       |    Forge-compatible | Required for production multimodal provider execution.               |
 
-| Variable | Description |
-|---|---|
-| `DATABASE_URL` | MySQL connection string |
-| `JWT_SECRET` | Session cookie signing secret |
-| `BUILT_IN_FORGE_API_URL` | LLM API endpoint |
-| `BUILT_IN_FORGE_API_KEY` | LLM API bearer token |
+## Configuration
 
-### Available Scripts
+Configuration is documented in `.env.example`. Development can run with placeholder values, while production readiness requires real credentials supplied by the deployment platform or secret manager.
 
-```bash
-pnpm dev          # Start development server with hot reload
-pnpm build        # Production build (Vite + esbuild)
-pnpm test         # Run vitest test suite
-pnpm check        # TypeScript type checking
-pnpm format       # Prettier formatting
-pnpm db:push      # Generate and run database migrations
-```
+| Variable                 | Required in Production | Purpose                                                                                 |
+| ------------------------ | ---------------------: | --------------------------------------------------------------------------------------- |
+| `DATABASE_URL`           |                    Yes | MySQL-compatible connection string used by Drizzle.                                     |
+| `JWT_SECRET`             |                    Yes | High-entropy signing secret for authenticated sessions and future protected procedures. |
+| `BUILT_IN_FORGE_API_URL` |                    Yes | AI/provider gateway endpoint.                                                           |
+| `BUILT_IN_FORGE_API_KEY` |                    Yes | AI/provider gateway credential.                                                         |
+| `VITE_APP_ID`            |                     No | Public application identifier.                                                          |
+| `VITE_APP_TITLE`         |                     No | Public application title.                                                               |
+| `VITE_APP_LOGO_URL`      |                     No | Public logo URL for branding.                                                           |
+| `OAUTH_SERVER_URL`       |                     No | Optional OAuth authority for authenticated deployments.                                 |
+| `OWNER_OPEN_ID`          |                     No | Optional initial owner identity.                                                        |
+| `PORT`                   |                     No | Runtime HTTP port.                                                                      |
 
----
+## Available Scripts
 
-## Database Schema
+| Command                        | Purpose                                                                                 |
+| ------------------------------ | --------------------------------------------------------------------------------------- |
+| `pnpm dev`                     | Start the Express runtime with Vite middleware and backend hot reload.                  |
+| `pnpm validate:env`            | Print a safe local configuration inventory.                                             |
+| `pnpm validate:env:production` | Fail when production-required variables are missing.                                    |
+| `pnpm check`                   | Run TypeScript typechecking without emitting files.                                     |
+| `pnpm test`                    | Run the Vitest suite.                                                                   |
+| `pnpm build`                   | Build the Vite frontend and bundled Node server.                                        |
+| `pnpm start`                   | Start the built production server.                                                      |
+| `pnpm ci`                      | Run environment validation, typecheck, tests, and build as a single local release gate. |
+| `pnpm db:generate`             | Generate Drizzle migration files.                                                       |
+| `pnpm db:migrate`              | Apply Drizzle migrations.                                                               |
+| `pnpm format:check`            | Verify Prettier formatting for CI compatibility.                                        |
 
-Ellie uses five core tables managed by Drizzle ORM:
+## Docker
 
-```
-┌─────────────┐     ┌──────────────────┐     ┌───────────────────┐
-│   users      │     │     videos       │     │ analysis_results  │
-│─────────────│     │──────────────────│     │───────────────────│
-│ id (PK)      │◄────│ userId (FK)      │     │ videoId (FK)      │
-│ openId       │     │ id (PK)          │◄────│ id (PK)           │
-│ name         │     │ title            │     │ type              │
-│ email        │     │ url              │     │ content (JSON)    │
-│ role         │     │ fileKey          │     │ confidence        │
-│ createdAt    │     │ mimeType         │     │ timestamp         │
-│ updatedAt    │     │ fileSize         │     │ createdAt         │
-└─────────────┘     │ duration         │     └───────────────────┘
-                     │ status           │
-                     │ createdAt        │     ┌───────────────────┐
-                     └──────────────────┘     │    messages        │
-                                               │───────────────────│
-┌──────────────────┐                           │ conversationId(FK)│
-│  conversations   │                           │ id (PK)           │
-│──────────────────│◄──────────────────────────│ role              │
-│ id (PK)          │                           │ content           │
-│ videoId (FK)     │                           │ messageType       │
-│ userId (FK)      │                           │ metadata (JSON)   │
-│ title            │                           │ createdAt         │
-│ createdAt        │                           └───────────────────┘
-└──────────────────┘
-```
-
----
-
-## API Reference
-
-All API endpoints are type-safe tRPC procedures accessible via the `trpc` client.
-
-### Video Operations
-
-| Procedure | Type | Auth | Description |
-|---|---|---|---|
-| `video.upload` | Mutation | Required | Upload video (base64) to S3, create DB record |
-| `video.list` | Query | Required | List all videos for authenticated user |
-| `video.get` | Query | Required | Get single video with analysis results |
-
-### Analysis Operations
-
-| Procedure | Type | Auth | Description |
-|---|---|---|---|
-| `analysis.analyze` | Mutation | Required | Trigger Gemini multimodal analysis on a video |
-| `analysis.results` | Query | Required | Get all analysis results for a video |
-
-### Chat Operations
-
-| Procedure | Type | Auth | Description |
-|---|---|---|---|
-| `chat.send` | Mutation | Required | Send message, get AI response with video context |
-| `chat.history` | Query | Required | Get conversation history for a video |
-
-### Voice Operations
-
-| Procedure | Type | Auth | Description |
-|---|---|---|---|
-| `voice.transcribe` | Mutation | Required | Transcribe audio (base64) via Whisper |
-
-### Auth Operations
-
-| Procedure | Type | Auth | Description |
-|---|---|---|---|
-| `auth.me` | Query | Public | Get current authenticated user |
-| `auth.logout` | Mutation | Public | Clear session cookie |
-
----
-
-## Project Structure
-
-```
-Ellie/
-├── assets/                    # Repository assets (icons, diagrams, screenshots)
-├── client/                    # React 19 frontend
-│   ├── index.html             # Entry HTML with Google Fonts
-│   ├── public/                # Static assets
-│   └── src/
-│       ├── _core/hooks/       # Auth hooks
-│       ├── components/        # Reusable UI components
-│       │   └── ui/            # shadcn/ui component library
-│       ├── contexts/          # React contexts (Theme)
-│       ├── hooks/             # Custom hooks
-│       ├── lib/               # tRPC client, utilities
-│       ├── pages/             # Page components
-│       │   ├── Home.tsx       # Landing page (Neural Noir)
-│       │   ├── AnalysisWorkspace.tsx  # Main analysis interface
-│       │   └── NotFound.tsx   # 404 page
-│       ├── App.tsx            # Router & providers
-│       ├── main.tsx           # Entry point
-│       └── index.css          # Global styles & theme
-├── server/                    # Express + tRPC backend
-│   ├── _core/                 # Framework plumbing
-│   │   ├── llm.ts             # Gemini LLM integration
-│   │   ├── voiceTranscription.ts  # Whisper integration
-│   │   ├── env.ts             # Environment config
-│   │   ├── trpc.ts            # tRPC initialization
-│   │   └── ...                # OAuth, context, cookies
-│   ├── db.ts                  # Database query helpers
-│   ├── routers.ts             # tRPC procedure definitions
-│   ├── storage.ts             # S3 storage helpers
-│   ├── routers.test.ts        # Backend tests (10 tests)
-│   └── auth.logout.test.ts    # Auth tests
-├── drizzle/                   # Database schema & migrations
-│   ├── schema.ts              # Table definitions
-│   ├── relations.ts           # Table relations
-│   └── migrations/            # SQL migration files
-├── shared/                    # Shared types & constants
-├── docs/                      # Documentation
-├── package.json               # Dependencies & scripts
-├── vite.config.ts             # Vite configuration
-├── drizzle.config.ts          # Drizzle ORM configuration
-├── vitest.config.ts           # Test configuration
-└── tsconfig.json              # TypeScript configuration
-```
-
----
-
-## Design System — Neural Noir
-
-Ellie uses a custom **"Neural Noir"** design system — a cinematic dark interface inspired by the intersection of film noir and neural network visualization.
-
-### Color Palette
-
-| Token | Value | Usage |
-|---|---|---|
-| `--background` | `oklch(0.13 0.02 270)` | Deep charcoal base |
-| `--foreground` | `oklch(0.93 0.01 270)` | Primary text |
-| `--amber` | `oklch(0.82 0.15 75)` | Primary accent (warmth) |
-| `--cyan` | `oklch(0.78 0.12 195)` | Analysis/data accent |
-| `--glass` | `rgba(255,255,255,0.03)` | Frosted glass panels |
-
-### Typography
-
-| Font | Usage |
-|---|---|
-| **Space Grotesk** | Display headings, navigation |
-| **IBM Plex Sans** | Body text, descriptions |
-| **JetBrains Mono** | Code, metrics, timestamps |
-
-### Signature Elements
-
-The design features animated waveform visualizations, floating particle effects, frosted glass panels with subtle borders, and spring physics animations via Framer Motion. The warm amber/gold palette represents human warmth meeting machine intelligence, while cyan accents indicate active analysis states.
-
----
-
-## Testing
-
-Ellie includes a comprehensive test suite using Vitest:
+Ellie includes a root production Dockerfile and `.dockerignore`. The image installs dependencies with pnpm, builds the frontend and backend bundle, starts the Node production server, and exposes `/api/health` for liveness checks.
 
 ```bash
-# Run all tests
-pnpm test
-
-# Current test results:
-# ✓ server/auth.logout.test.ts (1 test)
-# ✓ server/routers.test.ts (9 tests)
-# Test Files  2 passed (2)
-#      Tests  10 passed (10)
+docker build -t ellie-ai:local .
+docker run --rm -p 5000:5000 --env-file .env ellie-ai:local
+curl http://localhost:5000/api/health
+curl http://localhost:5000/api/readiness
 ```
 
-Tests cover authentication flows, authorization guards on all protected procedures, and input validation.
+Readiness is intentionally separate from liveness. A container can be alive while still refusing production promotion because a database, secret, or provider credential is missing.
 
----
+## Production Readiness
+
+Ellie is now a **full production-ready repository baseline**: it has a real frontend, a real backend, typed contracts, database schema, Docker packaging, validation scripts, documentation, release hygiene, and a license. The application should still be treated as a release candidate until production secrets, hosted infrastructure, durable media jobs, provider contract tests, authenticated tenancy, and observability are configured in the target environment.
+
+| Gate                        | Command or Evidence                                     |                  Required Before Production |
+| --------------------------- | ------------------------------------------------------- | ------------------------------------------: |
+| Reproducible install        | `pnpm install --frozen-lockfile`                        |                                         Yes |
+| Environment inventory       | `pnpm validate:env`                                     |                                         Yes |
+| Production environment gate | `pnpm validate:env:production` with real target secrets |                                         Yes |
+| Type safety                 | `pnpm check`                                            |                                         Yes |
+| Unit tests                  | `pnpm test`                                             |                                         Yes |
+| Production build            | `pnpm build`                                            |                                         Yes |
+| Formatting compatibility    | `pnpm format:check`                                     | Yes for CI workflows that enforce Prettier. |
+| Runtime liveness            | `curl /api/health`                                      |                                         Yes |
+| Runtime readiness           | `curl /api/readiness` or `curl /api/ready`              |                                         Yes |
+| Migration review            | `pnpm db:generate` and migration diff review            |               Required when schema changes. |
 
 ## Documentation
 
-| Document | Description |
-|---|---|
-| [Architecture Docs](docs/) | Detailed technical documentation |
-| [Contributing Guide](CONTRIBUTING.md) | Development workflow and coding standards |
-| [Service Discovery](docs/service-discovery.md) | Service architecture documentation |
+| Document                                                                                 | Purpose                                                                                       |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| [`SETUP.md`](SETUP.md)                                                                   | Local setup, production build, environment validation, Docker, and health-check instructions. |
+| [`docs/PRODUCTION_READINESS.md`](docs/PRODUCTION_READINESS.md)                           | Release gates, backend status, operational endpoints, and hardening roadmap.                  |
+| [`RELEASES.md`](RELEASES.md)                                                             | Version history and planned production milestones.                                            |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md)                                                     | Branching, validation, documentation, and review expectations.                                |
+| [`docs/README.md`](docs/README.md)                                                       | Documentation index for repository maintainers.                                               |
+| [`.github/PULL_REQUEST_TEMPLATE.md`](.github/PULL_REQUEST_TEMPLATE.md)                   | Review checklist and validation evidence template.                                            |
+| [`docs/migration/backend-fastapi-reference/`](docs/migration/backend-fastapi-reference/) | Reference-only FastAPI exploration notes; the active backend is TypeScript and Express.       |
 
----
+## Release Status
 
-## Performance Targets
+The current hardened version is **1.1.0**. This milestone establishes the full-stack repository baseline and makes the project buildable, reviewable, and ready for deployment preparation. It does not pretend that every hosted production concern has already been solved; instead, it gives the next engineering pass a stable product and operations foundation.
 
-| Metric | Target | Implementation |
-|---|---|---|
-| **Video Upload** | < 3s for 100MB | Direct S3 upload with progress |
-| **Analysis Start** | < 500ms | Immediate pipeline trigger |
-| **Chat Response** | < 2s | Gemini with pre-assembled context |
-| **Voice Transcription** | < 1s | Whisper with optimized audio |
-| **UI Interaction** | < 16ms | React 19 concurrent rendering |
-| **First Paint** | < 1.5s | Vite code splitting + lazy loading |
-
----
+| Version | Status            | Summary                                                                                                                                                            |
+| ------- | ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `1.1.0` | Release candidate | Adds backend readiness, health checks, Docker packaging, validation scripts, full documentation, application presentation polish, and repository license coverage. |
+| `1.2.0` | Planned           | Add authenticated owner/user flows, job records, queue-backed video analysis, and provider adapter tests.                                                          |
+| `2.0.0` | Planned           | Add multi-tenant production workflows, observability, hosted deployment recipes, and end-to-end media-processing guarantees.                                       |
 
 ## Roadmap
 
-| Phase | Feature | Status |
-|---|---|---|
-| v1.0 | Video upload + AI analysis + chat | **Complete** |
-| v1.0 | Voice interaction (record + transcribe) | **Complete** |
-| v1.0 | Neural Noir UI design system | **Complete** |
-| v1.0 | Persistent conversational memory | **Complete** |
-| v1.1 | Streaming AI responses (SSE) | Planned |
-| v1.1 | Video library + history dashboard | Planned |
-| v1.2 | Export analysis as PDF reports | Planned |
-| v1.2 | Shareable analysis links | Planned |
-| v2.0 | Real-time voice conversation (WebSocket) | Planned |
-| v2.0 | Multi-video comparative analysis | Planned |
+The next engineering work should focus on backend depth and operational guarantees. The visual and repository presentation layer is now in place; the highest-value production work is durable processing, provider isolation, authenticated tenancy, integration tests, and deployment monitoring.
 
----
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details on development workflow, coding standards, and pull request process.
-
----
+| Priority | Workstream        | Outcome                                                                                           |
+| -------: | ----------------- | ------------------------------------------------------------------------------------------------- |
+|        1 | Provider adapters | Gemini, Whisper, and storage calls become testable interfaces with contract tests.                |
+|        2 | Processing jobs   | Video analysis moves from request-bound execution into durable background jobs.                   |
+|        3 | Authentication    | User ownership, session enforcement, and protected procedures become mandatory for private media. |
+|        4 | Observability     | Structured logs, metrics, traces, and alerts make production behavior measurable.                 |
+|        5 | Integration tests | Router, database, storage, provider, and readiness behavior are covered by repeatable tests.      |
 
 ## License
 
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+Ellie is released under the [MIT License](LICENSE).
 
----
+## References
 
-<div align="center">
-
-**Built with Gemini 2.5 Flash, OpenAI Whisper, React 19, and tRPC 11**
-
-**Maintained by**: Alex Cinovoj, TechTide AI
-
-<sub>Ellie AI — See Everything. Understand Everything.</sub>
-
-</div>
+[1]: https://react.dev/ "React documentation"
+[2]: https://vite.dev/guide/ "Vite guide"
+[3]: https://expressjs.com/ "Express documentation"
+[4]: https://trpc.io/docs "tRPC documentation"
+[5]: https://orm.drizzle.team/docs/overview "Drizzle ORM documentation"

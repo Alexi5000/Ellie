@@ -28,11 +28,12 @@ Tests use two setup files that run in order:
 **IMPORTANT**: Tests ALWAYS use mock API keys for security and consistency:
 
 ```typescript
-process.env.OPENAI_API_KEY = 'sk-test_openai_api_key_mock_1234567890abcdef';
-process.env.GROQ_API_KEY = 'gsk_test_groq_api_key_mock_1234567890abcdef';
+process.env.OPENAI_API_KEY = "sk-test_openai_api_key_mock_1234567890abcdef";
+process.env.GROQ_API_KEY = "gsk_test_groq_api_key_mock_1234567890abcdef";
 ```
 
 These mock keys are:
+
 - Set automatically in `env-setup.ts`
 - Never make real API calls
 - Prevent accidental charges during testing
@@ -104,12 +105,14 @@ const timer = setTimeout(() => {}, 1000);
 ### Best Practices
 
 1. **Use Shared Mocks**: Access global mock instances for consistency
+
    ```typescript
    const mockVoiceService = (global as any).sharedMockVoiceProcessingService;
-   mockVoiceService.processAudioInput.mockResolvedValue('Custom response');
+   mockVoiceService.processAudioInput.mockResolvedValue("Custom response");
    ```
 
 2. **Reset Mocks Between Tests**: Automatic, but can be done manually
+
    ```typescript
    beforeEach(() => {
      jest.clearAllMocks();
@@ -117,8 +120,9 @@ const timer = setTimeout(() => {}, 1000);
    ```
 
 3. **Handle Async Operations**: Use proper async/await
+
    ```typescript
-   it('should process async operation', async () => {
+   it("should process async operation", async () => {
      const result = await service.processData();
      expect(result).toBeDefined();
    });
@@ -126,7 +130,7 @@ const timer = setTimeout(() => {}, 1000);
 
 4. **Test Timeouts**: Increase timeout for slow tests
    ```typescript
-   it('should handle long operation', async () => {
+   it("should handle long operation", async () => {
      // Test code
    }, 45000); // 45 second timeout
    ```
@@ -140,7 +144,7 @@ Control rate limiting behavior:
 (global as any).enableRateLimiting();
 
 // Test rate limit behavior
-const response = await request(app).post('/api/voice/process');
+const response = await request(app).post("/api/voice/process");
 
 // Disable rate limiting after test
 (global as any).disableRateLimiting();
@@ -151,12 +155,14 @@ const response = await request(app).post('/api/voice/process');
 Customize mock behavior per test:
 
 ```typescript
-it('should handle transcription error', async () => {
+it("should handle transcription error", async () => {
   const mockService = (global as any).sharedMockVoiceProcessingService;
-  mockService.processAudioInput.mockRejectedValue(new Error('Transcription failed'));
-  
+  mockService.processAudioInput.mockRejectedValue(
+    new Error("Transcription failed")
+  );
+
   // Test error handling
-  const response = await request(app).post('/api/voice/process');
+  const response = await request(app).post("/api/voice/process");
   expect(response.status).toBe(500);
 });
 ```
@@ -194,6 +200,7 @@ JEST_VERBOSE=true npm test
 ```
 
 This will show:
+
 - Mock function calls
 - Environment setup details
 - Service initialization logs
@@ -201,21 +208,25 @@ This will show:
 ## Running Tests
 
 ### All Tests
+
 ```bash
 npm test
 ```
 
 ### Specific Test File
+
 ```bash
 npm test -- voiceRoutes.test.ts
 ```
 
 ### Watch Mode
+
 ```bash
 npm run test:watch
 ```
 
 ### With Coverage
+
 ```bash
 npm test -- --coverage
 ```
