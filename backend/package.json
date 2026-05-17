@@ -5,9 +5,9 @@
   "type": "module",
   "description": "Compatibility bridge for legacy GitHub Actions that still expect a backend workspace.",
   "scripts": {
-    "lint": "cd .. && npx pnpm check",
-    "type-check": "cd .. && npx pnpm check",
-    "test": "cd .. && npx pnpm test",
-    "build": "cd .. && npx pnpm build"
+    "lint": "cd .. && npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 check",
+    "type-check": "cd .. && npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 check",
+    "test": "cd .. && npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 test",
+    "build": "cd .. && npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 build"
   }
 }
