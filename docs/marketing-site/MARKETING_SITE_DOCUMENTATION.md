@@ -11,9 +11,11 @@ This directory contains comprehensive documentation for the marketing site, cove
 ### Core Documentation
 
 #### [Theme System Documentation](./THEME_SYSTEM.md)
+
 Complete guide to the dark/light theme system.
 
 **Contents:**
+
 - Architecture and setup
 - Usage examples
 - Customization guide
@@ -22,6 +24,7 @@ Complete guide to the dark/light theme system.
 - API reference
 
 **Key Topics:**
+
 - ThemeProvider setup
 - useTheme hook
 - CSS variables
@@ -32,9 +35,11 @@ Complete guide to the dark/light theme system.
 ---
 
 #### [Component API Reference](./COMPONENT_API.md)
+
 Comprehensive API documentation for all marketing components.
 
 **Contents:**
+
 - Theme components (ThemeProvider, ThemeToggle)
 - Layout components (Header, Footer)
 - Content components (Hero, Features, KPIBand, etc.)
@@ -42,6 +47,7 @@ Comprehensive API documentation for all marketing components.
 - Utility components and hooks
 
 **For Each Component:**
+
 - Import statements
 - Props interface
 - Usage examples
@@ -51,9 +57,11 @@ Comprehensive API documentation for all marketing components.
 ---
 
 #### [Style Guide](./frontend/src/components/marketing/STYLE_GUIDE.md)
+
 Design patterns and conventions for marketing components.
 
 **Contents:**
+
 - Design principles
 - Color system
 - Typography
@@ -64,6 +72,7 @@ Design patterns and conventions for marketing components.
 - Accessibility guidelines
 
 **Key Sections:**
+
 - Semantic color tokens
 - Font scales and weights
 - Button styles
@@ -74,9 +83,11 @@ Design patterns and conventions for marketing components.
 ---
 
 #### [Marketing Components README](./frontend/src/components/marketing/README.md)
+
 Overview and usage guide for all marketing components.
 
 **Contents:**
+
 - Component architecture
 - Available components
 - Usage guidelines
@@ -85,6 +96,7 @@ Overview and usage guide for all marketing components.
 - Testing approach
 
 **Component Categories:**
+
 - Layout (Header, Footer)
 - Content (Hero, Features, KPIBand, LogosStrip, Solutions, Explainer, Reliability)
 - Interactive (CodeTabs)
@@ -92,9 +104,11 @@ Overview and usage guide for all marketing components.
 ---
 
 #### [Accessibility Features](./ACCESSIBILITY_FEATURES.md)
+
 Detailed documentation of accessibility implementation.
 
 **Contents:**
+
 - Keyboard navigation
 - Screen reader support
 - Focus management
@@ -105,6 +119,7 @@ Detailed documentation of accessibility implementation.
 - WCAG 2.1 compliance
 
 **Key Features:**
+
 - Full keyboard navigation
 - WCAG 2.1 Level AA compliance
 - Screen reader compatibility
@@ -114,9 +129,11 @@ Detailed documentation of accessibility implementation.
 ---
 
 #### [Deployment Guide](./DEPLOYMENT_GUIDE.md)
+
 Complete guide for deploying the marketing site to production.
 
 **Contents:**
+
 - Prerequisites
 - Build process
 - Deployment options (Docker, Vercel, Netlify, Nginx)
@@ -127,6 +144,7 @@ Complete guide for deploying the marketing site to production.
 - CI/CD pipeline
 
 **Deployment Options:**
+
 - Docker (recommended)
 - Static hosting (Vercel, Netlify)
 - Traditional web server (Nginx)
@@ -138,12 +156,14 @@ Complete guide for deploying the marketing site to production.
 ### For Developers
 
 **Getting Started:**
+
 1. Read [Marketing Components README](./frontend/src/components/marketing/README.md)
 2. Review [Component API Reference](./COMPONENT_API.md)
 3. Follow [Style Guide](./frontend/src/components/marketing/STYLE_GUIDE.md)
 4. Check [Theme System Documentation](./THEME_SYSTEM.md)
 
 **Building Components:**
+
 1. Use semantic color tokens
 2. Follow component structure pattern
 3. Implement accessibility features
@@ -154,11 +174,13 @@ Complete guide for deploying the marketing site to production.
 ### For Designers
 
 **Design Resources:**
+
 1. [Style Guide](./frontend/src/components/marketing/STYLE_GUIDE.md) - Design system
 2. [Component API](./COMPONENT_API.md) - Component specifications
 3. [Accessibility Features](./ACCESSIBILITY_FEATURES.md) - Accessibility requirements
 
 **Key Considerations:**
+
 - Dark-first design approach
 - WCAG AA contrast ratios
 - Responsive breakpoints
@@ -168,11 +190,13 @@ Complete guide for deploying the marketing site to production.
 ### For DevOps
 
 **Deployment Resources:**
+
 1. [Deployment Guide](./DEPLOYMENT_GUIDE.md) - Complete deployment instructions
 2. [Performance Guide](./frontend/PERFORMANCE.md) - Optimization techniques
 3. [SSL Setup Guide](./docs/SSL_SETUP_GUIDE.md) - SSL configuration
 
 **Key Tasks:**
+
 - Build optimization
 - CDN configuration
 - SSL/TLS setup
@@ -217,12 +241,14 @@ Each component has its own README with detailed documentation:
 ### Color System
 
 **Semantic Tokens:**
+
 - Background: primary, secondary, tertiary
 - Text: primary, secondary, tertiary
 - Accent: primary, secondary
 - Border: primary, secondary
 
 **Themes:**
+
 - Light theme (default)
 - Dark theme (primary)
 
@@ -385,19 +411,23 @@ VITE_ENABLE_ANALYTICS=true
 ### Common Issues
 
 **Theme not persisting:**
+
 - Check localStorage availability
 - Verify browser privacy settings
 
 **Animations not working:**
+
 - Check prefers-reduced-motion setting
 - Verify Framer Motion is loaded
 
 **Build fails:**
+
 - Check Node.js version (18+)
 - Clear node_modules and reinstall
 - Verify environment variables
 
 **Performance issues:**
+
 - Run Lighthouse audit
 - Check bundle size
 - Verify code splitting
@@ -415,6 +445,7 @@ VITE_ENABLE_ANALYTICS=true
 ### Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
+
 - Code of conduct
 - Development workflow
 - Coding standards
@@ -460,6 +491,7 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for:
 ### Maintained 🔄
 
 All documentation is actively maintained and updated with:
+
 - New features
 - Bug fixes
 - Best practices

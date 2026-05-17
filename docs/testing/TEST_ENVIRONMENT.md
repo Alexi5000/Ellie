@@ -44,12 +44,14 @@ npm run test:setup-windows
 ### Manual Setup
 
 1. Copy environment examples:
+
    ```bash
    cp backend/.env.example backend/.env.test
    cp frontend/.env.example frontend/.env.test
    ```
 
 2. Update API keys in `backend/.env.test`:
+
    ```env
    OPENAI_API_KEY=test_openai_api_key_mock
    GROQ_API_KEY=test_groq_api_key_mock
@@ -125,11 +127,11 @@ The test environment includes comprehensive OpenAI API mocking:
 
 ```typescript
 // Whisper API (Speech-to-Text)
-mockOpenAI.audio.transcriptions.create.mockResolvedValue('Mock transcription');
+mockOpenAI.audio.transcriptions.create.mockResolvedValue("Mock transcription");
 
 // TTS API (Text-to-Speech)
 mockOpenAI.audio.speech.create.mockResolvedValue({
-  arrayBuffer: () => Promise.resolve(new ArrayBuffer(1024))
+  arrayBuffer: () => Promise.resolve(new ArrayBuffer(1024)),
 });
 ```
 
@@ -139,9 +141,11 @@ Groq API responses are mocked for consistent testing:
 
 ```typescript
 mockGroq.chat.completions.create.mockResolvedValue({
-  choices: [{
-    message: { content: 'Mock AI response' }
-  }]
+  choices: [
+    {
+      message: { content: "Mock AI response" },
+    },
+  ],
 });
 ```
 
@@ -151,7 +155,7 @@ Redis operations are mocked to avoid external dependencies:
 
 ```typescript
 mockRedis.get.mockResolvedValue(null);
-mockRedis.set.mockResolvedValue('OK');
+mockRedis.set.mockResolvedValue("OK");
 mockRedis.del.mockResolvedValue(1);
 ```
 
@@ -242,9 +246,11 @@ docker run -d -p 6379:6379 redis:alpine
 **Solution**: Ensure proper mocking in test setup:
 
 ```typescript
-Object.defineProperty(window, 'MediaRecorder', {
+Object.defineProperty(window, "MediaRecorder", {
   writable: true,
-  value: vi.fn().mockImplementation(() => ({ /* mock implementation */ }))
+  value: vi.fn().mockImplementation(() => ({
+    /* mock implementation */
+  })),
 });
 ```
 

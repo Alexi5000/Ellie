@@ -6,7 +6,10 @@ import type { TrpcContext } from "./_core/context";
 /* ── Helpers ── */
 type CookieCall = { name: string; options: Record<string, unknown> };
 
-function createPublicContext(): { ctx: TrpcContext; clearedCookies: CookieCall[] } {
+function createPublicContext(): {
+  ctx: TrpcContext;
+  clearedCookies: CookieCall[];
+} {
   const clearedCookies: CookieCall[] = [];
   const ctx: TrpcContext = {
     user: null, // anonymous — no auth
@@ -92,7 +95,9 @@ describe("video.get (public)", () => {
   it("returns NOT_FOUND for non-existent video", async () => {
     const { ctx } = createPublicContext();
     const caller = appRouter.createCaller(ctx);
-    await expect(caller.video.get({ id: 999999 })).rejects.toThrow("Video not found");
+    await expect(caller.video.get({ id: 999999 })).rejects.toThrow(
+      "Video not found"
+    );
   });
 
   it("rejects negative IDs via Zod", async () => {
@@ -125,7 +130,7 @@ describe("chat.send (public, input validation)", () => {
     const { ctx } = createPublicContext();
     const caller = appRouter.createCaller(ctx);
     const history = Array.from({ length: 41 }, (_, i) => ({
-      role: i % 2 === 0 ? "user" as const : "assistant" as const,
+      role: i % 2 === 0 ? ("user" as const) : ("assistant" as const),
       content: "test",
     }));
     await expect(
@@ -140,7 +145,10 @@ describe("voice.transcribe (public, input validation)", () => {
     const { ctx } = createPublicContext();
     const caller = appRouter.createCaller(ctx);
     await expect(
-      caller.voice.transcribe({ audioData: btoa("fake"), mimeType: "application/pdf" })
+      caller.voice.transcribe({
+        audioData: btoa("fake"),
+        mimeType: "application/pdf",
+      })
     ).rejects.toThrow("Unsupported audio format");
   });
 

@@ -1,11 +1,15 @@
 import { eq, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
-  InsertUser, users,
-  videos, InsertVideo, Video,
-  analysisResults, InsertAnalysisResult,
+  InsertUser,
+  users,
+  videos,
+  InsertVideo,
+  Video,
+  analysisResults,
+  InsertAnalysisResult,
 } from "../drizzle/schema";
-import { ENV } from './_core/env';
+import { ENV } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -71,7 +75,10 @@ export async function checkDatabaseReadiness(): Promise<DependencyReadiness> {
       configured: true,
       healthy: false,
       critical: true,
-      message: error instanceof Error ? error.message : "Database readiness check failed.",
+      message:
+        error instanceof Error
+          ? error.message
+          : "Database readiness check failed.",
       latencyMs: Date.now() - startedAt,
     };
   }
@@ -109,8 +116,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     values.role = user.role;
     updateSet.role = user.role;
   } else if (user.openId === ENV.ownerOpenId) {
-    values.role = 'admin';
-    updateSet.role = 'admin';
+    values.role = "admin";
+    updateSet.role = "admin";
   }
 
   if (!values.lastSignedIn) {
@@ -129,7 +136,11 @@ export async function upsertUser(user: InsertUser): Promise<void> {
 export async function getUserByOpenId(openId: string) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
+  const result = await db
+    .select()
+    .from(users)
+    .where(eq(users.openId, openId))
+    .limit(1);
   return result.length > 0 ? result[0] : undefined;
 }
 
@@ -144,11 +155,19 @@ export async function createVideo(video: InsertVideo) {
 export async function getVideoById(id: number) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.select().from(videos).where(eq(videos.id, id)).limit(1);
+  const result = await db
+    .select()
+    .from(videos)
+    .where(eq(videos.id, id))
+    .limit(1);
   return result[0];
 }
 
-export async function updateVideoStatus(id: number, status: Video["status"], duration?: number) {
+export async function updateVideoStatus(
+  id: number,
+  status: Video["status"],
+  duration?: number
+) {
   const db = await getDb();
   if (!db) return;
   const updateData: Record<string, unknown> = { status };
@@ -167,5 +186,9 @@ export async function createAnalysisResults(results: InsertAnalysisResult[]) {
 export async function getVideoAnalysisResults(videoId: number) {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(analysisResults).where(eq(analysisResults.videoId, videoId)).orderBy(analysisResults.timestamp);
+  return db
+    .select()
+    .from(analysisResults)
+    .where(eq(analysisResults.videoId, videoId))
+    .orderBy(analysisResults.timestamp);
 }

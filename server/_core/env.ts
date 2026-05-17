@@ -11,11 +11,12 @@ export type EnvironmentCheck = EnvironmentVariableDefinition & {
 };
 
 const rawNodeEnv = process.env.NODE_ENV;
-const runtimeMode: RuntimeMode = rawNodeEnv === "production"
-  ? "production"
-  : rawNodeEnv === "test"
-    ? "test"
-    : "development";
+const runtimeMode: RuntimeMode =
+  rawNodeEnv === "production"
+    ? "production"
+    : rawNodeEnv === "test"
+      ? "test"
+      : "development";
 
 const getEnv = (name: string): string => process.env[name]?.trim() ?? "";
 
@@ -38,42 +39,50 @@ export const ENVIRONMENT_VARIABLES: EnvironmentVariableDefinition[] = [
   {
     name: "DATABASE_URL",
     requiredInProduction: true,
-    description: "MySQL-compatible database connection string used by Drizzle ORM for video metadata and analysis results.",
+    description:
+      "MySQL-compatible database connection string used by Drizzle ORM for video metadata and analysis results.",
   },
   {
     name: "JWT_SECRET",
     requiredInProduction: true,
-    description: "High-entropy secret used to sign session cookies for authenticated owner/admin flows.",
+    description:
+      "High-entropy secret used to sign session cookies for authenticated owner/admin flows.",
   },
   {
     name: "BUILT_IN_FORGE_API_URL",
     requiredInProduction: true,
-    description: "Forge-compatible API base URL for LLM, transcription, and storage proxy calls.",
+    description:
+      "Forge-compatible API base URL for LLM, transcription, and storage proxy calls.",
   },
   {
     name: "BUILT_IN_FORGE_API_KEY",
     requiredInProduction: true,
-    description: "Bearer token for Forge-compatible AI and storage proxy calls.",
+    description:
+      "Bearer token for Forge-compatible AI and storage proxy calls.",
   },
   {
     name: "VITE_APP_ID",
     requiredInProduction: false,
-    description: "Public application identifier used by platform integrations and client-side metadata.",
+    description:
+      "Public application identifier used by platform integrations and client-side metadata.",
   },
   {
     name: "VITE_APP_TITLE",
     requiredInProduction: false,
-    description: "Human-readable application title surfaced in documentation and UI metadata.",
+    description:
+      "Human-readable application title surfaced in documentation and UI metadata.",
   },
   {
     name: "OAUTH_SERVER_URL",
     requiredInProduction: false,
-    description: "OAuth server base URL for optional owner/admin authentication.",
+    description:
+      "OAuth server base URL for optional owner/admin authentication.",
   },
   {
     name: "OWNER_OPEN_ID",
     requiredInProduction: false,
-    description: "OpenID subject that should receive the admin role after sign-in.",
+    description:
+      "OpenID subject that should receive the admin role after sign-in.",
   },
   {
     name: "PORT",

@@ -11,6 +11,9 @@ build/
 *.tsbuildinfo
 coverage/
 
+# GitHub workflow files require workflow-scope permissions to update remotely.
+.github/workflows/
+
 # Package files
 package-lock.json
 pnpm-lock.yaml

@@ -6,8 +6,11 @@ import { invokeLLM } from "./_core/llm";
 import { transcribeAudio } from "./_core/voiceTranscription";
 import { storagePut } from "./storage";
 import {
-  createVideo, getVideoById, updateVideoStatus,
-  createAnalysisResults, getVideoAnalysisResults,
+  createVideo,
+  getVideoById,
+  updateVideoStatus,
+  createAnalysisResults,
+  getVideoAnalysisResults,
 } from "./db";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
@@ -17,18 +20,35 @@ import { nanoid } from "nanoid";
    SECURITY CONSTANTS
    ════════════════════════════════════════════════════════════════ */
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
-const MAX_AUDIO_SIZE = 16 * 1024 * 1024;  // 16MB
+const MAX_AUDIO_SIZE = 16 * 1024 * 1024; // 16MB
 const MAX_MESSAGE_LENGTH = 2000;
 const MAX_FILENAME_LENGTH = 255;
-const ALLOWED_VIDEO_MIMES = ["video/mp4", "video/webm", "video/quicktime", "video/x-msvideo", "video/avi"];
-const ALLOWED_AUDIO_MIMES = ["audio/webm", "audio/mp3", "audio/wav", "audio/ogg", "audio/m4a", "audio/mpeg"];
+const ALLOWED_VIDEO_MIMES = [
+  "video/mp4",
+  "video/webm",
+  "video/quicktime",
+  "video/x-msvideo",
+  "video/avi",
+];
+const ALLOWED_AUDIO_MIMES = [
+  "audio/webm",
+  "audio/mp3",
+  "audio/wav",
+  "audio/ogg",
+  "audio/m4a",
+  "audio/mpeg",
+];
 
 /* ════════════════════════════════════════════════════════════════
    RATE LIMITING (in-memory, per-IP)
    ════════════════════════════════════════════════════════════════ */
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
-function checkRateLimit(ip: string, maxRequests: number, windowMs: number): void {
+function checkRateLimit(
+  ip: string,
+  maxRequests: number,
+  windowMs: number
+): void {
   const now = Date.now();
   const entry = rateLimitMap.get(ip);
 
@@ -48,14 +68,17 @@ function checkRateLimit(ip: string, maxRequests: number, windowMs: number): void
 }
 
 // Cleanup stale entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  const keysToDelete: string[] = [];
-  rateLimitMap.forEach((entry, key) => {
-    if (now > entry.resetAt) keysToDelete.push(key);
-  });
-  keysToDelete.forEach(key => rateLimitMap.delete(key));
-}, 5 * 60 * 1000);
+setInterval(
+  () => {
+    const now = Date.now();
+    const keysToDelete: string[] = [];
+    rateLimitMap.forEach((entry, key) => {
+      if (now > entry.resetAt) keysToDelete.push(key);
+    });
+    keysToDelete.forEach(key => rateLimitMap.delete(key));
+  },
+  5 * 60 * 1000
+);
 
 /* ════════════════════════════════════════════════════════════════
    INPUT SANITIZATION
@@ -90,12 +113,14 @@ export const appRouter = router({
      ════════════════════════════════════════════════════════════════ */
   video: router({
     upload: publicProcedure
-      .input(z.object({
-        filename: z.string().min(1).max(MAX_FILENAME_LENGTH),
-        mimeType: z.string().min(1).max(100),
-        data: z.string().min(1), // base64
-        fileSize: z.number().int().positive().max(MAX_VIDEO_SIZE),
-      }))
+      .input(
+        z.object({
+          filename: z.string().min(1).max(MAX_FILENAME_LENGTH),
+          mimeType: z.string().min(1).max(100),
+          data: z.string().min(1), // base64
+          fileSize: z.number().int().positive().max(MAX_VIDEO_SIZE),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
         // Rate limit: 10 uploads per 10 minutes per IP
         const ip = ctx.req.ip || ctx.req.socket.remoteAddress || "unknown";
@@ -105,7 +130,8 @@ export const appRouter = router({
         if (!ALLOWED_VIDEO_MIMES.includes(input.mimeType)) {
           throw new TRPCError({
             code: "BAD_REQUEST",
-            message: "Unsupported video format. Please use MP4, WebM, MOV, or AVI.",
+            message:
+              "Unsupported video format. Please use MP4, WebM, MOV, or AVI.",
           });
         }
 
@@ -144,7 +170,11 @@ export const appRouter = router({
       .input(z.object({ id: z.number().int().positive() }))
       .query(async ({ input }) => {
         const video = await getVideoById(input.id);
-        if (!video) throw new TRPCError({ code: "NOT_FOUND", message: "Video not found" });
+        if (!video)
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Video not found",
+          });
         // Strip internal fields
         return {
           id: video.id,
@@ -169,7 +199,11 @@ export const appRouter = router({
         checkRateLimit(`analyze:${ip}`, 5, 10 * 60 * 1000);
 
         const video = await getVideoById(input.videoId);
-        if (!video) throw new TRPCError({ code: "NOT_FOUND", message: "Video not found" });
+        if (!video)
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Video not found",
+          });
 
         try {
           const response = await invokeLLM({
@@ -195,8 +229,14 @@ Be thorough, specific, and precise with timestamps.`,
               {
                 role: "user",
                 content: [
-                  { type: "text", text: "Analyze this video comprehensively. Provide detailed scene descriptions, transcriptions, audio events, emotional analysis, and a summary." },
-                  { type: "file_url", file_url: { url: video.storageUrl, mime_type: "video/mp4" } },
+                  {
+                    type: "text",
+                    text: "Analyze this video comprehensively. Provide detailed scene descriptions, transcriptions, audio events, emotional analysis, and a summary.",
+                  },
+                  {
+                    type: "file_url",
+                    file_url: { url: video.storageUrl, mime_type: "video/mp4" },
+                  },
                 ],
               },
             ],
@@ -213,12 +253,27 @@ Be thorough, specific, and precise with timestamps.`,
                       items: {
                         type: "object",
                         properties: {
-                          type: { type: "string", enum: ["scene", "transcript", "audio", "frame", "emotion", "summary"] },
+                          type: {
+                            type: "string",
+                            enum: [
+                              "scene",
+                              "transcript",
+                              "audio",
+                              "frame",
+                              "emotion",
+                              "summary",
+                            ],
+                          },
                           timestamp: { type: "number" },
                           content: { type: "string" },
                           confidence: { type: "number" },
                         },
-                        required: ["type", "timestamp", "content", "confidence"],
+                        required: [
+                          "type",
+                          "timestamp",
+                          "content",
+                          "confidence",
+                        ],
                         additionalProperties: false,
                       },
                     },
@@ -242,13 +297,26 @@ Be thorough, specific, and precise with timestamps.`,
 
           if (analysisData.length > 0) {
             await createAnalysisResults(
-              analysisData.map((r: { type: string; timestamp: number; content: string; confidence: number }) => ({
-                videoId: input.videoId,
-                type: r.type as "scene" | "transcript" | "audio" | "frame" | "emotion" | "summary",
-                timestamp: r.timestamp,
-                content: r.content,
-                confidence: r.confidence,
-              }))
+              analysisData.map(
+                (r: {
+                  type: string;
+                  timestamp: number;
+                  content: string;
+                  confidence: number;
+                }) => ({
+                  videoId: input.videoId,
+                  type: r.type as
+                    | "scene"
+                    | "transcript"
+                    | "audio"
+                    | "frame"
+                    | "emotion"
+                    | "summary",
+                  timestamp: r.timestamp,
+                  content: r.content,
+                  confidence: r.confidence,
+                })
+              )
             );
           }
 
@@ -277,29 +345,40 @@ Be thorough, specific, and precise with timestamps.`,
      ════════════════════════════════════════════════════════════════ */
   chat: router({
     send: publicProcedure
-      .input(z.object({
-        videoId: z.number().int().positive(),
-        message: z.string().min(1).max(MAX_MESSAGE_LENGTH),
-        chatHistory: z.array(z.object({
-          role: z.enum(["user", "assistant"]),
-          content: z.string().max(MAX_MESSAGE_LENGTH * 2),
-        })).max(40).default([]),
-      }))
+      .input(
+        z.object({
+          videoId: z.number().int().positive(),
+          message: z.string().min(1).max(MAX_MESSAGE_LENGTH),
+          chatHistory: z
+            .array(
+              z.object({
+                role: z.enum(["user", "assistant"]),
+                content: z.string().max(MAX_MESSAGE_LENGTH * 2),
+              })
+            )
+            .max(40)
+            .default([]),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
         // Rate limit: 30 messages per 5 minutes per IP
         const ip = ctx.req.ip || ctx.req.socket.remoteAddress || "unknown";
         checkRateLimit(`chat:${ip}`, 30, 5 * 60 * 1000);
 
         const video = await getVideoById(input.videoId);
-        if (!video) throw new TRPCError({ code: "NOT_FOUND", message: "Video not found" });
+        if (!video)
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Video not found",
+          });
 
         const sanitizedMessage = sanitizeMessage(input.message);
 
         // Get analysis results for context
         const analysisData = await getVideoAnalysisResults(input.videoId);
-        const analysisContext = analysisData.map(r =>
-          `[${r.type}@${r.timestamp}s] ${r.content}`
-        ).join("\n");
+        const analysisContext = analysisData
+          .map(r => `[${r.type}@${r.timestamp}s] ${r.content}`)
+          .join("\n");
 
         // Build messages for LLM — chat history comes from browser (ephemeral)
         const llmMessages = [
@@ -330,9 +409,10 @@ Guidelines:
 
         try {
           const response = await invokeLLM({ messages: llmMessages });
-          const aiContent = typeof response.choices[0]?.message?.content === "string"
-            ? response.choices[0].message.content
-            : "I'm sorry, I couldn't process that request. Could you try rephrasing?";
+          const aiContent =
+            typeof response.choices[0]?.message?.content === "string"
+              ? response.choices[0].message.content
+              : "I'm sorry, I couldn't process that request. Could you try rephrasing?";
 
           return {
             id: nanoid(),
@@ -354,10 +434,12 @@ Guidelines:
      ════════════════════════════════════════════════════════════════ */
   voice: router({
     transcribe: publicProcedure
-      .input(z.object({
-        audioData: z.string().min(1),
-        mimeType: z.string().default("audio/webm"),
-      }))
+      .input(
+        z.object({
+          audioData: z.string().min(1),
+          mimeType: z.string().default("audio/webm"),
+        })
+      )
       .mutation(async ({ input, ctx }) => {
         // Rate limit: 20 transcriptions per 5 minutes per IP
         const ip = ctx.req.ip || ctx.req.socket.remoteAddress || "unknown";
@@ -393,7 +475,11 @@ Guidelines:
           });
         }
 
-        return { text: result.text, language: result.language, duration: result.duration };
+        return {
+          text: result.text,
+          language: result.language,
+          duration: result.duration,
+        };
       }),
   }),
 });

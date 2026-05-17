@@ -3,6 +3,7 @@
 ## 🚀 Quick Commands
 
 ### Linting
+
 ```bash
 # Check
 npm run lint                    # Both backend and frontend
@@ -16,6 +17,7 @@ cd frontend && npm run lint:fix
 ```
 
 ### Formatting
+
 ```bash
 # Check
 cd backend && npm run format:check
@@ -27,12 +29,14 @@ cd frontend && npm run format
 ```
 
 ### Type Checking
+
 ```bash
 cd backend && npm run type-check
 cd frontend && npm run type-check
 ```
 
 ### Testing
+
 ```bash
 npm test                        # All tests
 npm run test:backend           # Backend only
@@ -42,12 +46,14 @@ npm run test:all               # Everything
 ```
 
 ### Building
+
 ```bash
 cd backend && npm run build
 cd frontend && npm run build
 ```
 
 ### Docker
+
 ```bash
 npm run docker:up              # Start development
 npm run docker:down            # Stop containers
@@ -58,15 +64,15 @@ npm run docker:prod            # Start production
 
 ## 📋 Workflow Triggers
 
-| Workflow | Trigger | Purpose |
-|----------|---------|---------|
-| CI Pipeline | Push/PR to main/develop | Full CI checks |
+| Workflow     | Trigger                 | Purpose                       |
+| ------------ | ----------------------- | ----------------------------- |
+| CI Pipeline  | Push/PR to main/develop | Full CI checks                |
 | Code Quality | Push/PR to main/develop | Linting, formatting, security |
-| Docker | Push/PR to main, Weekly | Docker builds and scans |
-| Performance | PR to main, Weekly | Performance testing |
-| CD Pipeline | Push to main, Tags | Deployment |
-| Release | Version tags (v*.*.*) | Release automation |
-| PR Checks | PR opened/updated | PR validation |
+| Docker       | Push/PR to main, Weekly | Docker builds and scans       |
+| Performance  | PR to main, Weekly      | Performance testing           |
+| CD Pipeline  | Push to main, Tags      | Deployment                    |
+| Release      | Version tags (v*.*.\*)  | Release automation            |
+| PR Checks    | PR opened/updated       | PR validation                 |
 
 ---
 
@@ -89,6 +95,7 @@ Types:
 ```
 
 **Examples:**
+
 ```
 feat(backend): add user authentication
 fix(frontend): resolve button click issue
@@ -125,18 +132,21 @@ cd frontend && npm run build
 ## 🔧 Common Fixes
 
 ### Fix All Linting Issues
+
 ```bash
 cd backend && npm run lint:fix
 cd frontend && npm run lint:fix
 ```
 
 ### Fix All Formatting
+
 ```bash
 cd backend && npm run format
 cd frontend && npm run format
 ```
 
 ### Clean and Rebuild
+
 ```bash
 # Backend
 cd backend
@@ -156,6 +166,7 @@ npm run build
 ## 🚢 Deployment
 
 ### Deploy to Staging
+
 ```bash
 git checkout main
 git pull origin main
@@ -164,6 +175,7 @@ git push origin main
 ```
 
 ### Deploy to Production
+
 ```bash
 # Create release
 npm version patch  # or minor, or major
@@ -180,6 +192,7 @@ git push origin v1.0.0
 ## 🔍 Debugging CI Failures
 
 ### Linting Failed
+
 ```bash
 npm run lint:fix
 git add .
@@ -188,6 +201,7 @@ git push
 ```
 
 ### Type Check Failed
+
 ```bash
 cd backend && npm run type-check
 cd frontend && npm run type-check
@@ -195,12 +209,14 @@ cd frontend && npm run type-check
 ```
 
 ### Tests Failed
+
 ```bash
 npm test
 # Fix failing tests
 ```
 
 ### Build Failed
+
 ```bash
 cd backend && npm run build
 cd frontend && npm run build
@@ -212,6 +228,7 @@ cd frontend && npm run build
 ## 📊 Status Checks
 
 All PRs must pass:
+
 - ✅ Lint Code
 - ✅ TypeScript Type Check
 - ✅ Backend Tests
@@ -225,6 +242,7 @@ All PRs must pass:
 ## 🔐 Required Secrets
 
 ### For Deployment
+
 ```
 STAGING_HOST
 STAGING_USER
@@ -235,6 +253,7 @@ PRODUCTION_SSH_KEY
 ```
 
 ### Optional
+
 ```
 SLACK_WEBHOOK
 SNYK_TOKEN
@@ -261,6 +280,7 @@ CODECOV_TOKEN
 ---
 
 **Quick Links:**
+
 - [GitHub Actions](https://github.com/YOUR_REPO/actions)
 - [Pull Requests](https://github.com/YOUR_REPO/pulls)
 - [Issues](https://github.com/YOUR_REPO/issues)

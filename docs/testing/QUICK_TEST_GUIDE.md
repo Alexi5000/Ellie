@@ -3,6 +3,7 @@
 ## Running Tests
 
 ### Backend
+
 ```bash
 cd backend
 npm test                    # Run all tests
@@ -11,6 +12,7 @@ npm test -- <filename>     # Run specific file
 ```
 
 ### Frontend
+
 ```bash
 cd frontend
 npm test                    # Run all tests
@@ -23,21 +25,24 @@ npm test -- <filename>     # Run specific file
 ### Backend Test Example
 
 ```typescript
-import { createMockMulterFile, createMockConversationContext } from './test/testHelpers';
+import {
+  createMockMulterFile,
+  createMockConversationContext,
+} from "./test/testHelpers";
 
-describe('My Service', () => {
-  it('should process audio', async () => {
+describe("My Service", () => {
+  it("should process audio", async () => {
     // Use helper to create mock file
     const mockFile = createMockMulterFile({
-      mimetype: 'audio/wav',
+      mimetype: "audio/wav",
       size: 2048,
     });
-    
+
     // Use helper to create mock context
     const context = createMockConversationContext({
-      sessionId: 'test-123',
+      sessionId: "test-123",
     });
-    
+
     // Test your service
     const result = await service.process(mockFile, context);
     expect(result).toBeDefined();
@@ -57,14 +62,14 @@ describe('My Component', () => {
     // Setup mocks
     mockGetUserMedia();
     mockFetchSuccess({ data: 'test' });
-    
+
     // Render component
     render(<MyComponent />);
-    
+
     // Simulate user interaction
     const user = userEvent.setup();
     await user.click(screen.getByRole('button'));
-    
+
     // Assert results
     await waitFor(() => {
       expect(screen.getByText('Success')).toBeInTheDocument();
@@ -108,9 +113,9 @@ resetAllMocks();
 
 // Mock browser APIs
 mockGetUserMedia();
-mockGetUserMediaError(new Error('Permission denied'));
-mockFetchSuccess({ data: 'test' });
-mockFetchError(new Error('Network error'));
+mockGetUserMediaError(new Error("Permission denied"));
+mockFetchSuccess({ data: "test" });
+mockFetchError(new Error("Network error"));
 
 // Mock devices
 const mobile = mockMobileDevice();
@@ -129,29 +134,33 @@ await waitForCondition(() => someCondition === true);
 ## Troubleshooting
 
 ### Test Timeout
+
 ```typescript
 // Increase timeout for specific test
-it('slow test', async () => {
+it("slow test", async () => {
   // test code
 }, 45000); // 45 second timeout
 ```
 
 ### Flaky Tests
+
 - Check for proper cleanup in afterEach
 - Ensure mocks are reset between tests
 - Add delays for async operations
 - Use waitFor for async state updates
 
 ### Mock Not Working
+
 ```typescript
 // Reset mock before test
 beforeEach(() => {
   jest.clearAllMocks(); // Backend
-  vi.clearAllMocks();   // Frontend
+  vi.clearAllMocks(); // Frontend
 });
 ```
 
 ### Open Handles
+
 - Check for unclosed timers
 - Ensure all async operations complete
 - Clean up event listeners

@@ -32,6 +32,7 @@ npm test -- monitoring.test.ts --verbose
 ```
 
 **Expected Output:**
+
 ```
 Test Suites: 1 passed, 1 total
 Tests:       54 passed, 54 total
@@ -80,6 +81,7 @@ chmod +x backend/scripts/test-monitoring-endpoints.sh
 ## Test Coverage
 
 ### 1. Core Health and Metrics (5 tests)
+
 - Health check endpoint
 - Prometheus metrics endpoint
 - Service discovery
@@ -87,22 +89,26 @@ chmod +x backend/scripts/test-monitoring-endpoints.sh
 - Service statistics
 
 ### 2. Monitoring API (6 tests)
+
 - Recent logs retrieval
 - Log filtering by level
 - Error statistics
 - Fallback statistics
 
 ### 3. Cache Management (3 tests)
+
 - Cache statistics
 - Cache clearing
 - Cache invalidation by pattern
 
 ### 4. CDN Management (3 tests)
+
 - CDN configuration
 - CDN statistics
 - CDN cache purging
 
 ### 5. Analytics (6 tests)
+
 - Usage metrics
 - Performance metrics
 - Business metrics
@@ -110,11 +116,13 @@ chmod +x backend/scripts/test-monitoring-endpoints.sh
 - Data export (JSON, CSV)
 
 ### 6. APM (3 tests)
+
 - APM metrics
 - Active operations
 - Transaction details
 
 ### 7. Advanced Logging (7 tests)
+
 - Log metrics
 - Log search with filters
 - Log aggregations
@@ -123,11 +131,13 @@ chmod +x backend/scripts/test-monitoring-endpoints.sh
 - Log export (JSON, CSV, TXT)
 
 ### 8. Integration Tests (3 tests)
+
 - Metrics collection across requests
 - Service health tracking over time
 - Consistent metrics format
 
 ### 9. Error Handling (3 tests)
+
 - Invalid parameter handling
 - Missing parameter handling
 - Appropriate status codes
@@ -204,10 +214,10 @@ Add this to your `prometheus.yml`:
 
 ```yaml
 scrape_configs:
-  - job_name: 'ellie-backend'
+  - job_name: "ellie-backend"
     static_configs:
-      - targets: ['localhost:5000']
-    metrics_path: '/metrics'
+      - targets: ["localhost:5000"]
+    metrics_path: "/metrics"
     scrape_interval: 30s
 ```
 
@@ -260,16 +270,18 @@ avg(ellie_service_response_time_ms)
 ### Tests Failing
 
 1. **Server not running**: Ensure the backend is running on the expected port
+
    ```bash
    cd backend
    npm run dev
    ```
 
 2. **Port conflicts**: Check if another service is using port 5000
+
    ```bash
    # Windows
    netstat -ano | findstr :5000
-   
+
    # Linux/Mac
    lsof -i :5000
    ```
@@ -316,7 +328,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
         with:
-          node-version: '18'
+          node-version: "18"
       - run: cd backend && npm install
       - run: cd backend && npm test -- monitoring.test.ts
 ```

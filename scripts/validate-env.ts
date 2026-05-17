@@ -1,5 +1,9 @@
 import "dotenv/config";
-import { ENV, getEnvironmentChecks, getEnvironmentStatus } from "../server/_core/env";
+import {
+  ENV,
+  getEnvironmentChecks,
+  getEnvironmentStatus,
+} from "../server/_core/env";
 
 const checks = getEnvironmentChecks();
 const status = getEnvironmentStatus();
@@ -10,14 +14,18 @@ console.log(`productionReady=${status.productionReady}`);
 console.log("");
 
 for (const check of checks) {
-  const requirement = check.requiredInProduction ? "required-in-production" : "optional";
+  const requirement = check.requiredInProduction
+    ? "required-in-production"
+    : "optional";
   const state = check.configured ? "configured" : "missing";
   console.log(`${check.name}: ${state} (${requirement})`);
 }
 
 if (ENV.isProduction && !status.productionReady) {
   console.error("");
-  console.error(`Missing required production variables: ${status.missingRequired.join(", ")}`);
+  console.error(
+    `Missing required production variables: ${status.missingRequired.join(", ")}`
+  );
   process.exit(1);
 }
 

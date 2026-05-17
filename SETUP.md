@@ -6,22 +6,22 @@ Ellie is a TypeScript full-stack application with a React/Vite frontend and an E
 
 The application runs from a single root package. The development command starts the Express server through `tsx` and mounts Vite middleware, while the production build emits static client assets and a bundled server entrypoint.
 
-| Layer | Implementation | Primary Paths |
-|---|---|---|
-| Frontend | React 19, Vite 7, Tailwind CSS 4 | `client/` |
-| Backend | Express 4, tRPC 11, TypeScript | `server/` |
-| Persistence | Drizzle ORM with a MySQL-compatible database | `drizzle/schema.ts`, `server/db.ts` |
-| Storage | S3-compatible helper | `server/storage.ts` |
-| Operations | Environment validator, health, and readiness endpoints | `scripts/validate-env.ts`, `server/_core/index.ts` |
+| Layer       | Implementation                                         | Primary Paths                                      |
+| ----------- | ------------------------------------------------------ | -------------------------------------------------- |
+| Frontend    | React 19, Vite 7, Tailwind CSS 4                       | `client/`                                          |
+| Backend     | Express 4, tRPC 11, TypeScript                         | `server/`                                          |
+| Persistence | Drizzle ORM with a MySQL-compatible database           | `drizzle/schema.ts`, `server/db.ts`                |
+| Storage     | S3-compatible helper                                   | `server/storage.ts`                                |
+| Operations  | Environment validator, health, and readiness endpoints | `scripts/validate-env.ts`, `server/_core/index.ts` |
 
 ## Prerequisites
 
-| Tool | Version | Why It Is Needed |
-|---|---:|---|
-| Node.js | 22 or newer | Runs the development server and production bundle. |
-| pnpm | 10.x | Installs dependencies according to the repository lockfile. |
-| MySQL-compatible database | 8.x compatible | Required for production data persistence and readiness checks. |
-| S3-compatible storage | Provider-specific | Required for production media uploads and generated artifacts. |
+| Tool                      |           Version | Why It Is Needed                                               |
+| ------------------------- | ----------------: | -------------------------------------------------------------- |
+| Node.js                   |       22 or newer | Runs the development server and production bundle.             |
+| pnpm                      |              10.x | Installs dependencies according to the repository lockfile.    |
+| MySQL-compatible database |    8.x compatible | Required for production data persistence and readiness checks. |
+| S3-compatible storage     | Provider-specific | Required for production media uploads and generated artifacts. |
 
 ## Local Development
 
@@ -40,17 +40,17 @@ In development mode, `pnpm validate:env` reports missing production secrets as i
 
 Production deployments must provide the variables below. The validator prints status labels only and does not expose secret values.
 
-| Variable | Required | Description |
-|---|---:|---|
-| `DATABASE_URL` | Yes | MySQL-compatible connection string for Drizzle. |
-| `JWT_SECRET` | Yes | Secret used for session and token signing. |
-| `BUILT_IN_FORGE_API_URL` | Yes | Provider gateway endpoint for AI workflows. |
-| `BUILT_IN_FORGE_API_KEY` | Yes | Provider gateway credential. |
-| `VITE_APP_ID` | No | Optional public app identifier. |
-| `VITE_APP_TITLE` | No | Optional public app title. |
-| `OAUTH_SERVER_URL` | No | Optional OAuth server for authenticated deployments. |
-| `OWNER_OPEN_ID` | No | Optional owner identifier for seeded deployments. |
-| `PORT` | No | HTTP port. The app defaults to `5000` where supported. |
+| Variable                 | Required | Description                                            |
+| ------------------------ | -------: | ------------------------------------------------------ |
+| `DATABASE_URL`           |      Yes | MySQL-compatible connection string for Drizzle.        |
+| `JWT_SECRET`             |      Yes | Secret used for session and token signing.             |
+| `BUILT_IN_FORGE_API_URL` |      Yes | Provider gateway endpoint for AI workflows.            |
+| `BUILT_IN_FORGE_API_KEY` |      Yes | Provider gateway credential.                           |
+| `VITE_APP_ID`            |       No | Optional public app identifier.                        |
+| `VITE_APP_TITLE`         |       No | Optional public app title.                             |
+| `OAUTH_SERVER_URL`       |       No | Optional OAuth server for authenticated deployments.   |
+| `OWNER_OPEN_ID`          |       No | Optional owner identifier for seeded deployments.      |
+| `PORT`                   |       No | HTTP port. The app defaults to `5000` where supported. |
 
 Run production validation before building or promoting a release.
 
@@ -81,15 +81,15 @@ Use migration review for production. Avoid applying schema changes directly to p
 
 Run these commands before opening a pull request or release candidate.
 
-| Gate | Command |
-|---|---|
-| Install consistency | `pnpm install --frozen-lockfile` |
-| Environment inventory | `pnpm validate:env` |
-| Production environment gate | `pnpm validate:env:production` |
-| Type safety | `pnpm check` |
-| Tests | `pnpm test` |
-| Build | `pnpm build` |
-| Full local gate | `pnpm ci` |
+| Gate                        | Command                          |
+| --------------------------- | -------------------------------- |
+| Install consistency         | `pnpm install --frozen-lockfile` |
+| Environment inventory       | `pnpm validate:env`              |
+| Production environment gate | `pnpm validate:env:production`   |
+| Type safety                 | `pnpm check`                     |
+| Tests                       | `pnpm test`                      |
+| Build                       | `pnpm build`                     |
+| Full local gate             | `pnpm ci`                        |
 
 ## Production Build and Start
 
@@ -122,13 +122,13 @@ curl http://localhost:5000/api/readiness
 
 ## Troubleshooting
 
-| Symptom | Likely Cause | Resolution |
-|---|---|---|
-| `validate:env:production` fails | Missing required production variables | Add the missing variables in the deployment secret store. |
-| `/api/health` fails | Server is not running or wrong port is exposed | Confirm `PORT`, container mapping, and process logs. |
-| `/api/readiness` reports not ready | Missing secrets or database connection failure | Check `DATABASE_URL`, database reachability, and production secrets. |
-| TypeScript check fails after editing routers | Client/server contract drift | Update tRPC procedure types and client calls together. |
-| Docker build fails during install | Lockfile or package-manager mismatch | Use the pinned pnpm version and commit lockfile updates with dependency changes. |
+| Symptom                                      | Likely Cause                                   | Resolution                                                                       |
+| -------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------- |
+| `validate:env:production` fails              | Missing required production variables          | Add the missing variables in the deployment secret store.                        |
+| `/api/health` fails                          | Server is not running or wrong port is exposed | Confirm `PORT`, container mapping, and process logs.                             |
+| `/api/readiness` reports not ready           | Missing secrets or database connection failure | Check `DATABASE_URL`, database reachability, and production secrets.             |
+| TypeScript check fails after editing routers | Client/server contract drift                   | Update tRPC procedure types and client calls together.                           |
+| Docker build fails during install            | Lockfile or package-manager mismatch           | Use the pinned pnpm version and commit lockfile updates with dependency changes. |
 
 ## Next Backend Build-Out
 

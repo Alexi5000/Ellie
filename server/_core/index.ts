@@ -1,5 +1,9 @@
 import "dotenv/config";
-import express, { type Request, type Response, type NextFunction } from "express";
+import express, {
+  type Request,
+  type Response,
+  type NextFunction,
+} from "express";
 import { createServer } from "http";
 import net from "net";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
@@ -43,7 +47,10 @@ function applySecurityHeaders(req: Request, res: Response, next: NextFunction) {
   res.setHeader("X-Content-Type-Options", "nosniff");
   res.setHeader("X-Frame-Options", "DENY");
   res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-  res.setHeader("Permissions-Policy", "camera=(), geolocation=(), payment=(), usb=()");
+  res.setHeader(
+    "Permissions-Policy",
+    "camera=(), geolocation=(), payment=(), usb=()"
+  );
   res.setHeader(
     "Content-Security-Policy",
     [
@@ -68,12 +75,18 @@ function getServiceDependencyStatus(): DependencyReadiness[] {
   return [
     {
       name: "forge-api",
-      configured: environment.configured.includes("BUILT_IN_FORGE_API_URL") && environment.configured.includes("BUILT_IN_FORGE_API_KEY"),
-      healthy: environment.configured.includes("BUILT_IN_FORGE_API_URL") && environment.configured.includes("BUILT_IN_FORGE_API_KEY"),
+      configured:
+        environment.configured.includes("BUILT_IN_FORGE_API_URL") &&
+        environment.configured.includes("BUILT_IN_FORGE_API_KEY"),
+      healthy:
+        environment.configured.includes("BUILT_IN_FORGE_API_URL") &&
+        environment.configured.includes("BUILT_IN_FORGE_API_KEY"),
       critical: true,
-      message: environment.configured.includes("BUILT_IN_FORGE_API_URL") && environment.configured.includes("BUILT_IN_FORGE_API_KEY")
-        ? "Forge-compatible AI and storage proxy credentials are configured."
-        : "Forge-compatible AI and storage proxy credentials are missing.",
+      message:
+        environment.configured.includes("BUILT_IN_FORGE_API_URL") &&
+        environment.configured.includes("BUILT_IN_FORGE_API_KEY")
+          ? "Forge-compatible AI and storage proxy credentials are configured."
+          : "Forge-compatible AI and storage proxy credentials are missing.",
     },
     {
       name: "session-secret",
@@ -93,7 +106,11 @@ async function readinessReport() {
     await checkDatabaseReadiness(),
     ...getServiceDependencyStatus(),
   ];
-  const ready = environment.productionReady && dependencies.every(dependency => !dependency.critical || dependency.healthy);
+  const ready =
+    environment.productionReady &&
+    dependencies.every(
+      dependency => !dependency.critical || dependency.healthy
+    );
 
   return {
     ok: ready,

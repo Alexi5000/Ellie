@@ -20,13 +20,13 @@ Explain what users, operators, or maintainers will notice after this change.
 
 ## Backend and Data Impact
 
-| Question | Answer |
-|---|---|
-| Does this change tRPC procedures, server middleware, or operational endpoints? |  |
-| Does this change the database schema or migrations? |  |
-| Does this change storage, AI provider, auth, or background-processing behavior? |  |
-| Does this introduce new environment variables or secrets? |  |
-| Does this affect `/api/health`, `/api/readiness`, or `/api/ready`? |  |
+| Question                                                                        | Answer |
+| ------------------------------------------------------------------------------- | ------ |
+| Does this change tRPC procedures, server middleware, or operational endpoints?  |        |
+| Does this change the database schema or migrations?                             |        |
+| Does this change storage, AI provider, auth, or background-processing behavior? |        |
+| Does this introduce new environment variables or secrets?                       |        |
+| Does this affect `/api/health`, `/api/readiness`, or `/api/ready`?              |        |
 
 ## Validation Evidence
 

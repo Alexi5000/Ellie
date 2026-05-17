@@ -78,6 +78,7 @@ npm run lighthouse
 ```
 
 Ensure scores meet targets:
+
 - Performance: 90+
 - Accessibility: 90+
 - Best Practices: 90+
@@ -145,9 +146,7 @@ Configuration (`vercel.json`):
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
 ```
 
@@ -219,8 +218,8 @@ server {
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
-    gzip_types text/plain text/css text/xml text/javascript 
-               application/x-javascript application/xml+rss 
+    gzip_types text/plain text/css text/xml text/javascript
+               application/x-javascript application/xml+rss
                application/javascript application/json;
 
     # Security headers
@@ -298,7 +297,7 @@ For runtime configuration, use a config endpoint:
 ```typescript
 // src/config.ts
 export async function loadConfig() {
-  const response = await fetch('/config.json');
+  const response = await fetch("/config.json");
   return response.json();
 }
 ```
@@ -312,12 +311,14 @@ Deploy `config.json` separately from the build.
 Ensure gzip/brotli compression is enabled on your server.
 
 **Nginx:**
+
 ```nginx
 gzip on;
 gzip_types text/plain text/css application/json application/javascript text/xml application/xml;
 ```
 
 **Verify:**
+
 ```bash
 curl -H "Accept-Encoding: gzip" -I https://ellie.example.com
 ```
@@ -357,9 +358,15 @@ listen 443 ssl http2;
 Add to `index.html`:
 
 ```html
-<link rel="preload" href="/assets/main.js" as="script">
-<link rel="preload" href="/assets/main.css" as="style">
-<link rel="preload" href="/fonts/inter-var.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="/assets/main.js" as="script" />
+<link rel="preload" href="/assets/main.css" as="style" />
+<link
+  rel="preload"
+  href="/fonts/inter-var.woff2"
+  as="font"
+  type="font/woff2"
+  crossorigin
+/>
 ```
 
 ### 5. Use CDN
@@ -369,7 +376,7 @@ Configure CDN for static assets:
 ```typescript
 // vite.config.ts
 export default defineConfig({
-  base: process.env.VITE_CDN_URL || '/',
+  base: process.env.VITE_CDN_URL || "/",
 });
 ```
 
@@ -394,8 +401,8 @@ Implement health check endpoint:
 export function setupHealthCheck() {
   // Expose health endpoint
   if (import.meta.env.PROD) {
-    window.addEventListener('load', () => {
-      console.log('App loaded successfully');
+    window.addEventListener("load", () => {
+      console.log("App loaded successfully");
     });
   }
 }
@@ -407,12 +414,12 @@ Integrate error tracking (e.g., Sentry):
 
 ```typescript
 // src/main.tsx
-import * as Sentry from '@sentry/react';
+import * as Sentry from "@sentry/react";
 
 if (import.meta.env.PROD) {
   Sentry.init({
     dsn: import.meta.env.VITE_SENTRY_DSN,
-    environment: 'production',
+    environment: "production",
     tracesSampleRate: 0.1,
   });
 }
@@ -425,9 +432,9 @@ Add analytics tracking:
 ```typescript
 // src/analytics.ts
 export function initAnalytics() {
-  if (import.meta.env.VITE_ENABLE_ANALYTICS === 'true') {
+  if (import.meta.env.VITE_ENABLE_ANALYTICS === "true") {
     // Google Analytics
-    window.gtag('config', import.meta.env.VITE_GA_TRACKING_ID);
+    window.gtag("config", import.meta.env.VITE_GA_TRACKING_ID);
   }
 }
 ```
@@ -438,7 +445,7 @@ Monitor Core Web Vitals:
 
 ```typescript
 // src/performance.ts
-import { getCLS, getFID, getLCP } from 'web-vitals';
+import { getCLS, getFID, getLCP } from "web-vitals";
 
 export function reportWebVitals() {
   getCLS(console.log);
@@ -450,11 +457,13 @@ export function reportWebVitals() {
 ### 5. Uptime Monitoring
 
 Set up external monitoring:
+
 - Pingdom
 - UptimeRobot
 - StatusCake
 
 Configure alerts for:
+
 - Site downtime
 - Slow response times (> 2s)
 - SSL certificate expiration
@@ -503,36 +512,36 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
           cache-dependency-path: frontend/package-lock.json
-      
+
       - name: Install dependencies
         working-directory: frontend
         run: npm ci
-      
+
       - name: Run tests
         working-directory: frontend
         run: npm test -- --run
-      
+
       - name: Build
         working-directory: frontend
         run: npm run build
         env:
           VITE_API_URL: ${{ secrets.API_URL }}
           VITE_API_KEY: ${{ secrets.API_KEY }}
-      
+
       - name: Run Lighthouse
         working-directory: frontend
         run: npm run lighthouse
-      
+
       - name: Deploy to production
         uses: docker/build-push-action@v4
         with:
@@ -584,11 +593,13 @@ mv /var/www/ellie-backup-YYYYMMDD /var/www/ellie
 ### Build Fails
 
 **Check Node version:**
+
 ```bash
 node --version  # Should be 18+
 ```
 
 **Clear cache:**
+
 ```bash
 rm -rf node_modules package-lock.json
 npm install
@@ -616,17 +627,20 @@ Ensure CORS headers are set if assets are on different domain.
 ### Performance Issues
 
 **Run Lighthouse:**
+
 ```bash
 npm run lighthouse
 ```
 
 **Check bundle size:**
+
 ```bash
 npm run build -- --mode production
 ls -lh dist/assets/
 ```
 
 **Analyze bundle:**
+
 ```bash
 npm run build -- --mode production --analyze
 ```
@@ -634,11 +648,13 @@ npm run build -- --mode production --analyze
 ### SSL Issues
 
 **Verify certificate:**
+
 ```bash
 openssl s_client -connect ellie.example.com:443 -servername ellie.example.com
 ```
 
 **Check expiration:**
+
 ```bash
 echo | openssl s_client -connect ellie.example.com:443 2>/dev/null | openssl x509 -noout -dates
 ```
