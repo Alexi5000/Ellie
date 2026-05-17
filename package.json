@@ -15,7 +15,17 @@
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:push": "pnpm db:generate && pnpm db:migrate"
+    "db:push": "pnpm db:generate && pnpm db:migrate",
+    "lint": "pnpm check",
+    "type-check": "pnpm check",
+    "format:check": "prettier --check .",
+    "lint:fix": "prettier --write .",
+    "preview": "pnpm build && pnpm start",
+    "test:setup": "pnpm validate:env",
+    "test:backend": "pnpm test",
+    "test:frontend": "pnpm test",
+    "test:integration": "pnpm test",
+    "test:production": "pnpm validate:env:production && pnpm build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
