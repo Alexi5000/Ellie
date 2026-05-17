@@ -1,29 +1,33 @@
-# SaaS README Template
+# Elite SaaS README Template
 
-> Copy this file to a repository root as `README.md`, replace every bracketed placeholder, and delete template guidance notes before publishing. The template is designed for production SaaS repositories that need a premium product-facing and engineering-facing presentation.
+> Copy this file to a repository root as `README.md`, replace every bracketed placeholder, and delete this note before publishing. The standard is product-first, implementation-honest, visually boxed, and concise enough to feel like a top open-source repository rather than a corporate document.
 
 <p align="center">
-  <img src="[assets/icon.png]" alt="[Product Name] logo" width="120" />
+  <img src="[assets/icon.png]" alt="[Product Name] logo" width="112" />
 </p>
 
 <h1 align="center">[Product Name]</h1>
 
 <p align="center">
-  <strong>[One-line product promise written like a real SaaS platform, not a code sample.]</strong>
+  <strong>[Sharp category claim: The state-of-the-art ___ for ___.]</strong>
 </p>
 
 <p align="center">
-  <a href="#platform-overview">Platform</a> ·
-  <a href="#product-experience">Experience</a> ·
+  [One sentence tagline. Name the hero workflow and the flagship stack: Model/API + runtime + typed contract + design identity.]
+</p>
+
+<p align="center">
+  <a href="#why-[slug]">Why [Product]</a> ·
+  <a href="#capabilities">Capabilities</a> ·
   <a href="#architecture">Architecture</a> ·
   <a href="#stack">Stack</a> ·
-  <a href="#local-development">Runbook</a> ·
-  <a href="#production-readiness">Production</a>
+  <a href="#run-locally">Run Locally</a> ·
+  <a href="#operations">Operations</a>
 </p>
 
 <p align="center">
-  <a href="[Technology URL]"><img alt="[Technology]" src="https://img.shields.io/badge/[Technology]-[Version]-[Color]" /></a>
-  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/License-[License]-F59E0B" /></a>
+  <a href="[Technology URL]"><img alt="[Technology Version]" src="https://img.shields.io/badge/[Technology]-[Version]-[Color]" /></a>
+  <a href="LICENSE"><img alt="[License] License" src="https://img.shields.io/badge/License-[License]-F59E0B" /></a>
 </p>
 
 ---
@@ -32,31 +36,28 @@
   <img src="[assets/cover.png]" alt="[Product Name] product cover" width="100%" />
 </p>
 
-## Platform Overview
+## Why [Product]
 
-> **[Product Name] is built like a SaaS platform, not a demo.** The repository contains [frontend], [backend], [API layer], [data layer], [storage layer], [validation gates], [deployment artifacts], and [documentation artifacts].
+[Write one strong paragraph that explains what the product does, who it is for, and why the experience feels distinct. Avoid generic SaaS phrasing. If you name a model, provider, workflow, or architecture choice, make sure the repository actually implements it.]
 
-[Write two polished paragraphs explaining the product, the customer or user, the core workflow, and why the repository is structured as a complete application asset. Avoid hype that is not supported by committed code. Every strong claim should correspond to a file, command, endpoint, schema, workflow, or deployment artifact.]
+| Product Box       | What It Does                         | Current Implementation                         |
+| ----------------- | ------------------------------------ | ---------------------------------------------- |
+| **[Workflow 1]**  | [User-facing value.]                 | [Actual route, module, job, or component.]     |
+| **[Workflow 2]**  | [User-facing value.]                 | [Actual route, module, job, or component.]     |
+| **[AI / Logic]**  | [Intelligence or automation layer.]  | [Actual model, provider, adapter, or engine.]  |
+| **Typed Core**    | [How the app keeps contracts clean.] | [Actual API contract, schema, or shared code.] |
+| **Deployability** | [How the repo proves it can ship.]   | [Actual commands, Docker, checks, probes.]     |
 
-| Platform Card  | Current State                                   | Production Value                                    |
-| -------------- | ----------------------------------------------- | --------------------------------------------------- |
-| **Product**    | [Primary product workflow.]                     | [Why this matters to users.]                        |
-| **Frontend**   | [Frontend framework, build system, UI assets.]  | [Why the product surface is credible.]              |
-| **Backend**    | [Runtime, API, operational endpoints.]          | [Why the service is deployable.]                    |
-| **Data**       | [Schema, migrations, persistence.]              | [Why the application has durable business objects.] |
-| **Operations** | [Docker, CI, validation, tests.]                | [Why the repo is repeatable.]                       |
-| **Governance** | [License, docs, templates, contribution files.] | [Why the repository is maintainable.]               |
+## Capabilities
 
-## Product Experience
+[Summarize the real committed capabilities in one paragraph. This section should make the repository feel alive without overstating what the code can do today.]
 
-[Explain the product experience in complete paragraphs. Use this section to make the repo feel like a SaaS system with a real user journey.]
-
-| Experience Panel | What the User Sees                         | What the System Owns                             |
-| ---------------- | ------------------------------------------ | ------------------------------------------------ |
-| **[Workflow 1]** | [User-facing behavior.]                    | [Backend, data, or integration responsibility.]  |
-| **[Workflow 2]** | [User-facing behavior.]                    | [Backend, data, or integration responsibility.]  |
-| **[Workflow 3]** | [User-facing behavior.]                    | [Backend, data, or integration responsibility.]  |
-| **[Operations]** | [Health, settings, status, admin surface.] | [Monitoring, readiness, jobs, or runtime state.] |
+| Surface        | Route, Module, or Command | Limits and Behavior                                   |
+| -------------- | ------------------------- | ----------------------------------------------------- |
+| **[Feature]**  | `[path.or.route]`         | [Accepted inputs, constraints, state, or output.]     |
+| **[Feature]**  | `[path.or.route]`         | [Accepted inputs, constraints, state, or output.]     |
+| **[Feature]**  | `[path.or.route]`         | [Accepted inputs, constraints, state, or output.]     |
+| **Operations** | `[endpoint or command]`   | [Health, readiness, jobs, validation, or smoke test.] |
 
 <p align="center">
   <img src="[assets/screenshot.png]" alt="[Product Name] screenshot" width="100%" />
@@ -64,183 +65,133 @@
 
 ## Architecture
 
-[Write a concise architecture overview. State the actual architecture, not an aspirational architecture. Name the frontend, backend, API, data, storage, provider, and operations layers that exist in the repository.]
+[State the actual architecture plainly. If the product is heavy-client, backend-orchestrated, queue-backed, serverless, desktop-first, mobile-first, or monolithic, say so. Explain the tradeoff in one paragraph rather than pretending the app is more distributed than it is.]
 
 ```mermaid
-graph TB
-    User["User"]
-    Frontend["Frontend\n[Framework + Build]"]
-    Server["Backend\n[Runtime]"]
-    API["API\n[REST / tRPC / GraphQL]"]
-    DB["Database\n[Database + ORM]"]
-    Storage["Storage\n[Object Store / Files]"]
-    Providers["External Providers\n[AI / Payments / Email]"]
-    Ops["Operations\n[Health + Validation + CI]"]
-
-    User --> Frontend
-    Frontend --> Server
-    Server --> API
-    API --> DB
-    API --> Storage
-    API --> Providers
-    Server --> Ops
+graph LR
+    User["User"] --> Client["Client\n[Framework + design identity]"]
+    Client --> API["Typed API\n[REST / tRPC / GraphQL]"]
+    API --> Runtime["Runtime\n[Server / worker / edge]"]
+    Runtime --> Data["Data\n[Database + ORM]"]
+    Runtime --> Storage["Storage\n[Object/files]"]
+    Runtime --> Providers["Providers\n[AI / payments / email]"]
+    Runtime --> Ops["Operations\n[health + validation]"]
 ```
 
-| System Boundary        | Primary Paths | Responsibility    |
-| ---------------------- | ------------- | ----------------- |
-| **Client Application** | `[path]`      | [Responsibility.] |
-| **Server Runtime**     | `[path]`      | [Responsibility.] |
-| **Shared Contracts**   | `[path]`      | [Responsibility.] |
-| **Persistence**        | `[path]`      | [Responsibility.] |
-| **Automation**         | `[path]`      | [Responsibility.] |
-| **Knowledge Base**     | `[path]`      | [Responsibility.] |
+| Boundary               | Responsibility                                 | Why It Exists                                      |
+| ---------------------- | ---------------------------------------------- | -------------------------------------------------- |
+| **Client Surface**     | [What the browser/app owns.]                   | [Why this belongs close to the user.]              |
+| **API Contract**       | [How client and backend communicate.]          | [How drift is prevented.]                          |
+| **Runtime**            | [What the server, worker, or edge layer owns.] | [How secrets, orchestration, and policy are held.] |
+| **Data Plane**         | [What is persisted.]                           | [Why these objects matter.]                        |
+| **Provider Boundary**  | [External systems used.]                       | [Why access is centralized.]                       |
+| **Operations Surface** | [Health, readiness, validation, packaging.]    | [How maintainers know it can ship.]                |
 
 ## Stack
 
-| Layer                | Technology           | Version or Track | Why It Is Here |
-| -------------------- | -------------------- | ---------------: | -------------- |
-| **Language**         | [Language]           |        [Version] | [Reason.]      |
-| **Frontend Runtime** | [Framework]          |        [Version] | [Reason.]      |
-| **Frontend Build**   | [Build Tool]         |        [Version] | [Reason.]      |
-| **Server Runtime**   | [Runtime]            |        [Version] | [Reason.]      |
-| **API Contract**     | [API Layer]          |        [Version] | [Reason.]      |
-| **Database Layer**   | [Database/ORM]       |        [Version] | [Reason.]      |
-| **Testing**          | [Test Tool]          |        [Version] | [Reason.]      |
-| **Packaging**        | [Docker/Deploy Tool] |        [Version] | [Reason.]      |
+[Write one concise paragraph that explains the stack personality. Name the technologies because top README files make the engineering taste obvious quickly.]
 
-## SaaS Capability Map
+| Layer                 | Technology                            | Version or Track          |
+| --------------------- | ------------------------------------- | ------------------------- |
+| **Language**          | [Language]                            | `[version]`               |
+| **Frontend**          | [Framework, build tool]               | `[version]`               |
+| **Design System**     | [CSS/UI/motion stack]                 | `[version]`               |
+| **Routing + Data**    | [Router, query client, API client]    | `[version]`               |
+| **Backend Runtime**   | [Runtime/server]                      | `[version]`               |
+| **API Contract**      | [REST/tRPC/GraphQL/OpenAPI]           | `[version]`               |
+| **Database**          | [Database/ORM/driver]                 | `[version]`               |
+| **Validation**        | [Schema/config validation]            | `[version]`               |
+| **External Services** | [AI/payments/storage/email/providers] | [Configured provider set] |
+| **Testing + Quality** | [Tests/formatter/typechecker]         | `[version]`               |
+| **Packaging**         | [Docker/deployment tooling]           | [Repository-defined]      |
+| **Package Manager**   | [npm/pnpm/yarn/uv/etc.]               | `[version]`               |
 
-| Capability         | Implemented Foundation         | Next Production Extension             |
-| ------------------ | ------------------------------ | ------------------------------------- |
-| **Authentication** | [Current auth state.]          | [Next auth work.]                     |
-| **Core Workflow**  | [Current product capability.]  | [Next production capability.]         |
-| **Data**           | [Schema/model state.]          | [Migration, backups, tenancy.]        |
-| **Storage**        | [Storage state.]               | [Lifecycle, scanning, signed URLs.]   |
-| **Operations**     | [Health, readiness, jobs, CI.] | [Metrics, logs, alerts.]              |
-| **Governance**     | [Docs, license, policies.]     | [Security policy, code owners, ADRs.] |
+## Run Locally
 
-## Repository Map
-
-| Path     | Box                    | What Belongs There |
-| -------- | ---------------------- | ------------------ |
-| `[path]` | **Product Surface**    | [Description.]     |
-| `[path]` | **Application Core**   | [Description.]     |
-| `[path]` | **Data Plane**         | [Description.]     |
-| `[path]` | **Automation**         | [Description.]     |
-| `[path]` | **Operator Knowledge** | [Description.]     |
-
-## Local Development
+[Explain the shortest successful local path. Keep this section operational, not philosophical.]
 
 ```bash
-git clone [repository-url]
-cd [repository-name]
+gh repo clone [owner/repository]
+cd [repository]
 [package-manager] install --frozen-lockfile
 cp .env.example .env
 [package-manager] validate:env
 [package-manager] dev
 ```
 
-| Requirement           | Expected Baseline | Notes     |
-| --------------------- | ----------------: | --------- |
-| **Runtime**           |         [Version] | [Reason.] |
-| **Package Manager**   |         [Version] | [Reason.] |
-| **Database**          |        [Provider] | [Reason.] |
-| **Storage**           |        [Provider] | [Reason.] |
-| **External Services** |       [Providers] | [Reason.] |
+| Command     | Purpose                                   |
+| ----------- | ----------------------------------------- |
+| `[command]` | [Starts the developer loop.]              |
+| `[command]` | [Runs type checks.]                       |
+| `[command]` | [Runs tests.]                             |
+| `[command]` | [Builds production artifacts.]            |
+| `[command]` | [Validates environment configuration.]    |
+| `[command]` | [Starts the production server or worker.] |
 
-## Environment Model
+## Environment
 
-| Variable     | Required for Production | Purpose    |
-| ------------ | ----------------------: | ---------- |
-| `[VARIABLE]` |                     Yes | [Purpose.] |
-| `[VARIABLE]` |                      No | [Purpose.] |
+[State where secrets live and which layer uses them. Never imply secrets are browser-safe unless they actually are.]
 
-## Commands
+| Variable     | Required For       | Notes               |
+| ------------ | ------------------ | ------------------- |
+| `[VARIABLE]` | [Runtime/feature.] | [What it controls.] |
+| `[VARIABLE]` | [Runtime/feature.] | [What it controls.] |
+| `[VARIABLE]` | [Runtime/feature.] | [What it controls.] |
 
-| Command     | Box                        | What It Proves                 |
-| ----------- | -------------------------- | ------------------------------ |
-| `[command]` | **Developer Loop**         | [What it starts.]              |
-| `[command]` | **Release Build**          | [What it builds.]              |
-| `[command]` | **Type Gate**              | [What it checks.]              |
-| `[command]` | **Test Gate**              | [What it tests.]               |
-| `[command]` | **Formatting Gate**        | [What it formats or verifies.] |
-| `[command]` | **Production Config Gate** | [What it validates.]           |
+## Repository Map
 
-## Production Readiness
+[Explain the repository shape in one paragraph. The reader should understand what to open first and which folders are legacy, active, generated, or operational.]
 
-[Explain clearly what is already committed and what must be supplied by deployment infrastructure. Do not pretend a repository includes managed infrastructure unless it actually does.]
+| Path      | Box                          | What Lives There                                   |
+| --------- | ---------------------------- | -------------------------------------------------- |
+| `[path/]` | **Product Surface**          | [UI, routes, components, app state.]               |
+| `[path/]` | **Application Runtime**      | [Server, worker, jobs, integrations.]              |
+| `[path/]` | **Cross-Boundary Contracts** | [Shared types, schemas, generated clients.]        |
+| `[path/]` | **Data Plane**               | [Schema, migrations, seed data, persistence.]      |
+| `[path/]` | **Release Gates**            | [Validation, build, test, and deployment scripts.] |
+| `[path/]` | **Operator Manual**          | [Setup, readiness, deployment, testing docs.]      |
 
-| Readiness Area        | Repository Status | Deployment Owner Action |
-| --------------------- | ----------------- | ----------------------- |
-| **Application Build** | [Status.]         | [Action.]               |
-| **Type Safety**       | [Status.]         | [Action.]               |
-| **Tests**             | [Status.]         | [Action.]               |
-| **Configuration**     | [Status.]         | [Action.]               |
-| **Database**          | [Status.]         | [Action.]               |
-| **Storage**           | [Status.]         | [Action.]               |
-| **Security**          | [Status.]         | [Action.]               |
-| **Observability**     | [Status.]         | [Action.]               |
+## Operations
 
-## Deployment Path
+[Be honest about green gates. Separate checks that pass locally from checks that require external secrets, paid services, protected environments, or deployment infrastructure.]
 
-```bash
-[install command]
-[production env validation command]
-[typecheck command]
-[test command]
-[build command]
-[start command]
-```
+| Gate                | Command or Endpoint        | Expected Signal                         |
+| ------------------- | -------------------------- | --------------------------------------- |
+| **Install**         | `[install command]`        | [Lockfile-consistent dependency graph.] |
+| **Environment**     | `[env validation command]` | [Required variables are accounted for.] |
+| **Types**           | `[typecheck command]`      | [Type system passes.]                   |
+| **Tests**           | `[test command]`           | [Test suite completes.]                 |
+| **Build**           | `[build command]`          | [Production artifacts are generated.]   |
+| **Full Local Gate** | `[ci command]`             | [Required local gates pass together.]   |
+| **Health**          | `[health endpoint]`        | [Runtime liveness response.]            |
+| **Readiness**       | `[readiness endpoint]`     | [Dependency-aware deployment signal.]   |
 
-| Deployment Step | Description    | Success Signal |
-| --------------- | -------------- | -------------- |
-| **Install**     | [Description.] | [Signal.]      |
-| **Configure**   | [Description.] | [Signal.]      |
-| **Verify**      | [Description.] | [Signal.]      |
-| **Migrate**     | [Description.] | [Signal.]      |
-| **Release**     | [Description.] | [Signal.]      |
-| **Observe**     | [Description.] | [Signal.]      |
+## Product Roadmap
 
-## API and Operations Surface
+[Use a tight roadmap that follows from the current architecture. Avoid vague “AI improvements”; name the next operational layers.]
 
-| Endpoint     | Method     | Box        | Expected Use |
-| ------------ | ---------- | ---------- | ------------ |
-| `[endpoint]` | `[method]` | **[Role]** | [Use.]       |
+| Track                  | Next Upgrade                                     |
+| ---------------------- | ------------------------------------------------ |
+| **[Track]**            | [Concrete next production capability.]           |
+| **[Track]**            | [Concrete next production capability.]           |
+| **[Track]**            | [Concrete next production capability.]           |
+| **Evaluation Harness** | [How quality will be tested beyond screenshots.] |
 
-## Data Model
+## Documentation
 
-| Entity     | Box                   | Purpose    |
-| ---------- | --------------------- | ---------- |
-| `[entity]` | **[Business Object]** | [Purpose.] |
+[Keep the README clean by pointing maintainers to deeper docs. Only link files that exist.]
 
-## Security and Compliance Posture
-
-[State the real security baseline. Separate repository-level controls from production infrastructure controls.]
-
-| Control Area         | Repository Foundation | Recommended Production Layer |
-| -------------------- | --------------------- | ---------------------------- |
-| **Secrets**          | [Current state.]      | [Next layer.]                |
-| **Transport**        | [Current state.]      | [Next layer.]                |
-| **Access**           | [Current state.]      | [Next layer.]                |
-| **Abuse Protection** | [Current state.]      | [Next layer.]                |
-| **Supply Chain**     | [Current state.]      | [Next layer.]                |
-| **Observability**    | [Current state.]      | [Next layer.]                |
-
-## Documentation System
-
-| Document      | Purpose    |
-| ------------- | ---------- |
-| `README.md`   | [Purpose.] |
-| `[docs/path]` | [Purpose.] |
-
-## Roadmap
-
-| Horizon   | Workstream        | Outcome    |
-| --------- | ----------------- | ---------- |
-| **Now**   | [Current work.]   | [Outcome.] |
-| **Next**  | [Near-term work.] | [Outcome.] |
-| **Later** | [Long-term work.] | [Outcome.] |
+| Document            | Use It For                        |
+| ------------------- | --------------------------------- |
+| [`SETUP.md`]        | [Local setup and runtime notes.]  |
+| [`docs/...`]        | [Production or deployment notes.] |
+| [`RELEASES.md`]     | [Version history and milestones.] |
+| [`CONTRIBUTING.md`] | [Contribution expectations.]      |
 
 ## License
 
 [Product Name] is released under the [License Name](LICENSE).
+
+## References
+
+[1]: [Technology URL] "[Technology Name]"
