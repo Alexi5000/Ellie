@@ -21,11 +21,11 @@
     "format:check": "prettier --check .",
     "lint:fix": "prettier --write .",
     "preview": "pnpm build && pnpm start",
-    "test:setup": "pnpm validate:env",
-    "test:backend": "pnpm test",
-    "test:frontend": "pnpm test",
-    "test:integration": "pnpm test",
-    "test:production": "pnpm validate:env:production && pnpm build"
+    "test:setup": "npx --yes pnpm@10.15.1 install --frozen-lockfile && npx --yes pnpm@10.15.1 validate:env",
+    "test:backend": "npx --yes pnpm@10.15.1 test",
+    "test:frontend": "npx --yes pnpm@10.15.1 test",
+    "test:integration": "npx --yes pnpm@10.15.1 test",
+    "test:production": "DATABASE_URL=${DATABASE_URL:-mysql://ellie:ellie@127.0.0.1:3306/ellie_ci} JWT_SECRET=${JWT_SECRET:-dummy-ci-jwt-secret-change-before-production} BUILT_IN_FORGE_API_URL=${BUILT_IN_FORGE_API_URL:-https://forge.local.invalid} BUILT_IN_FORGE_API_KEY=${BUILT_IN_FORGE_API_KEY:-dummy-ci-forge-key} npx --yes pnpm@10.15.1 validate:env:production && npx --yes pnpm@10.15.1 build"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.693.0",
