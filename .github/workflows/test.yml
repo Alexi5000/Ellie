@@ -111,7 +111,7 @@ jobs:
         GROQ_API_KEY: test_groq_api_key_mock
 
     - name: Build Docker images
-      run: docker-compose build
+      run: docker compose build
 
     - name: Run Docker integration tests
       run: npm run test:integration
