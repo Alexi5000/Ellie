@@ -98,13 +98,13 @@ jobs:
     - name: Start Docker Compose
       run: |
         cd docker
-        docker-compose up -d
+        docker compose up -d
         sleep 30
 
     - name: Check container health
       run: |
         docker ps
-        docker-compose -f docker/docker-compose.yml ps
+        docker compose -f docker/docker-compose.yml ps
 
     - name: Test backend health
       run: |
@@ -123,7 +123,7 @@ jobs:
     - name: Collect logs
       if: failure()
       run: |
-        docker-compose -f docker/docker-compose.yml logs > docker-logs.txt
+        docker compose -f docker/docker-compose.yml logs > docker-logs.txt
 
     - name: Upload logs
       if: failure()
@@ -136,7 +136,7 @@ jobs:
       if: always()
       run: |
         cd docker
-        docker-compose down -v
+        docker compose down -v
 
   scan-images:
     name: Scan Docker Images
