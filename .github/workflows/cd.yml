@@ -117,9 +117,9 @@ jobs:
         script: |
           cd /opt/ellie-voice-receptionist
           git pull origin main
-          docker-compose -f docker/docker-compose.prod.yml pull
-          docker-compose -f docker/docker-compose.prod.yml up -d
-          docker-compose -f docker/docker-compose.prod.yml ps
+          docker compose -f docker/docker-compose.prod.yml pull
+          docker compose -f docker/docker-compose.prod.yml up -d
+          docker compose -f docker/docker-compose.prod.yml ps
 
     - name: Health check
       run: |
@@ -157,9 +157,9 @@ jobs:
           cd /opt/ellie-voice-receptionist
           git fetch --tags
           git checkout ${{ github.ref_name }}
-          docker-compose -f docker/docker-compose.prod.yml pull
-          docker-compose -f docker/docker-compose.prod.yml up -d
-          docker-compose -f docker/docker-compose.prod.yml ps
+          docker compose -f docker/docker-compose.prod.yml pull
+          docker compose -f docker/docker-compose.prod.yml up -d
+          docker compose -f docker/docker-compose.prod.yml ps
 
     - name: Health check
       run: |
@@ -201,9 +201,9 @@ jobs:
         key: ${{ secrets.STAGING_SSH_KEY }}
         script: |
           cd /opt/ellie-voice-receptionist
-          docker-compose -f docker/docker-compose.prod.yml down
+          docker compose -f docker/docker-compose.prod.yml down
           git checkout HEAD~1
-          docker-compose -f docker/docker-compose.prod.yml up -d
+          docker compose -f docker/docker-compose.prod.yml up -d
 
     - name: Rollback production
       if: needs.deploy-production.result == 'failure'
@@ -214,9 +214,9 @@ jobs:
         key: ${{ secrets.PRODUCTION_SSH_KEY }}
         script: |
           cd /opt/ellie-voice-receptionist
-          docker-compose -f docker/docker-compose.prod.yml down
+          docker compose -f docker/docker-compose.prod.yml down
           git checkout HEAD~1
-          docker-compose -f docker/docker-compose.prod.yml up -d
+          docker compose -f docker/docker-compose.prod.yml up -d
 
     - name: Notify rollback
       uses: 8398a7/action-slack@v3
