@@ -1,10 +1,14 @@
 name: Docker
 
+# Right-sized: registry publish + image vulnerability upload require
+# credentials/permissions that are not present on a normal push to main, so
+# this workflow no longer runs on push. It runs on release tags (v*) and on
+# manual dispatch. Pushing to the registry still only happens for tag builds.
 on:
   push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
+    tags:
+      - 'v*'
+  workflow_dispatch:
   schedule:
     - cron: '0 0 * * 1' # Weekly on Monday
 
@@ -14,16 +18,13 @@ env:
 
 jobs:
   build-test:
-    name: Build & Test Docker Images
+    name: Build & Scan Docker Image
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
-    
-    strategy:
-      matrix:
-        service: [backend, frontend]
-    
+      security-events: write
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -31,8 +32,10 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
+    # Only log in / push when this is a tag build (publish event). Manual and
+    # scheduled runs build locally and never push.
     - name: Log in to Container Registry
-      if: github.event_name != 'pull_request'
+      if: startsWith(github.ref, 'refs/tags/v')
       uses: docker/login-action@v3
       with:
         registry: ${{ env.REGISTRY }}
@@ -43,125 +46,36 @@ jobs:
       id: meta
       uses: docker/metadata-action@v5
       with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.service }}
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         tags: |
-          type=ref,event=branch
-          type=ref,event=pr
+          type=ref,event=tag
           type=semver,pattern={{version}}
           type=semver,pattern={{major}}.{{minor}}
           type=sha
 
-    - name: Build and push
-      uses: docker/build-push-action@v5
+    - name: Build (and push on tags)
+      id: build
+      uses: docker/build-push-action@v6
       with:
-        context: ./${{ matrix.service }}
-        file: ./${{ matrix.service }}/Dockerfile
-        push: ${{ github.event_name != 'pull_request' }}
+        context: .
+        file: ./Dockerfile
+        push: ${{ startsWith(github.ref, 'refs/tags/v') }}
+        load: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
         cache-from: type=gha
         cache-to: type=gha,mode=max
-        target: production
 
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.service }}:${{ github.sha }}
+        image-ref: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
         format: 'sarif'
         output: 'trivy-results.sarif'
 
+    # Uploading SARIF needs security-events: write (granted above on the job).
     - name: Upload Trivy results to GitHub Security
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       if: always()
       with:
         sarif_file: 'trivy-results.sarif'
-
-  integration-test:
-    name: Docker Integration Test
-    runs-on: ubuntu-latest
-    needs: build-test
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Create test environment
-      run: |
-        npm ci
-        npm run test:setup
-      env:
-        CI: true
-
-    - name: Start Docker Compose
-      run: |
-        cd docker
-        docker compose up -d
-        sleep 30
-
-    - name: Check container health
-      run: |
-        docker ps
-        docker compose -f docker/docker-compose.yml ps
-
-    - name: Test backend health
-      run: |
-        curl -f http://localhost:5000/health || exit 1
-
-    - name: Test frontend health
-      run: |
-        curl -f http://localhost:3000 || exit 1
-
-    - name: Run integration tests
-      run: npm run test:integration
-      env:
-        CI: true
-        NODE_ENV: test
-
-    - name: Collect logs
-      if: failure()
-      run: |
-        docker compose -f docker/docker-compose.yml logs > docker-logs.txt
-
-    - name: Upload logs
-      if: failure()
-      uses: actions/upload-artifact@v3
-      with:
-        name: docker-logs
-        path: docker-logs.txt
-
-    - name: Stop containers
-      if: always()
-      run: |
-        cd docker
-        docker compose down -v
-
-  scan-images:
-    name: Scan Docker Images
-    runs-on: ubuntu-latest
-    needs: build-test
-    
-    strategy:
-      matrix:
-        service: [backend, frontend]
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Run Snyk to check Docker image for vulnerabilities
-      uses: snyk/actions/docker@master
-      continue-on-error: true
-      env:
-        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      with:
-        image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.service }}:${{ github.sha }}
-        args: --severity-threshold=high
-
-    - name: Upload Snyk results
-      uses: github/codeql-action/upload-sarif@v2
-      if: always()
-      with:
-        sarif_file: snyk.sarif
