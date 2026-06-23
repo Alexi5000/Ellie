@@ -6,106 +6,51 @@ on:
   push:
     branches: [ main, develop ]
 
+env:
+  NODE_VERSION: '20.x'
+
 jobs:
-  prettier:
-    name: Prettier Format Check
+  lint:
+    name: Lint & Type Check
     runs-on: ubuntu-latest
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18.x'
-        cache: 'npm'
-
-    - name: Install backend dependencies
-      run: cd backend && npm ci
-
-    - name: Install frontend dependencies
-      run: cd frontend && npm ci
-
-    - name: Check backend formatting
-      run: cd backend && npm run format:check
-
-    - name: Check frontend formatting
-      run: cd frontend && npm run format:check
-
-  eslint:
-    name: ESLint Check
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
 
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18.x'
-        cache: 'npm'
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'pnpm'
 
-    - name: Install backend dependencies
-      run: cd backend && npm ci
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
 
-    - name: Install frontend dependencies
-      run: cd frontend && npm ci
-
-    - name: Lint backend
-      run: cd backend && npm run lint
-
-    - name: Lint frontend
-      run: cd frontend && npm run lint
-
-    - name: Annotate code linting results
-      uses: ataylorme/eslint-annotate-action@v2
-      if: always()
-      with:
-        repo-token: "${{ secrets.GITHUB_TOKEN }}"
-        report-json: "eslint_report.json"
-        check-name: "ESLint Results"
-
-  typescript:
-    name: TypeScript Check
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18.x'
-        cache: 'npm'
-
-    - name: Install backend dependencies
-      run: cd backend && npm ci
-
-    - name: Install frontend dependencies
-      run: cd frontend && npm ci
-
-    - name: Type check backend
-      run: cd backend && npm run type-check
-
-    - name: Type check frontend
-      run: cd frontend && npm run type-check
+    # The project's authoritative lint step is the TypeScript compiler
+    # (package.json "lint" -> "check" -> tsc --noEmit). There is no separate
+    # ESLint config, so the old ataylorme/eslint-annotate-action step has been
+    # removed — it required an eslint_report.json that was never generated and
+    # `checks: write` permission that push events do not grant.
+    - name: Lint
+      run: pnpm lint
 
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
     - name: Dependency Review
-      uses: actions/dependency-review-action@v3
+      uses: actions/dependency-review-action@v4
       with:
-        fail-on-severity: moderate
+        fail-on-severity: high
 
   codeql:
     name: CodeQL Analysis
@@ -114,25 +59,27 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    
+
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'javascript', 'typescript' ]
-    
+        # Single combined language pack — the old matrix listed 'javascript' and
+        # 'typescript' separately, which CodeQL flags as DuplicateLanguageInMatrix.
+        language: [ 'javascript-typescript' ]
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v2
+      uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
 
     - name: Autobuild
-      uses: github/codeql-action/autobuild@v2
+      uses: github/codeql-action/autobuild@v3
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v2
+      uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"

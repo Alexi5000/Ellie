@@ -8,94 +8,46 @@ on:
 
 jobs:
   test:
+    name: Test (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
-    
-    services:
-      redis:
-        image: redis:alpine
-        ports:
-          - 6379:6379
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
+        node-version: [20.x, 22.x]
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Install pnpm
+      uses: pnpm/action-setup@v4
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
-        cache: 'npm'
+        cache: 'pnpm'
 
-    - name: Install root dependencies
-      run: npm ci
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
 
-    - name: Install backend dependencies
-      run: |
-        cd backend
-        npm ci
+    - name: Type check
+      run: pnpm check
 
-    - name: Install frontend dependencies
-      run: |
-        cd frontend
-        npm ci
-
-    - name: Set up test environment
-      run: npm run test:setup
-      env:
-        CI: true
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'test_openai_api_key_mock' }}
-        GROQ_API_KEY: ${{ secrets.GROQ_API_KEY || 'test_groq_api_key_mock' }}
-
-    - name: Run backend tests
-      run: npm run test:backend
+    - name: Run tests
+      run: pnpm test
       env:
         CI: true
         NODE_ENV: test
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'test_openai_api_key_mock' }}
-        GROQ_API_KEY: ${{ secrets.GROQ_API_KEY || 'test_groq_api_key_mock' }}
-        REDIS_URL: redis://localhost:6379
 
-    - name: Run frontend tests
-      run: npm run test:frontend
-      env:
-        CI: true
-        NODE_ENV: test
-        VITE_API_URL: http://localhost:5000
-        VITE_WS_URL: http://localhost:5000
-        VITE_TEST_MODE: true
-
-    - name: Build backend
-      run: |
-        cd backend
-        npm run build
-
-    - name: Build frontend
-      run: |
-        cd frontend
-        npm run build
-
-    - name: Run integration tests
-      run: npm run test:integration
-      env:
-        CI: true
-        NODE_ENV: test
-        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY || 'test_openai_api_key_mock' }}
-        GROQ_API_KEY: ${{ secrets.GROQ_API_KEY || 'test_groq_api_key_mock' }}
-        REDIS_URL: redis://localhost:6379
+    - name: Build
+      run: pnpm build
 
   docker-test:
+    name: Docker Build
     runs-on: ubuntu-latest
     needs: test
-    
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -103,28 +55,8 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
-    - name: Set up test environment
-      run: npm run test:setup
-      env:
-        CI: true
-        OPENAI_API_KEY: test_openai_api_key_mock
-        GROQ_API_KEY: test_groq_api_key_mock
-
+    # Builds the root production image. The Dockerfile's build stage runs the
+    # full gate (pnpm check && pnpm test && pnpm build) inside the container.
+    # Build only — never pushed (no registry credentials are required on push).
     - name: Build Docker images
       run: docker compose build
-
-    - name: Run Docker integration tests
-      run: npm run test:integration
-      env:
-        CI: true
-        NODE_ENV: test
-        OPENAI_API_KEY: test_openai_api_key_mock
-        GROQ_API_KEY: test_groq_api_key_mock
-
-    - name: Run production deployment tests
-      run: npm run test:production
-      env:
-        CI: true
-        NODE_ENV: test
-        OPENAI_API_KEY: test_openai_api_key_mock
-        GROQ_API_KEY: test_groq_api_key_mock
