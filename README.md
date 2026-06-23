@@ -30,6 +30,10 @@
   <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/License-MIT-F59E0B" /></a>
 </p>
 
+<p align="center">
+  Marketing landing page (built with <a href="https://lovable.dev/">Lovable</a>, in the separate private repo <code>Alexi5000/ellie-techtide</code>): <a href="https://ellie-techtide.lovable.app">ellie-techtide.lovable.app</a>
+</p>
+
 ---
 
 <p align="center">
