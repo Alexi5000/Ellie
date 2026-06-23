@@ -3,12 +3,18 @@
 FROM node:22.13.0-slim AS base
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
-RUN corepack enable
+# Upgrade corepack before enabling it: the corepack bundled with node:22.13.0
+# ships stale signing keys and fails to verify recent pnpm releases
+# ("Cannot find matching keyid"). corepack@latest carries the current keys.
+RUN npm install -g corepack@latest && corepack enable
 WORKDIR /app
 
 FROM base AS deps
 COPY package.json pnpm-lock.yaml ./
 COPY patches ./patches
+# Activate the exact pnpm version pinned in package.json's "packageManager"
+# field so corepack never reaches out for "latest" during install.
+RUN corepack prepare --activate
 RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
