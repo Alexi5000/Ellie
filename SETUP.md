@@ -110,7 +110,7 @@ Build and runtime stages use the same Node 22 Alpine image so native modules tar
 
 ```bash
 docker build -t ellie-ai:local .
-docker run --rm -p 5000:5000 --env-file .env ellie-ai:local
+docker run --rm -p 5000:5000 --env-file .env -e PORT=5000 ellie-ai:local
 ```
 
 After the container starts, verify liveness and readiness:
