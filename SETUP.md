@@ -106,6 +106,8 @@ The built server runs from `dist/index.js`. The Express runtime serves the built
 
 ## Docker Workflow
 
+Build and runtime stages use the same Node 22 Alpine image so native modules target the runtime musl ABI. The runtime runs as a dedicated non-root user and excludes npm and Yarn. CI builds the image, runs the application tests, verifies HTTP health, and uploads the full Trivy scan.
+
 ```bash
 docker build -t ellie-ai:local .
 docker run --rm -p 5000:5000 --env-file .env ellie-ai:local
