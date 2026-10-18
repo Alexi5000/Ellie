@@ -72,6 +72,25 @@ jobs:
         format: 'sarif'
         output: 'trivy-results.sarif'
 
+    - name: Reject high and critical container vulnerabilities
+      run: |
+        python3 - <<'PYTHON'
+        import json
+        from pathlib import Path
+
+        report = json.loads(Path("trivy-results.sarif").read_text())
+        failures = []
+        for run in report["runs"]:
+            rules = {rule["id"]: rule for rule in run["tool"]["driver"]["rules"]}
+            for result in run.get("results", []):
+                rule = rules[result["ruleId"]]
+                severity = float(rule.get("properties", {}).get("security-severity", 0))
+                if severity >= 7:
+                    failures.append(result["ruleId"])
+        if failures:
+            raise SystemExit(f"High/critical container findings: {', '.join(sorted(set(failures)))}")
+        PYTHON
+
     - name: Verify production image health
       if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
       env:
