@@ -2,7 +2,11 @@ name: PR Checks
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, edited, labeled, unlabeled]
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
   pr-title:
@@ -74,7 +78,7 @@ jobs:
           const labels = pr.labels.map(l => l.name);
           
           const requiredLabels = ['type:', 'priority:'];
-          const hasRequired = requiredLabels.some(prefix => 
+          const hasRequired = requiredLabels.every(prefix => 
             labels.some(label => label.startsWith(prefix))
           );
           
