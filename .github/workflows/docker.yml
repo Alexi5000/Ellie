@@ -81,7 +81,7 @@ jobs:
         report = json.loads(Path("trivy-results.sarif").read_text())
         failures = []
         for run in report["runs"]:
-            rules = {rule["id"]: rule for rule in run["tool"]["driver"]["rules"]}
+            rules = {rule["id"]: rule for rule in run["tool"]["driver"].get("rules", [])}
             for result in run.get("results", []):
                 rule = rules[result["ruleId"]]
                 severity = float(rule.get("properties", {}).get("security-severity", 0))
