@@ -119,7 +119,7 @@ Ellie is TypeScript across the product boundary. The stack is modern, but intent
 
 ## Run Locally
 
-The default path is a single pnpm workflow from the repository root. Configure environment values first, install with the lockfile, then run the TypeScript server in development mode.
+The committed `pnpm-lock.yaml` is the canonical dependency graph; root npm installs are unsupported because they omit the required wouter patch. The default path is a single pnpm workflow from the repository root. Configure environment values first, install with the lockfile, then run the TypeScript server in development mode.
 
 ```bash
 gh repo clone Alexi5000/Ellie
