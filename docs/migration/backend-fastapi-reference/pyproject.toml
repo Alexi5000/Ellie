@@ -10,25 +10,26 @@ authors = [
     {name = "Alex Cinovoj, TechTide AI", email = "alex@techtideai.io"},
 ]
 dependencies = [
-    "fastapi>=0.104.1",
+    "fastapi>=0.143.3",
+    "PyJWT[crypto]>=2.15.1",
+    "bcrypt>=5.0.0",
     "uvicorn[standard]>=0.24.0",
-    "pydantic>=2.5.0",
-    "pydantic-settings>=2.1.0",
+    "pydantic>=2.14.1",
+    "pydantic-settings>=2.16.0",
     "httpx>=0.25.2",
     "websockets>=12.0",
-    "python-socketio>=5.10.0",
-    "python-multipart>=0.0.6",
+    "python-socketio>=5.17.0",
+    "python-multipart>=0.0.32",
     "openai>=1.3.7",
     "groq>=0.4.1",
     "redis>=5.0.1",
-    "aioredis>=2.0.1",
     "prometheus-client>=0.19.0",
     "structlog>=23.2.0",
     "slowapi>=0.1.9",
     "circuitbreaker>=1.4.0",
     "tenacity>=8.2.3",
-    "python-dotenv>=1.0.0",
-    "orjson>=3.9.10",
+    "python-dotenv>=1.2.4",
+    "orjson>=3.13.0",
 ]
 requires-python = ">=3.11"
 readme = "README.md"
@@ -37,10 +38,10 @@ keywords = ["ai", "voice", "legal", "assistant", "receptionist", "fastapi"]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4.3",
-    "pytest-asyncio>=0.21.1",
+    "pytest>=9.1.1",
+    "pytest-asyncio>=1.4.0",
     "pytest-mock>=3.12.0",
-    "black>=23.11.0",
+    "black>=26.10.1",
     "isort>=5.12.0",
     "flake8>=6.1.0",
     "mypy>=1.7.1",

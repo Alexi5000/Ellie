@@ -7,8 +7,9 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional, Union
 
 from fastapi import HTTPException, status
-from jose import JWTError, jwt
-from passlib.context import CryptContext
+import jwt
+from jwt import InvalidTokenError
+import bcrypt
 
 from app.core.config import settings
 
@@ -17,18 +18,20 @@ class SecurityManager:
     """Security utilities for authentication and authorization"""
     
     def __init__(self):
-        self.pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
         self.algorithm = settings.ALGORITHM
         self.secret_key = settings.SECRET_KEY
         self.access_token_expire_minutes = settings.ACCESS_TOKEN_EXPIRE_MINUTES
     
     def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         """Verify a password against its hash"""
-        return self.pwd_context.verify(plain_password, hashed_password)
+        try:
+            return bcrypt.checkpw(plain_password.encode(), hashed_password.encode())
+        except ValueError:
+            return False
     
     def get_password_hash(self, password: str) -> str:
         """Generate password hash"""
-        return self.pwd_context.hash(password)
+        return bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
     
     def create_access_token(
         self,
@@ -54,7 +57,7 @@ class SecurityManager:
         try:
             payload = jwt.decode(token, self.secret_key, algorithms=[self.algorithm])
             return payload
-        except JWTError:
+        except InvalidTokenError:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Could not validate credentials",
