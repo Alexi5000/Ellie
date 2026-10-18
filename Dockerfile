@@ -1,11 +1,8 @@
 # syntax=docker/dockerfile:1.7
 
-FROM node:22.13.0-slim AS base
+FROM node:22-trixie-slim AS base
 ENV PNPM_HOME=/pnpm
 ENV PATH=$PNPM_HOME:$PATH
-# Upgrade corepack before enabling it: the corepack bundled with node:22.13.0
-# ships stale signing keys and fails to verify recent pnpm releases
-# ("Cannot find matching keyid"). corepack@latest carries the current keys.
 RUN npm install -g corepack@latest && corepack enable
 WORKDIR /app
 
@@ -20,14 +17,18 @@ RUN pnpm install --frozen-lockfile
 FROM deps AS build
 COPY . .
 RUN pnpm check && pnpm test && pnpm build
+RUN pnpm prune --prod
 
-FROM node:22.13.0-slim AS runtime
+FROM node:22-trixie-slim AS runtime
 ENV NODE_ENV=production
 ENV PORT=3000
 WORKDIR /app
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/* /usr/local/lib/node_modules/npm /opt/yarn-*
+RUN rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/yarn /usr/local/bin/yarnpkg
 RUN groupadd --system ellie && useradd --system --gid ellie --home-dir /app ellie
 COPY --from=build --chown=ellie:ellie /app/package.json ./package.json
 COPY --from=build --chown=ellie:ellie /app/dist ./dist
+COPY --from=build --chown=ellie:ellie /app/node_modules ./node_modules
 USER ellie
 EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \

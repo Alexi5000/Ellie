@@ -1,11 +1,9 @@
 name: Docker
 
-# Right-sized: registry publish + image vulnerability upload require
-# credentials/permissions that are not present on a normal push to main, so
-# this workflow no longer runs on push. It runs on release tags (v*) and on
-# manual dispatch. Pushing to the registry still only happens for tag builds.
 on:
+  pull_request:
   push:
+    branches: [main]
     tags:
       - 'v*'
   workflow_dispatch:
@@ -63,6 +61,7 @@ jobs:
         load: ${{ !startsWith(github.ref, 'refs/tags/v') }}
         tags: ${{ steps.meta.outputs.tags }}
         labels: ${{ steps.meta.outputs.labels }}
+        pull: true
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
@@ -73,7 +72,23 @@ jobs:
         format: 'sarif'
         output: 'trivy-results.sarif'
 
-    # Uploading SARIF needs security-events: write (granted above on the job).
+    - name: Verify production image health
+      if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+      env:
+        IMAGE: ${{ fromJSON(steps.meta.outputs.json).tags[0] }}
+      run: |
+        docker run -d --name ellie-smoke -p 127.0.0.1:3000:3000 \
+          -e DATABASE_URL=mysql://ellie:ellie@127.0.0.1:3306/ellie_ci \
+          -e JWT_SECRET=ci-only-placeholder-not-a-real-secret \
+          -e BUILT_IN_FORGE_API_URL=https://forge.invalid \
+          -e BUILT_IN_FORGE_API_KEY=ci-placeholder "$IMAGE"
+        trap 'docker logs ellie-smoke; docker rm -f ellie-smoke' EXIT
+        for attempt in $(seq 1 30); do
+          if curl --fail http://127.0.0.1:3000/api/health; then exit 0; fi
+          sleep 2
+        done
+        exit 1
+
     - name: Upload Trivy results to GitHub Security
       uses: github/codeql-action/upload-sarif@v3
       if: always()
