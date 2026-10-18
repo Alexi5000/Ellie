@@ -23,7 +23,8 @@ FROM node:22-trixie-slim AS runtime
 ENV NODE_ENV=production
 ENV PORT=3000
 WORKDIR /app
-RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/* /usr/local/lib/node_modules/npm /opt/yarn-*
+RUN rm -f /usr/local/bin/npm /usr/local/bin/npx /usr/local/bin/yarn /usr/local/bin/yarnpkg
 RUN groupadd --system ellie && useradd --system --gid ellie --home-dir /app ellie
 COPY --from=build --chown=ellie:ellie /app/package.json ./package.json
 COPY --from=build --chown=ellie:ellie /app/dist ./dist
