@@ -9,8 +9,8 @@ import pickle
 import time
 from typing import Any, Dict, List, Optional, Union
 
-import aioredis
-from aioredis import Redis
+import redis.asyncio as aioredis
+from redis.asyncio import Redis
 
 from app.core.config import settings
 from app.core.logging import logger
@@ -71,7 +71,7 @@ class CacheService:
         logger.info("Shutting down cache service", service="cache")
         
         if self.redis:
-            await self.redis.close()
+            await self.redis.aclose()
         
         self.in_memory_cache.clear()
         logger.info("Cache service shut down", service="cache")
