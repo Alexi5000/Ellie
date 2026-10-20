@@ -163,11 +163,12 @@ describe("voice.transcribe (public, input validation)", () => {
 
 /* ── Analysis Router Tests ── */
 describe("analysis.results (public)", () => {
-  it("returns empty array for non-existent video", async () => {
+  it("denies records without a video capability", async () => {
     const { ctx } = createPublicContext();
     const caller = appRouter.createCaller(ctx);
-    const results = await caller.analysis.results({ videoId: 999999 });
-    expect(results).toEqual([]);
+    await expect(caller.analysis.results({ videoId: 999999 })).rejects.toThrow(
+      "Video not found"
+    );
   });
 
   it("rejects negative videoId via Zod", async () => {
