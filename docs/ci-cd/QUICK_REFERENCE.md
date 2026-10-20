@@ -264,9 +264,8 @@ CODECOV_TOKEN
 
 ## 📚 Documentation
 
-- [Complete Pipeline Docs](docs/CI_CD_PIPELINE.md)
-- [Setup Guide](docs/CI_CD_SETUP.md)
-- [Implementation Summary](CI_CD_IMPLEMENTATION_SUMMARY.md)
+- [Complete Pipeline Docs](CI_CD_PIPELINE.md)
+- [Setup Guide](CI_CD_SETUP.md)
 
 ---
 
