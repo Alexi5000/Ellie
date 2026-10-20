@@ -416,10 +416,12 @@ function AnalysisPanel({
 /* ── Chat Interface — browser-only memory, no server persistence ── */
 function ChatInterface({
   videoId,
+  accessToken,
   messages,
   setMessages,
 }: {
   videoId: number;
+  accessToken: string;
   messages: ChatMessage[];
   setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
 }) {
@@ -463,6 +465,7 @@ function ChatInterface({
         chatMutation
           .mutateAsync({
             videoId,
+            accessToken,
             message: content.trim(),
             chatHistory,
           })
@@ -485,7 +488,7 @@ function ChatInterface({
         return updated;
       });
     },
-    [videoId, chatMutation, setMessages]
+    [videoId, accessToken, chatMutation, setMessages]
   );
 
   const handleSend = () => {
@@ -713,6 +716,7 @@ export default function AnalysisWorkspace() {
   const [, navigate] = useLocation();
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [accessToken, setAccessToken] = useState<string>("");
   const [videoId, setVideoId] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -771,6 +775,7 @@ export default function AnalysisWorkspace() {
         });
 
         setVideoId(uploadResult.videoId);
+        setAccessToken(uploadResult.accessToken);
         toast.success("Upload complete! Starting AI analysis...");
 
         setIsUploading(false);
@@ -779,6 +784,7 @@ export default function AnalysisWorkspace() {
 
         const analysisResult = await analyzeMutation.mutateAsync({
           videoId: uploadResult.videoId,
+          accessToken: uploadResult.accessToken,
         });
 
         setResponseTime(Date.now() - startTime);
@@ -906,6 +912,7 @@ export default function AnalysisWorkspace() {
                   {videoId ? (
                     <ChatInterface
                       videoId={videoId}
+                      accessToken={accessToken}
                       messages={chatMessages}
                       setMessages={setChatMessages}
                     />

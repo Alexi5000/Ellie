@@ -1,3 +1,4 @@
+import { hasVideoAccess, videoAccessToken } from "./video-access";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
@@ -19,6 +20,16 @@ import { nanoid } from "nanoid";
 /* ════════════════════════════════════════════════════════════════
    SECURITY CONSTANTS
    ════════════════════════════════════════════════════════════════ */
+const capabilityInput = z.string().max(64).optional();
+
+async function requireVideoAccess(id: number, token?: string) {
+  const video = await getVideoById(id);
+  if (!video || !hasVideoAccess(video.id, video.storageKey, token)) {
+    throw new TRPCError({ code: "NOT_FOUND", message: "Video not found" });
+  }
+  return video;
+}
+
 const MAX_VIDEO_SIZE = 100 * 1024 * 1024; // 100MB
 const MAX_AUDIO_SIZE = 16 * 1024 * 1024; // 16MB
 const MAX_MESSAGE_LENGTH = 2000;
@@ -148,6 +159,8 @@ export const appRouter = router({
         const sessionId = nanoid(12);
         const fileKey = `videos/anon-${sessionId}/${nanoid()}-${safeFilename}`;
 
+        videoAccessToken(0, fileKey);
+
         // Upload to S3
         const { url } = await storagePut(fileKey, buffer, input.mimeType);
 
@@ -163,18 +176,22 @@ export const appRouter = router({
           status: "processing",
         });
 
-        return { videoId, url };
+        return {
+          videoId,
+          url,
+          accessToken: videoAccessToken(videoId, fileKey),
+        };
       }),
 
     get: publicProcedure
-      .input(z.object({ id: z.number().int().positive() }))
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          accessToken: capabilityInput,
+        })
+      )
       .query(async ({ input }) => {
-        const video = await getVideoById(input.id);
-        if (!video)
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Video not found",
-          });
+        const video = await requireVideoAccess(input.id, input.accessToken);
         // Strip internal fields
         return {
           id: video.id,
@@ -192,18 +209,21 @@ export const appRouter = router({
      ════════════════════════════════════════════════════════════════ */
   analysis: router({
     analyze: publicProcedure
-      .input(z.object({ videoId: z.number().int().positive() }))
+      .input(
+        z.object({
+          videoId: z.number().int().positive(),
+          accessToken: capabilityInput,
+        })
+      )
       .mutation(async ({ input, ctx }) => {
         // Rate limit: 5 analyses per 10 minutes per IP
         const ip = ctx.req.ip || ctx.req.socket.remoteAddress || "unknown";
         checkRateLimit(`analyze:${ip}`, 5, 10 * 60 * 1000);
 
-        const video = await getVideoById(input.videoId);
-        if (!video)
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Video not found",
-          });
+        const video = await requireVideoAccess(
+          input.videoId,
+          input.accessToken
+        );
 
         try {
           const response = await invokeLLM({
@@ -333,8 +353,14 @@ Be thorough, specific, and precise with timestamps.`,
       }),
 
     results: publicProcedure
-      .input(z.object({ videoId: z.number().int().positive() }))
+      .input(
+        z.object({
+          videoId: z.number().int().positive(),
+          accessToken: capabilityInput,
+        })
+      )
       .query(async ({ input }) => {
+        await requireVideoAccess(input.videoId, input.accessToken);
         return getVideoAnalysisResults(input.videoId);
       }),
   }),
@@ -348,6 +374,7 @@ Be thorough, specific, and precise with timestamps.`,
       .input(
         z.object({
           videoId: z.number().int().positive(),
+          accessToken: capabilityInput,
           message: z.string().min(1).max(MAX_MESSAGE_LENGTH),
           chatHistory: z
             .array(
@@ -365,12 +392,10 @@ Be thorough, specific, and precise with timestamps.`,
         const ip = ctx.req.ip || ctx.req.socket.remoteAddress || "unknown";
         checkRateLimit(`chat:${ip}`, 30, 5 * 60 * 1000);
 
-        const video = await getVideoById(input.videoId);
-        if (!video)
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Video not found",
-          });
+        const video = await requireVideoAccess(
+          input.videoId,
+          input.accessToken
+        );
 
         const sanitizedMessage = sanitizeMessage(input.message);
 

@@ -227,3 +227,13 @@ Ellie AI is released under the [MIT License](LICENSE).
 [6]: https://expressjs.com/ "Express"
 [7]: https://vitest.dev/ "Vitest"
 [8]: https://prettier.io/ "Prettier"
+
+## Anonymous upload privacy
+
+Uploads return an opaque `accessToken` alongside `videoId`. The browser keeps it only in memory and supplies
+it for video reads, analysis, result reads, and chat. IDs alone grant no access. Tokens are HMAC-SHA256
+capabilities bound to the video ID and storage key using the server-only `JWT_SECRET` (at least 32
+characters); rotating that secret revokes existing capabilities. Configure a randomly generated secret, never
+the example Compose value. No database migration is needed. Existing uploads without a capability must be
+uploaded again; the service does not expose a public token-recovery endpoint. Media URLs remain bearer links
+governed by the storage provider; this change protects API enumeration, not previously disclosed storage URLs.
