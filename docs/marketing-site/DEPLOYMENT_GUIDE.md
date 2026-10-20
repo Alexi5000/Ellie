@@ -693,7 +693,5 @@ echo | openssl s_client -connect ellie.example.com:443 2>/dev/null | openssl x50
 
 ## Related Documentation
 
-- [Docker Deployment](./docs/DEPLOYMENT.md)
-- [SSL Setup Guide](./docs/SSL_SETUP_GUIDE.md)
-- [Performance Guide](./frontend/PERFORMANCE.md)
-- [Testing Guide](./frontend/src/__tests__/README.md)
+- [Docker Deployment](../deployment/DEPLOYMENT.md)
+- [SSL Setup Guide](../deployment/SSL_SETUP_GUIDE.md)
