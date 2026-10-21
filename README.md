@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <a href="#why-ellie">Why Ellie</a> ·
+  <a href="#why-this-exists">Why this exists</a> ·
   <a href="#capabilities">Capabilities</a> ·
   <a href="#architecture">Architecture</a> ·
   <a href="#stack">Stack</a> ·
@@ -40,9 +40,15 @@
   <img src="assets/cover.png" alt="Ellie AI Neural Noir product cover" width="100%" />
 </p>
 
-## Why Ellie
+## Why this exists
 
-Ellie is a video intelligence agent for people who need to understand media without scrubbing timelines by hand. Upload a video, let Gemini 2.5 Flash produce timestamped structure, then ask natural-language questions over the generated context. The experience is deliberately **Neural Noir**: dark, cinematic, fast, and agentic without hiding the engineering underneath.
+**What it does.** Ellie accepts a video upload (MP4, WebM, MOV, or AVI up to 100 MB), sends it to Gemini 2.5 Flash through a server-side provider gateway to produce timestamped summaries, scenes, frames, audio events, and emotions, persists those results with Drizzle and MySQL, and answers follow-up questions in a chat panel using the stored analysis as context. Voice input is transcribed with a Whisper-compatible endpoint. The browser talks to the server only through typed tRPC 11 procedures.
+
+**Who it serves.** People who need to understand recorded media without scrubbing timelines by hand, and maintainers who want a small, typed React 19 + Express + tRPC reference application with environment validation, health and readiness probes, and Docker packaging already in place.
+
+**Why Alex built it.** Alex Cinovoj, Founder & CTO of TechTide AI, created the repository on 2025-04-26. The first product under this name was "Ellie Voice Receptionist", an AI voice assistant for law firms (commit `1229a5d1`, 2025-07-16). On 2026-02-18 the project was rebuilt as a video analysis agent (commit `306a265f`, "Complete rebuild: Ellie AI Video Analysis Agent v2.0", moving from Express REST and Socket.io to tRPC 11, React 19, Vite 7, Gemini 2.5 Flash, and Whisper). The next day it was made a public, anonymous application with ephemeral browser-side chat state, rate limiting, and strict input validation (commit `12e32471`, 2026-02-19). Pull request #1 (2026-05-17) hardened it for production review with readiness endpoints, environment validation, and Docker packaging. The design intent recorded in this README since that rewrite is deliberately **Neural Noir**: dark, cinematic, fast, and agentic without hiding the engineering underneath.
+
+**Real-world use case (2025-2026 evidence).** **Proposed use case.** A content or training team uploads a recorded webinar, lets Ellie produce a timestamped outline, and asks "where does the presenter cover pricing?" to jump straight to the right segment. The repository contains the routes, schema, and validation for this flow and a Vitest suite that exercises input validation and the anonymous upload capability model; it does not contain recorded provider responses or golden-video fixtures, so a live Gemini run is required to confirm answer quality. Gemini 2.5 Flash became generally available in June 2025 with multimodal input and configurable thinking budgets.[^1] tRPC v11, the typed RPC layer between the browser and the Express server, shipped as stable in March 2025.[^2] The client runs on the React 19.2 line released in October 2025[^3] and is bundled with Vite 7, released in June 2025.[^4]
 
 | Product Box             | What It Does                                                               | Current Implementation                                                  |
 | ----------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
@@ -105,17 +111,17 @@ Ellie is TypeScript across the product boundary. The stack is modern, but intent
 | Layer                 | Technology                               | Version or Track                |
 | --------------------- | ---------------------------------------- | ------------------------------- |
 | **Language**          | TypeScript                               | `5.9.3`                         |
-| **Frontend**          | React, React DOM, Vite                   | `19.2.x`, `7.x`                 |
-| **Design System**     | Tailwind CSS, Radix UI, framer-motion    | `4.x`, Radix primitives, `12.x` |
-| **Routing + Data**    | wouter, TanStack Query, tRPC React Query | `3.x`, `5.x`, `11.6.x`          |
-| **Backend Runtime**   | Node.js, Express                         | Express `4.21.x`                |
-| **API Contract**      | tRPC server/client                       | `11.6.x`                        |
-| **Database**          | Drizzle ORM, mysql2                      | `0.44.x`, `3.15.x`              |
-| **Validation**        | Zod                                      | `4.1.x`                         |
+| **Frontend**          | React, React DOM, Vite                   | `19.3.x`, `7.3.x`               |
+| **Design System**     | Tailwind CSS, Radix UI, framer-motion    | `4.3.x`, Radix primitives, `12.43.x` |
+| **Routing + Data**    | wouter, TanStack Query, tRPC React Query | `3.7.1` (patched), `5.104.x`, `11.19.x` |
+| **Backend Runtime**   | Node.js, Express                         | Express `4.22.x`                |
+| **API Contract**      | tRPC server/client                       | `11.19.x`                       |
+| **Database**          | Drizzle ORM, mysql2                      | `0.45.x`, `3.24.x`              |
+| **Validation**        | Zod                                      | `4.6.x`                         |
 | **AI + Voice**        | Gemini 2.5 Flash, Whisper-compatible STT | Provider-gateway configured     |
-| **Testing + Quality** | Vitest, Prettier, TypeScript compiler    | `2.1.x`, `3.6.x`, `5.9.3`       |
+| **Testing + Quality** | Vitest, Prettier, TypeScript compiler    | `4.1.x`, `3.9.x`, `5.9.3`       |
 | **Packaging**         | Docker, Docker Compose                   | Repository-defined              |
-| **Package Manager**   | pnpm                                     | `10.15.1`                       |
+| **Package Manager**   | pnpm                                     | `10.x` (`packageManager` pins `10.4.1`) |
 
 ## Run Locally
 
@@ -213,6 +219,22 @@ The root README is the front door. The rest of the documentation exists for main
 | [`CONTRIBUTING.md`](CONTRIBUTING.md)                                               | Contribution and review expectations.                 |
 | [`docs/templates/SAAS_README_TEMPLATE.md`](docs/templates/SAAS_README_TEMPLATE.md) | Reusable portfolio README standard.                   |
 
+## Security
+
+### Anonymous upload privacy
+
+Uploads return an opaque `accessToken` alongside `videoId`. The browser keeps it only in memory and supplies
+it for video reads, analysis, result reads, and chat. IDs alone grant no access. Tokens are HMAC-SHA256
+capabilities bound to the video ID and storage key using the server-only `JWT_SECRET` (at least 32
+characters); rotating that secret revokes existing capabilities. Configure a randomly generated secret, never
+the example Compose value. No database migration is needed. Existing uploads without a capability must be
+uploaded again; the service does not expose a public token-recovery endpoint. Media URLs remain bearer links
+governed by the storage provider; this change protects API enumeration, not previously disclosed storage URLs.
+
+### Dependency and code-scanning status
+
+As of 2026-10-21 the repository has 0 open Dependabot alerts, 0 open code-scanning alerts, and 0 open secret-scanning alerts. CodeQL and dependency review (`code-quality.yml`), Trivy image scanning (`docker.yml`), and a `pnpm audit` step (`ci.yml`) run on pull requests through the workflows in `.github/workflows/`. The repository does not yet publish a `SECURITY.md`, and GitHub private vulnerability reporting was not enabled as of 2026-10-21.
+
 ## License
 
 Ellie AI is released under the [MIT License](LICENSE).
@@ -228,12 +250,7 @@ Ellie AI is released under the [MIT License](LICENSE).
 [7]: https://vitest.dev/ "Vitest"
 [8]: https://prettier.io/ "Prettier"
 
-## Anonymous upload privacy
-
-Uploads return an opaque `accessToken` alongside `videoId`. The browser keeps it only in memory and supplies
-it for video reads, analysis, result reads, and chat. IDs alone grant no access. Tokens are HMAC-SHA256
-capabilities bound to the video ID and storage key using the server-only `JWT_SECRET` (at least 32
-characters); rotating that secret revokes existing capabilities. Configure a randomly generated secret, never
-the example Compose value. No database migration is needed. Existing uploads without a capability must be
-uploaded again; the service does not expose a public token-recovery endpoint. Media URLs remain bearer links
-governed by the storage provider; this change protects API enumeration, not previously disclosed storage URLs.
+[^1]: Google, "Gemini 2.5: Updates to our family of thinking models", https://blog.google/products/gemini/gemini-2-5-model-family-expands/, published 2025-06-17.
+[^2]: tRPC, "Announcing tRPC v11", https://trpc.io/blog/announcing-trpc-v11, published 2025-03-21.
+[^3]: React, "React 19.2", https://react.dev/blog/2025/10/01/react-19-2, published 2025-10-01.
+[^4]: Vite, "Vite 7.0 is out!", https://vite.dev/blog/announcing-vite7, published 2025-06-24.
