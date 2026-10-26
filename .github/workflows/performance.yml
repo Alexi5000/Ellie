@@ -126,13 +126,11 @@ jobs:
         OPENAI_API_KEY: test_key
         GROQ_API_KEY: test_key
 
+    # The dl.k6.io apt repository is now signed by a key that is not in the
+    # published k6 keyring (NO_PUBKEY C780D0BDB1A69C86 on the Ubuntu 26.04
+    # runner), so install the release binary with Grafana's official action.
     - name: Install k6
-      run: |
-        sudo gpg -k
-        sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
-        echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
-        sudo apt-get update
-        sudo apt-get install k6
+      uses: grafana/setup-k6-action@43b9fc21641a76002687994433dd586f56e791b1 # v1.2.2
 
     - name: Run load tests
       run: |
